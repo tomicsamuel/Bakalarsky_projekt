@@ -1,26 +1,496 @@
-@import "tailwindcss";
+/* 
+  ═══════════════════════════════════════════════════════════════════
+  FEI Finder - Globálne štýly
+  ═══════════════════════════════════════════════════════════════════
+  
+  Tento súbor obsahuje všetky štýly pre aplikáciu FEI Finder.
+  Používame CSS premenné (--nazov) pre jednoduchú správu farieb.
+*/
+
+/* ─────────────────────────────────────────────────────────────────
+   1. RESET A ZÁKLADNÉ NASTAVENIA
+   ───────────────────────────────────────────────────────────────── */
+
+* {
+  /* Resetovanie okrajov a vnútorných medzier pre všetky elementy */
+  margin: 0;
+  padding: 0;
+  /* box-sizing: border-box zabezpečí, že padding a border sa počítajú do celkovej šírky/výšky */
+  box-sizing: border-box;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   2. FAREBNÁ PALETA (CSS premenné)
+   ───────────────────────────────────────────────────────────────── */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Farby pozadia (gradient) */
+  --gradient-start: #FFC44A;    /* Svetlo žltá */
+  --gradient-mid: #FF8A2A;      /* Oranžová */
+  --gradient-end: #E55B00;      /* Tmavo oranžová */
+  
+  /* Textové farby */
+  --text-primary: #0B0F14;      /* Tmavá (hlavný text) */
+  --text-secondary: #323843;    /* Šedá (sekundárny text) */
+  
+  /* Farby pre karty a inputy */
+  --card-bg: #FFF4E7;           /* Svetlo béžová (pozadie kariet) */
+  --card-border: rgba(0, 0, 0, 0.10);  /* Jemný tmavý okraj */
+  --card-shadow: rgba(11, 15, 20, 0.10); /* Jemný tieň */
+  
+  /* Farby pre chips (tagy) */
+  --chip-inactive-bg: #FFF8EF;  /* Svetlá (neaktívny chip) */
+  --chip-inactive-border: rgba(0, 0, 0, 0.10);
+  --chip-active-bg: #FFD65C;    /* Žltá (aktívny chip) */
+  
+  /* Farby pre CTA tlačidlo (Call To Action) */
+  --cta-bg: #0B0F14;            /* Tmavá */
+  --cta-text: #FFE8C7;          /* Svetlo krémová */
+  
+  /* Farby pre progress bar */
+  --progress-track: #EEE5DA;    /* Svetlá (pozadie) */
+  --progress-fill: #FF9A2A;     /* Oranžová (výplň) */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ─────────────────────────────────────────────────────────────────
+   3. ZÁKLADNÉ ELEMENTY (body, html)
+   ───────────────────────────────────────────────────────────────── */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* Zabezpečíme, že stránka má minimálne 100% výšky obrazovky */
+  min-height: 100vh;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Systémové fonty pre rýchle načítanie a dobrú čitateľnosť */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  
+  /* Gradient pozadie celej stránky */
+  background: linear-gradient(160deg, var(--gradient-start) 0%, var(--gradient-mid) 50%, var(--gradient-end) 100%);
+  
+  /* Primárna farba textu */
+  color: var(--text-primary);
+  
+  /* Vylepšenie vykresľovania textu */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Minimálna výška pre zabezpečenie, že gradient pokrýva celú obrazovku */
+  min-height: 100vh;
+  
+  /* Zabránenie horizontálnemu scrollovaniu */
+  overflow-x: hidden;
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   4. HLAVNÝ KONTAJNER STRÁNKY
+   ───────────────────────────────────────────────────────────────── */
+
+.page-container {
+  /* Vnútorné medzery okolo celého obsahu */
+  padding: 20px;
+  
+  /* Maximálna šírka pre veľké obrazovky */
+  max-width: 1400px;
+  
+  /* Centrujeme kontajner */
+  margin: 0 auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   5. HLAVIČKA (HEADER) S NADPISOM A STEPPEROM
+   ───────────────────────────────────────────────────────────────── */
+
+.header {
+  /* Medzera pod hlavičkou */
+  margin-bottom: 32px;
+}
+
+.brand {
+  /* Logo/značka aplikácie */
+  background: var(--text-primary);
+  color: var(--cta-text);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 18px;
+  display: inline-block;
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+}
+
+.header-top {
+  /* Flexbox pre rozloženie nadpisu a prihlášky */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-title-section {
+  /* Časť s nadpisom */
+  flex: 1;
+  min-width: 280px;
+}
+
+.header-title {
+  /* Hlavný nadpis */
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+/* Zvýraznenie časti nadpisu */
+.header-title .highlight {
+  background: var(--card-bg);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.deadline-badge {
+  /* Odznáčik s termínom prihlášok */
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  text-align: center;
+  padding: 16px;
+}
+
+.deadline-badge-label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.deadline-badge-date {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.stepper {
+  /* Kontajner pre kroky (1-2-3-4) */
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.step {
+  /* Jednotlivý krok (kruh s číslom) */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   6. ROZLOŽENIE OBSAHU (dvojstĺpcové na desktopu)
+   ───────────────────────────────────────────────────────────────── */
+
+.content {
+  /* Grid rozloženie: mobile 1 stĺpec, desktop 2 stĺpce */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* Pre obrazovky širšie ako 960px vytvoríme 2 stĺpce */
+@media (min-width: 960px) {
+  .content {
+    /* Ľavý stĺpec (formulár) je o niečo užší ako pravý (výsledky) */
+    grid-template-columns: 45fr 55fr;
+    gap: 32px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   7. KARTY (všeobecné štýly pre formulár aj výsledky)
+   ───────────────────────────────────────────────────────────────── */
+
+.card {
+  /* Svetlé pozadie s jemným okrajom a tieňom */
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: 0 12px 30px var(--card-shadow);
+}
+
+.card-title {
+  /* Nadpis karty */
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   8. FORMULÁROVÉ POLIA (input, select)
+   ───────────────────────────────────────────────────────────────── */
+
+.form-group {
+  /* Skupina: label + input/select */
+  margin-bottom: 24px;
+}
+
+.form-label {
+  /* Popisok poľa */
+  display: block;
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.form-input,
+.form-select {
+  /* Spoločné štýly pre textové pole aj select */
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  font-size: 16px;
+  background: white;
+  color: var(--text-primary);
+  font-family: inherit;
+  
+  /* Prechod pri zmene (napr. focus) */
+  transition: all 0.2s ease;
+}
+
+/* Zvýraznenie pri zameraní (focus) */
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--chip-active-bg);
+  box-shadow: 0 0 0 3px rgba(255, 214, 92, 0.2);
+}
+
+/* Placeholder text (nápoveda v prázdnom poli) */
+.form-input::placeholder {
+  color: rgba(50, 56, 67, 0.5);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   9. CHIPS (štítky pre záujmy a prax - multiselect)
+   ───────────────────────────────────────────────────────────────── */
+
+.chips-container {
+  /* Kontajner pre všetky chipy - flexbox s obalením */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  /* Jednotlivý chip (tlačidlo) */
+  padding: 10px 20px;
+  border-radius: 24px;
+  border: 1px solid var(--chip-inactive-border);
+  background: var(--chip-inactive-bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  
+  /* Prechod pri zmene stavu */
+  transition: all 0.2s ease;
+  
+  /* Minimálna výška pre ľahšie klikanie (prístupnosť) */
+  min-height: 36px;
+  
+  /* Tlačidlo má predvolený typ button (nie submit) */
+  font-family: inherit;
+}
+
+/* Hover efekt (pri nastavení myši) */
+.chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Aktívny chip (používateľ ho vybral) */
+.chip.active {
+  background: var(--chip-active-bg);
+  border-color: var(--chip-active-bg);
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   10. CTA TLAČIDLO (Call To Action - hlavné akčné tlačidlo)
+   ───────────────────────────────────────────────────────────────── */
+
+.cta-button {
+  /* Výrazné tmavé tlačidlo */
+  width: 100%;
+  padding: 16px 32px;
+  background: var(--cta-bg);
+  color: var(--cta-text);
+  border: none;
+  border-radius: 28px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  
+  /* Prechod pri interakcii */
+  transition: all 0.3s ease;
+  
+  /* Minimálna výška pre prístupnosť */
+  min-height: 56px;
+  
+  margin-top: 12px;
+  font-family: inherit;
+}
+
+/* Hover efekt */
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(11, 15, 20, 0.3);
+}
+
+/* Aktívny stav (pri kliknutí) */
+.cta-button:active {
+  transform: translateY(0);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   11. VÝSLEDKOVÁ KARTA (výpis odborov s percentami)
+   ───────────────────────────────────────────────────────────────── */
+
+.results-list {
+  /* Zoznam výsledkov */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.result-item {
+  /* Jeden výsledok (odbor) */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-header {
+  /* Hlavička výsledku: názov + percento */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.result-info {
+  /* Informácie o odbore */
+  flex: 1;
+}
+
+.result-name {
+  /* Názov študijného programu */
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.result-field {
+  /* Študijný odbor (menší text pod názvom) */
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.result-percentage {
+  /* Veľké číslo s percentom */
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   12. PROGRESS BAR (ukazovateľ zhody v percentách)
+   ───────────────────────────────────────────────────────────────── */
+
+.progress-bar {
+  /* Pozadie (track) progress baru */
+  width: 100%;
+  height: 12px;
+  background: var(--progress-track);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  /* Výplň progress baru (animovaná) */
+  height: 100%;
+  background: var(--progress-fill);
+  border-radius: 6px;
+  
+  /* Prechod pri zmene šírky */
+  transition: width 0.6s ease-out;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   13. RESPONZÍVNE ÚPRAVY (mobilné zariadenia)
+   ───────────────────────────────────────────────────────────────── */
+
+/* Pre veľmi malé obrazovky */
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 32px;
+  }
+  
+  .card {
+    padding: 24px 20px;
+  }
+  
+  .deadline-badge {
+    width: 110px;
+    height: 110px;
+    font-size: 12px;
+  }
+  
+  .deadline-badge-date {
+    font-size: 16px;
+  }
+}
+
+/* Pre stredné obrazovky (tablety) */
+@media (min-width: 600px) and (max-width: 959px) {
+  .header-title {
+    font-size: 48px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   14. PRÁZDNY STAV (keď ešte nie sú výsledky)
+   ───────────────────────────────────────────────────────────────── */
+
+.empty-state {
+  /* Zobrazenie, keď používateľ ešte nevyplnil formulár */
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state-text {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
