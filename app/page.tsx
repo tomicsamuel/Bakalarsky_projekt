@@ -325,7 +325,7 @@ export default function Home() {
               type="text"
               id="name"
               className="form-input"
-              placeholder="Martin"
+              placeholder="Samuel"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
