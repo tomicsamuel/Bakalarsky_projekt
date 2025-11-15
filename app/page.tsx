@@ -1,20 +1,11 @@
 'use client'
 
-/* 
-  ═══════════════════════════════════════════════════════════════════
-  FEI Finder - Hlavná stránka
-  ═══════════════════════════════════════════════════════════════════
-  
-  Táto stránka pomáha študentom vybrať si správny odbor na FEI.
-  Používateľ vyplní formulár a dostane zoznam najvhodnejších odborov.
-*/
+
 
 // Importujeme useState z Reactu pre správu stavu (dát) v komponente
 import { useState } from 'react'
 
-/* ─────────────────────────────────────────────────────────────────
-   TYPY A INTERFACE (definície dátových štruktúr)
-   ───────────────────────────────────────────────────────────────── */
+
 
 // Typ pre študijný program - popisuje jeden odbor na FEI
 type StudijnyProgram = {
