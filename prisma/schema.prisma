@@ -1,0 +1,49 @@
+// Prisma schéma pre FEI Finder
+// Definuje štruktúru databázy (tabuľky a stĺpce)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Model pre študijný program
+// Ukladá všetky programy FEI
+model Program {
+  id        Int      @id @default(autoincrement())
+  name      String
+  field     String
+  createdAt DateTime @default(now())
+  
+  results   Result[]
+}
+
+// Model pre používateľa/študenta
+// Ukladá základné info o tom, kto vyplnil formulár
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  school     String
+  interests  String[]
+  experience String[]
+  createdAt  DateTime @default(now())
+  
+  results    Result[]
+}
+
+// Model pre výsledok odporúčania
+// Ukladá, aké programy boli odporúčané a s akým skóre
+model Result {
+  id        Int      @id @default(autoincrement())
+  score     Int
+  createdAt DateTime @default(now())
+  
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  programId Int
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+}

@@ -247,6 +247,8 @@ export default function Home() {
   const [interests, setInterests] = useState<string[]>([]);
   const [experience, setExperience] = useState<string[]>([]);
   const [results, setResults] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(false);  // či sa práve ukladá do DB
+  const [saved, setSaved] = useState(false);       // či bolo úspešne uložené
 
   // Možnosti pre záujmy
   const interestOptions = [
@@ -281,9 +283,54 @@ export default function Home() {
   };
 
   // Funkcia pri kliknutí na "Zobraziť výsledky"
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // 1) Vypočítame skóre pre všetky programy
     const scored = calculateScores(school, interests, experience);
     setResults(scored);
+    setSaved(false);
+
+    // 2) Ak je vyplnené meno, uložíme výsledky do databázy
+    if (name.trim()) {
+      try {
+        setLoading(true);
+
+        // Pripravíme dáta pre API
+        const requestData = {
+          name: name.trim(),
+          school,
+          interests,
+          experience,
+          results: scored.map(p => ({
+            programName: p.name,
+            programField: p.field,
+            score: p.score,
+          })),
+        };
+
+        // Zavoláme API endpoint
+        const response = await fetch('/api/save-results', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setSaved(true);
+          console.log('Výsledky boli uložené do databázy!', data);
+        } else {
+          console.error('Nepodarilo sa uložiť výsledky:', data.error);
+        }
+
+      } catch (error) {
+        console.error('Chyba pri volaní API:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -387,9 +434,25 @@ export default function Home() {
             type="button"
             className="cta-button"
             onClick={handleSubmit}
+            disabled={loading}
           >
-            Zobraziť výsledky
+            {loading ? 'Ukladám...' : 'Zobraziť výsledky'}
           </button>
+
+          {/* Feedback správa po uložení */}
+          {saved && (
+            <div style={{ 
+              marginTop: '12px', 
+              padding: '12px', 
+              background: '#4ade80', 
+              color: '#0B0F14', 
+              borderRadius: '12px',
+              textAlign: 'center',
+              fontWeight: 600
+            }}>
+              Výsledky boli úspešne uložené
+            </div>
+          )}
         </div>
 
         {/* PRAVÁ KARTA: Výsledky */}
