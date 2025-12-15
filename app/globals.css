@@ -54,14 +54,15 @@ body {
                                       var(--gradient-end) 100%);
   min-height: 100vh;
   color: var(--text-primary);
-  padding: 20px;
+  padding: 12px;
   line-height: 1.5;
 }
 
 /* Hlavný wrapper – centruje obsah */
 .page-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
+  padding: 0;
 }
 
 /* Header – nadpis a stepper */
@@ -71,19 +72,55 @@ body {
 }
 
 .page-title {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   color: var(--text-primary);
 }
 
-/* Stepper – 4 kroky (1, 2, 3, 4) */
+@media (min-width: 481px) {
+  .page-title {
+    font-size: 28px;
+    margin-bottom: 14px;
+  }
+}
+
+@media (min-width: 769px) {
+  .page-title {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .page-title {
+    font-size: 40px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Stepper – 6 krokov */
 .stepper {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 16px;
+  align-items: center;
+  gap: 4px;
+  margin-top: 20px;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-x: auto;
+  padding: 0 10px;
+}
+
+.stepper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .stepper-dot {
@@ -96,8 +133,157 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-primary);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.stepper-dot.active {
+  background: var(--chip-active);
+  border-color: var(--chip-active);
+  color: var(--text-primary);
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(255, 214, 92, 0.3);
+}
+
+.stepper-dot.current {
+  background: var(--gradient-mid);
+  border-color: var(--gradient-mid);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(229, 91, 0, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.stepper-line {
+  width: 24px;
+  height: 2px;
+  background: var(--card-border);
+  transition: all 0.3s ease;
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.stepper-line.active {
+  background: var(--chip-active);
+  height: 2px;
+  box-shadow: 0 0 6px rgba(255, 214, 92, 0.4);
+}
+
+.stepper-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.stepper-item:has(.stepper-dot.current) .stepper-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 6px 16px rgba(229, 91, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(229, 91, 0, 0.6);
+  }
+}
+
+/* Responzívne úpravy pre stepper */
+@media (max-width: 480px) {
+  .stepper {
+    gap: 2px;
+    margin-top: 12px;
+    padding: 0 5px;
+  }
+  
+  .stepper-line {
+    width: 14px;
+    margin: 0 1px;
+  }
+  
+  .stepper-dot {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  
+  .stepper-label {
+    font-size: 9px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .stepper {
+    gap: 3px;
+    margin-top: 16px;
+    padding: 0 8px;
+  }
+  
+  .stepper-line {
+    width: 18px;
+    margin: 0 1px;
+  }
+  
+  .stepper-dot {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+  
+  .stepper-label {
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 769px) {
+  .stepper {
+    gap: 4px;
+    margin-top: 20px;
+    padding: 0 10px;
+  }
+  
+  .stepper-line {
+    width: 24px;
+    margin: 0 2px;
+  }
+  
+  .stepper-dot {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .stepper-label {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .stepper {
+    gap: 5px;
+    margin-top: 24px;
+  }
+  
+  .stepper-line {
+    width: 32px;
+  }
+  
+  .stepper-dot {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+  
+  .stepper-label {
+    font-size: 12px;
+  }
 }
 
 /* Layout – na mobile stack, na desktop 2 stĺpce */
@@ -108,11 +294,27 @@ body {
 }
 
 /* Desktop: dva stĺpce vedľa seba */
-@media (min-width: 960px) {
+@media (min-width: 769px) {
   .content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    gap: 24px;
+  }
+  
+  .page-container {
+    max-width: 1200px;
+    padding: 0 20px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .content-grid {
+    gap: 40px;
+  }
+  
+  .page-container {
+    max-width: 1400px;
+    padding: 0 40px;
   }
 }
 
@@ -122,14 +324,47 @@ body {
   border: 1px solid var(--card-border);
   border-radius: var(--radius-card);
   box-shadow: var(--card-shadow);
-  padding: 28px;
+  padding: 16px;
 }
 
 .card-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   color: var(--text-primary);
+}
+
+@media (min-width: 481px) {
+  .card {
+    padding: 20px;
+  }
+  
+  .card-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (min-width: 769px) {
+  .card {
+    padding: 28px;
+  }
+  
+  .card-title {
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .card {
+    padding: 36px;
+  }
+  
+  .card-title {
+    font-size: 24px;
+    margin-bottom: 28px;
+  }
 }
 
 /* Formulárové polia */
@@ -147,8 +382,8 @@ body {
 .form-input,
 .form-select {
   width: 100%;
-  padding: 12px 16px;
-  font-size: 16px;
+  padding: 10px 14px;
+  font-size: 15px;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-input);
   background: white;
@@ -157,10 +392,72 @@ body {
   transition: border-color 0.2s;
 }
 
+@media (min-width: 481px) {
+  .form-input,
+  .form-select {
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .form-input,
+  .form-select {
+    padding: 14px 18px;
+    font-size: 17px;
+  }
+}
+
 .form-input:focus,
 .form-select:focus {
   outline: none;
   border-color: var(--gradient-mid);
+}
+
+.form-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.form-input-error,
+.form-select.form-input-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.form-input-error:focus,
+.form-select.form-input-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.error-message::before {
+  content: '⚠';
+  font-size: 16px;
+}
+
+.error-hint {
+  color: #ef4444;
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.auth-form {
+  width: 100%;
+}
+
+.auth-form .form-group {
+  margin-bottom: 20px;
 }
 
 /* Chips – multi-select tlačidlá */
@@ -170,18 +467,83 @@ body {
   gap: 10px;
 }
 
+/* Kategórie s expandovateľnými sekciami */
+.categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.category-group {
+  background: white;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-input);
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.category-group:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.category-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--chip-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-input);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.category-header:hover {
+  background: var(--chip-active);
+  border-color: var(--chip-active);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.category-count {
+  color: var(--gradient-mid);
+  font-weight: 700;
+  margin-left: 4px;
+}
+
 .chip {
-  padding: 10px 18px;
+  padding: 8px 14px;
   border-radius: var(--radius-chip);
   border: 2px solid var(--card-border);
   background: var(--chip-bg);
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  min-height: 40px; /* Prístupnosť – min 40px */
+  min-height: 36px;
   font-family: inherit;
+}
+
+@media (min-width: 481px) {
+  .chip {
+    padding: 10px 18px;
+    font-size: 15px;
+    min-height: 40px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .chip {
+    padding: 12px 20px;
+    font-size: 16px;
+    min-height: 44px;
+  }
 }
 
 .chip:hover {
@@ -225,6 +587,110 @@ body {
   transform: translateY(0);
 }
 
+.cta-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cta-button:disabled:hover {
+  transform: none;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 232, 199, 0.3);
+  border-top-color: var(--cta-text);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animácie pri prechode medzi krokmi */
+.step-content {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.step-content.step-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Empty states */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--card-bg);
+  border: 2px dashed var(--card-border);
+  border-radius: var(--radius-card);
+  margin-top: 16px;
+}
+
+.empty-state-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.empty-state-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Empty state hint - zobrazuje sa nad kategóriami */
+.empty-state-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fff8e7;
+  border: 1px solid var(--chip-active);
+  border-radius: var(--radius-input);
+  margin-bottom: 20px;
+}
+
+.empty-state-hint .empty-state-icon {
+  font-size: 32px;
+  margin-bottom: 0;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.empty-state-hint .empty-state-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0;
+  max-width: none;
+  text-align: left;
+}
+
+.empty-state-hint .empty-state-text strong {
+  color: var(--gradient-mid);
+  font-weight: 600;
+}
+
 /* Výsledková karta */
 .results-list {
   display: flex;
@@ -248,6 +714,11 @@ body {
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
+  transition: color 0.2s;
+}
+
+.result-title:hover {
+  color: var(--gradient-mid);
 }
 
 .result-subtitle {
@@ -299,40 +770,825 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Logout button */
+.logout-button {
+  position: absolute;
+  top: 12px;
+  right: 100px;
+  padding: 8px 16px;
+  background: white;
+  color: var(--text-primary);
+  border: 2px solid var(--card-border);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.logout-button:hover {
+  background: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 481px) {
+  .logout-button {
+    top: 16px;
+    right: 150px;
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 769px) {
+  .logout-button {
+    top: 20px;
+    right: 200px;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .logout-button {
+    top: 24px;
+    right: 240px;
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+}
+
+/* Toast notifikácia */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4ade80;
+  color: var(--text-primary);
+  padding: 16px 24px;
+  border-radius: var(--radius-input);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  animation: toastSlideUp 0.3s ease-out, toastFadeOut 0.3s ease-in 2.7s;
+  animation-fill-mode: forwards;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.toast-icon {
+  font-size: 24px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+}
+
+@keyframes toastSlideUp {
+  from {
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+/* Landing page responzívne úpravy */
+@media (max-width: 480px) {
+  .landing-title {
+    font-size: 28px;
+  }
+  
+  .landing-content {
+    padding: 24px 16px;
+  }
+  
+  .landing-description {
+    font-size: 16px;
+  }
+  
+  .landing-features {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .auth-options {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .email-input {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+  
+  .cta-button-large {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 18px;
+  }
+  
+  .landing-stats {
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .stat-number {
+    font-size: 36px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .landing-title {
+    font-size: 36px;
+  }
+  
+  .landing-content {
+    padding: 40px 28px;
+  }
+  
+  .landing-description {
+    font-size: 18px;
+  }
+  
+  .auth-options {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .email-input {
+    width: 80%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .landing-content {
+    padding: 50px 40px;
+  }
+  
+  .auth-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1201px) {
+  .landing-container {
+    max-width: 1200px;
+  }
+  
+  .landing-content {
+    padding: 70px 60px;
+  }
+  
+  .landing-title {
+    font-size: 56px;
+  }
+  
+  .landing-description {
+    font-size: 22px;
+  }
+  
+  .auth-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  
+  .auth-option-card {
+    padding: 40px 32px;
+  }
+}
+
 /* Deadline badge v pravom hornom rohu */
 .deadline-badge {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 12px;
+  right: 12px;
   background: rgba(255, 255, 255, 0.25);
   border: 2px solid rgba(0, 0, 0, 0.08);
-  padding: 16px 24px;
+  padding: 10px 14px;
   border-radius: 50%;
   text-align: center;
   font-weight: 700;
   line-height: 1.2;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .deadline-badge div:first-child {
-  font-size: 14px;
+  font-size: 10px;
 }
 
 .deadline-badge div:last-child {
-  font-size: 20px;
+  font-size: 14px;
 }
 
-/* Responzívne úpravy pre menšie mobily */
+@media (min-width: 481px) {
+  .deadline-badge {
+    top: 16px;
+    right: 16px;
+    width: 75px;
+    height: 75px;
+    padding: 12px 16px;
+  }
+  
+  .deadline-badge div:first-child {
+    font-size: 11px;
+  }
+  
+  .deadline-badge div:last-child {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 769px) {
+  .deadline-badge {
+    top: 16px;
+    right: 16px;
+    width: 80px;
+    height: 80px;
+    padding: 12px 18px;
+  }
+  
+  .deadline-badge div:first-child {
+    font-size: 11px;
+  }
+  
+  .deadline-badge div:last-child {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .deadline-badge {
+    top: 20px;
+    right: 20px;
+    width: 85px;
+    height: 85px;
+    padding: 14px 20px;
+  }
+  
+  .deadline-badge div:first-child {
+    font-size: 12px;
+  }
+  
+  .deadline-badge div:last-child {
+    font-size: 17px;
+  }
+}
+
+/* Summary view */
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary-item {
+  padding: 16px;
+  background: white;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--card-border);
+}
+
+.summary-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Step navigation buttons */
+.step-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.step-button {
+  flex: 1;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  border: none;
+}
+
+.step-button-back {
+  background: white;
+  color: var(--text-primary);
+  border: 2px solid var(--card-border);
+}
+
+.step-button-back:hover {
+  background: #f5f5f5;
+}
+
+.step-button-next {
+  background: var(--cta-bg);
+  color: var(--cta-text);
+}
+
+.step-button-next:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 15, 20, 0.2);
+}
+
+.step-button-next:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responzívne úpravy pre malé mobilné zariadenia (do 480px) */
 @media (max-width: 480px) {
-  .page-title {
-    font-size: 26px;
+body {
+    padding: 12px;
+  }
+  
+  .page-header {
+    margin-bottom: 20px;
+  }
+  
+  .step-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .step-button {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  
+  .category-header {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .category-group {
+    padding: 12px;
+  }
+  
+  .chips-container {
+    gap: 8px;
+  }
+  
+  .toast {
+    min-width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+    padding: 12px 16px;
+    bottom: 20px;
+  }
+  
+  .deadline-badge {
+    position: static;
+    margin: 0 auto 16px;
+    width: fit-content;
+    border-radius: 12px;
+  }
+  
+  .logout-button {
+    position: static;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+}
+
+/* Väčšie smartfóny a menšie tablety (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  body {
+    padding: 16px;
+  }
+  
+  .page-container {
+    max-width: 100%;
+  }
+  
+  .step-buttons {
+    gap: 12px;
+  }
+  
+  .category-header {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  
+  .toast {
+    min-width: 350px;
+    max-width: 450px;
+  }
+  
+  .deadline-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  
+  .logout-button {
+    position: absolute;
+    top: 16px;
+    right: 200px;
+  }
+}
+
+/* Notebooky a menšie desktopy (769px - 1200px) */
+@media (min-width: 769px) and (max-width: 1200px) {
+  body {
+    padding: 16px;
+  }
+  
+  .page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  
+  .content-grid {
+    gap: 24px;
+  }
+  
+  .step-buttons {
+    gap: 14px;
+  }
+  
+  .step-button {
+    padding: 12px 24px;
+    font-size: 15px;
   }
   
   .card {
-    padding: 20px;
+    padding: 24px;
+  }
+  
+  .card-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .page-title {
+    font-size: 28px;
+  }
+}
+
+/* Veľké obrazovky a monitory (1201px+) */
+@media (min-width: 1201px) {
+  body {
+    padding: 24px;
+  }
+  
+  .page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  
+  .content-grid {
+    gap: 48px;
+  }
+  
+  .card {
+    padding: 40px;
+  }
+  
+  .step-buttons {
+    gap: 20px;
+  }
+  
+  .step-button {
+    padding: 16px 32px;
+    font-size: 17px;
+  }
+  
+  .category-header {
+    padding: 14px 20px;
+    font-size: 17px;
   }
   
   .chip {
-    font-size: 14px;
-    padding: 8px 14px;
+    padding: 12px 22px;
+    font-size: 16px;
+  }
+}
+
+/* Auth options */
+.auth-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.auth-option-card {
+  padding: 32px 24px;
+  background: white;
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  font-family: inherit;
+}
+
+.auth-option-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(11, 15, 20, 0.15);
+  border-color: var(--gradient-mid);
+}
+
+.auth-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.auth-option-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.auth-option-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 400px;
+  margin: 0 auto 48px;
+}
+
+.auth-link-button {
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: var(--radius-input);
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+.auth-link-primary {
+  background: var(--cta-bg);
+  color: var(--cta-text);
+}
+
+.auth-link-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 15, 20, 0.2);
+}
+
+.auth-link-secondary {
+  background: white;
+  color: var(--text-primary);
+  border: 2px solid var(--card-border);
+}
+
+.auth-link-secondary:hover {
+  background: #f5f5f5;
+}
+
+.auth-back-link {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+  font-family: inherit;
+}
+
+.auth-back-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+/* Landing page štýly */
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-container {
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+}
+
+.landing-content {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: 60px 40px;
+  margin: 32px 0;
+}
+
+.landing-title {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+}
+
+.landing-description {
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 48px;
+}
+
+.landing-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.feature-card {
+  padding: 24px;
+  background: white;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--card-border);
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.feature-card p {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.email-form {
+  max-width: 600px;
+  margin: 0 auto 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.email-input {
+  width: 70%;
+  padding: 18px 28px;
+  font-size: 18px;
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-input);
+  background: white;
+  color: var(--text-primary);
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.email-input:focus {
+  outline: none;
+  border-color: var(--gradient-mid);
+}
+
+.email-input-error {
+  border-color: #ef4444;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 14px;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.cta-button-large {
+  display: inline-block;
+  padding: 20px 48px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--cta-text);
+  background: var(--cta-bg);
+  border: none;
+  border-radius: var(--radius-cta);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.cta-button-large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(11, 15, 20, 0.25);
+}
+
+.cta-button-large:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.landing-stats {
+  display: flex;
+  justify-content: center;
+  gap: 64px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.landing-footer {
+  margin-top: 32px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.landing-footer p {
+  margin: 4px 0;
+}
+
+@media (max-width: 768px) {
+  .landing-title {
+    font-size: 36px;
+  }
+  
+  .landing-content {
+    padding: 40px 24px;
+  }
+  
+  .landing-description {
+    font-size: 18px;
+  }
+  
+  .landing-features {
+    grid-template-columns: 1fr;
+  }
+  
+  .cta-button-large {
+    width: 100%;
+    padding: 18px 32px;
+  }
+  
+  .landing-stats {
+    gap: 32px;
   }
 }

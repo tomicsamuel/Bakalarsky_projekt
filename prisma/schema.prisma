@@ -23,13 +23,31 @@ model Program {
 
 // Model pre používateľa/študenta
 // Ukladá základné info o tom, kto vyplnil formulár
+model Account {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  
+  users     User[]
+}
+
 model User {
-  id         Int      @id @default(autoincrement())
-  name       String
-  school     String
-  interests  String[]
-  experience String[]
-  createdAt  DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  name            String
+  email           String
+  school          String
+  howDidYouHear   String[]
+  howDidYouHearOther String?
+  whyThisSchool   String[]
+  expectations    String[]
+  interests       String[]
+  experience      String[]
+  createdAt       DateTime @default(now())
+  
+  accountId  Int?
+  account    Account? @relation(fields: [accountId], references: [id])
   
   results    Result[]
 }

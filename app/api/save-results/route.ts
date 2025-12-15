@@ -7,9 +7,15 @@ import { prisma } from '@/lib/prisma';
 // Typ pre dáta, ktoré prídu z frontendu
 type SaveResultsRequest = {
   name: string;
+  email: string;
   school: string;
+  howDidYouHear?: string[];
+  howDidYouHearOther?: string | null;
+  whyThisSchool?: string[];
+  expectations?: string[];
   interests: string[];
   experience: string[];
+  accountId?: number | null;
   results: Array<{
     programName: string;
     programField: string;
@@ -27,9 +33,15 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         name: data.name,
+        email: data.email,
         school: data.school,
+        howDidYouHear: data.howDidYouHear || [],
+        howDidYouHearOther: data.howDidYouHearOther || null,
+        whyThisSchool: data.whyThisSchool || [],
+        expectations: data.expectations || [],
         interests: data.interests,
         experience: data.experience,
+        accountId: data.accountId || null,
       },
     });
 

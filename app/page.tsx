@@ -1,488 +1,202 @@
-'use client'; // Next.js direktíva – tento komponent beží na klientovi
+'use client';
 
-import { useState } from 'react';
-
-/* ========================================
-   DÁTA ŠTUDIJNÝCH PROGRAMOV
-   ======================================== */
-
-// Typ pre študijný program (aby TypeScript vedel, čo očakávať)
-type Program = {
-  name: string;        // názov programu napr. "Kyberbezpečnosť"
-  field: string;       // odbor napr. "Informatika" alebo "Elektrotechnika"
-  score: number;       // vypočítané skóre (začína 0)
-};
-
-// Všetky programy FEI – každý začína so skóre 0
-const PROGRAMS: Program[] = [
-  // Elektrotechnické programy
-  { name: 'Aplikovaná elektrotechnika', field: 'Elektrotechnika', score: 0 },
-  { name: 'Automobilová elektronika', field: 'Elektrotechnika', score: 0 },
-  { name: 'Elektroenergetika', field: 'Elektrotechnika', score: 0 },
-  { name: 'Fyzikálne inžinierstvo progresívnych materiálov', field: 'Elektrotechnika', score: 0 },
-  { name: 'Priemyselná elektrotechnika', field: 'Elektrotechnika', score: 0 },
-  
-  // Informatické programy
-  { name: 'Hospodárska informatika', field: 'Informatika', score: 0 },
-  { name: 'Informatika', field: 'Informatika', score: 0 },
-  { name: 'Inteligentné systémy', field: 'Informatika', score: 0 },
-  { name: 'Kyberbezpečnosť', field: 'Informatika', score: 0 },
-  { name: 'Počítačové modelovanie', field: 'Informatika', score: 0 },
-  { name: 'Počítačové siete', field: 'Informatika', score: 0 },
-  { name: 'Aplikovaná informatika', field: 'Informatika', score: 0 },
-];
-
-/* ========================================
-   POMOCNÝ KOMPONENT: CHIP
-   Klikateľné tlačidlo, ktoré sa dá zapnúť/vypnúť
-   ======================================== */
-
-type ChipProps = {
-  label: string;           // text na chipe
-  active: boolean;         // je zapnutý?
-  onClick: () => void;     // čo sa stane po kliknutí
-};
-
-function Chip({ label, active, onClick }: ChipProps) {
-  return (
-    <button
-      type="button"
-      className="chip"
-      aria-pressed={active}  // prístupnosť – screen reader vie, že je pressed
-      onClick={onClick}
-    >
-      {label}
-    </button>
-  );
-}
-
-/* ========================================
-   POMOCNÝ KOMPONENT: PROGRESS BAR
-   Ukazuje percentuálny postup farbou
-   ======================================== */
-
-type ProgressBarProps = {
-  percent: number;  // 0 až 100
-};
-
-function ProgressBar({ percent }: ProgressBarProps) {
-  return (
-    <div className="progress-bar">
-      <div 
-        className="progress-fill" 
-        style={{ width: `${percent}%` }}
-      />
-    </div>
-  );
-}
-
-/* ========================================
-   SCORING FUNKCIA
-   Vypočíta skóre pre každý program na základe
-   používateľských odpovedí
-   ======================================== */
-
-function calculateScores(
-  school: string,
-  interests: string[],
-  experience: string[]
-): Program[] {
-  // Skopírujeme programy, aby sme mohli počítať skóre
-  const programs = PROGRAMS.map(p => ({ ...p, score: 0 }));
-
-  // 1) ZÁUJMY – najdôležitejšia časť
-  interests.forEach(interest => {
-    switch (interest) {
-      // Programovanie a AI → informatické programy +3
-      case 'Programovanie':
-      case 'AI/ML':
-        programs.forEach(p => {
-          if (p.field === 'Informatika') p.score += 3;
-        });
-        break;
-      
-      // Siete → extra +4 pre Počítačové siete
-      case 'Siete':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové siete') p.score += 4;
-        });
-        break;
-      
-      // Kyberbezpečnosť → extra +4 pre Kyberbezpečnosť
-      case 'Kyberbezpečnosť':
-        programs.forEach(p => {
-          if (p.name === 'Kyberbezpečnosť') p.score += 4;
-        });
-        break;
-      
-      // Elektronika/Robotika → elektrotechnické +3
-      case 'Elektronika':
-      case 'Robotika':
-        programs.forEach(p => {
-          if (
-            p.name === 'Aplikovaná elektrotechnika' ||
-            p.name === 'Automobilová elektronika' ||
-            p.name === 'Priemyselná elektrotechnika'
-          ) {
-            p.score += 3;
-          }
-        });
-        break;
-      
-      // Fyzika → Fyzikálne inžinierstvo +3
-      case 'Fyzika':
-        programs.forEach(p => {
-          if (p.name === 'Fyzikálne inžinierstvo progresívnych materiálov') {
-            p.score += 3;
-          }
-        });
-        break;
-      
-      // PC → všetky informatické +1
-      case 'PC':
-        programs.forEach(p => {
-          if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      // Lietadlá → Automobilová elektronika +1
-      case 'Lietadlá':
-        programs.forEach(p => {
-          if (p.name === 'Automobilová elektronika') p.score += 1;
-        });
-        break;
-      
-      // Administratíva → Hospodárska informatika +1
-      case 'Administratíva':
-        programs.forEach(p => {
-          if (p.name === 'Hospodárska informatika') p.score += 1;
-        });
-        break;
-    }
-  });
-
-  // 2) STREDNÁ ŠKOLA – bonus podľa typu školy
-  switch (school) {
-    case 'SOŠ elektrotechnická':
-    case 'Priemyslovka':
-      // Elektrotechnická škola → elektro programy +2
-      programs.forEach(p => {
-        if (p.field === 'Elektrotechnika') p.score += 2;
-      });
-      break;
-    
-    case 'SOŠ informačných technológií':
-      // IT škola → info programy +2
-      programs.forEach(p => {
-        if (p.field === 'Informatika') p.score += 2;
-      });
-      break;
-    
-    case 'Gymnázium':
-      // Gymnázium → všetky programy +1 (všeobecný základ)
-      programs.forEach(p => {
-        p.score += 1;
-      });
-      break;
-  }
-
-  // 3) PRAX – skúsenosť z brigád
-  experience.forEach(exp => {
-    switch (exp) {
-      case 'IT support':
-        // IT support → Info, Kyber, Siete +2
-        programs.forEach(p => {
-          if (
-            p.name === 'Informatika' ||
-            p.name === 'Kyberbezpečnosť' ||
-            p.name === 'Počítačové siete'
-          ) {
-            p.score += 2;
-          }
-        });
-        break;
-      
-      case 'Servis elektroniky':
-      case 'Elektroinštalácie':
-        // Servis → elektro programy +2
-        programs.forEach(p => {
-          if (p.field === 'Elektrotechnika') p.score += 2;
-        });
-        break;
-      
-      case 'Administratíva':
-        // Admin → Hospodárska informatika +1
-        programs.forEach(p => {
-          if (p.name === 'Hospodárska informatika') p.score += 1;
-        });
-        break;
-      
-      // "Žiadny" neprináša žiadne body
-    }
-  });
-
-  // 4) NORMALIZÁCIA NA PERCENTÁ
-  // Nájdeme najvyššie skóre
-  const maxScore = Math.max(...programs.map(p => p.score), 1); // min 1, aby sme nedelili nulou
-  
-  // Prepočítame každé skóre na percentá 0–100
-  programs.forEach(p => {
-    p.score = Math.round((p.score / maxScore) * 100);
-  });
-
-  // 5) ZORADÍME ZOSTUPNE (najlepšie hore) a vrátíme TOP 5
-  return programs
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
-}
-
-/* ========================================
-   HLAVNÝ KOMPONENT: FEI FINDER
-   ======================================== */
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Home() {
-  // State (stav) – React si pamätá tieto hodnoty
-  const [name, setName] = useState('');
-  const [school, setSchool] = useState('');
-  const [interests, setInterests] = useState<string[]>([]);
-  const [experience, setExperience] = useState<string[]>([]);
-  const [results, setResults] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(false);  // či sa práve ukladá do DB
-  const [saved, setSaved] = useState(false);       // či bolo úspešne uložené
+  const [mode, setMode] = useState<'select' | 'guest' | 'auth'>('select');
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
+  const router = useRouter();
 
-  // Možnosti pre záujmy
-  const interestOptions = [
-    'PC', 'Programovanie', 'Siete', 'Elektronika', 'Fyzika',
-    'AI/ML', 'Kyberbezpečnosť', 'Robotika', 'Lietadlá', 'Administratíva'
-  ];
-
-  // Možnosti pre prax
-  const experienceOptions = [
-    'Žiadny', 'IT support', 'Servis elektroniky', 'Auto servis',
-    'Administratíva', 'Elektroinštalácie'
-  ];
-
-  // Funkcia na zapnutie/vypnutie chipu v záujmoch
-  const toggleInterest = (value: string) => {
-    if (interests.includes(value)) {
-      // Ak už je zapnutý → vypneme ho
-      setInterests(interests.filter(i => i !== value));
-    } else {
-      // Inak → pridáme ho
-      setInterests([...interests, value]);
-    }
-  };
-
-  // Funkcia na zapnutie/vypnutie chipu v praxi
-  const toggleExperience = (value: string) => {
-    if (experience.includes(value)) {
-      setExperience(experience.filter(e => e !== value));
-    } else {
-      setExperience([...experience, value]);
-    }
-  };
-
-  // Funkcia pri kliknutí na "Zobraziť výsledky"
-  const handleSubmit = async () => {
-    // 1) Vypočítame skóre pre všetky programy
-    const scored = calculateScores(school, interests, experience);
-    setResults(scored);
-    setSaved(false);
-
-    // 2) Ak je vyplnené meno, uložíme výsledky do databázy
-    if (name.trim()) {
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
       try {
-        setLoading(true);
-
-        // Pripravíme dáta pre API
-        const requestData = {
-          name: name.trim(),
-          school,
-          interests,
-          experience,
-          results: scored.map(p => ({
-            programName: p.name,
-            programField: p.field,
-            score: p.score,
-          })),
-        };
-
-        // Zavoláme API endpoint
-        const response = await fetch('/api/save-results', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestData),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          setSaved(true);
-          console.log('Výsledky boli uložené do databázy!', data);
-        } else {
-          console.error('Nepodarilo sa uložiť výsledky:', data.error);
-        }
-
-      } catch (error) {
-        console.error('Chyba pri volaní API:', error);
-      } finally {
-        setLoading(false);
+        const user = JSON.parse(userData);
+        setLoggedInUser(user);
+      } catch (e) {
+        localStorage.removeItem('user');
       }
     }
+  }, []);
+
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const handleStart = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim()) {
+      setError('Email je povinný');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('Zadaj platný email (napr. meno@email.sk)');
+      return;
+    }
+
+    router.push(`/finder?email=${encodeURIComponent(email)}`);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setLoggedInUser(null);
   };
 
   return (
-    <div className="page-container">
-      {/* Logo v ľavom hornom rohu */}
-      <div className="logo">FEI TUKE</div>
+    <div className="landing-page">
+      <div className="landing-container">
+        <div className="logo">FEI TUKE</div>
 
-      {/* Badge s termínom */}
-      <div className="deadline-badge">
-        <div>Prihlášky</div>
-        <div>do 30 6025</div>
-      </div>
-
-      {/* Header – nadpis a stepper */}
-      <header className="page-header">
-        <h1 className="page-title">
-          Zisti, aké odbory<br />sa ti hodia na fakultu
-        </h1>
-        <div className="stepper">
-          <div className="stepper-dot">1</div>
-          <div className="stepper-dot">2</div>
-          <div className="stepper-dot">3</div>
-          <div className="stepper-dot">4</div>
-        </div>
-      </header>
-
-      {/* Dva stĺpce: formulár + výsledky */}
-      <div className="content-grid">
-        {/* ĽAVÁ KARTA: Formulár */}
-        <div className="card">
-          <h2 className="card-title">Tvoje údaje</h2>
-
-          {/* Meno */}
-          <div className="form-group">
-            <label htmlFor="name" className="form-label">
-              Tvoje meno
-            </label>
-            <input
-              type="text"
-              id="name"
-              className="form-input"
-              placeholder="Samuel"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-
-          {/* Stredná škola */}
-          <div className="form-group">
-            <label htmlFor="school" className="form-label">
-              Na akej strednej škole si bol(a)
-            </label>
-            <select
-              id="school"
-              className="form-select"
-              value={school}
-              onChange={(e) => setSchool(e.target.value)}
-            >
-              <option value="">– Vyber školu –</option>
-              <option value="Gymnázium">Gymnázium</option>
-              <option value="SOŠ elektrotechnická">SOŠ elektrotechnická</option>
-              <option value="SOŠ informačných technológií">SOŠ informačných technológií</option>
-              <option value="Priemyslovka">Priemyslovka</option>
-            </select>
-          </div>
-
-          {/* Záujmy */}
-          <div className="form-group">
-            <div className="form-label">Aké sú tvoje záujmy</div>
-            <div className="chips-container">
-              {interestOptions.map(option => (
-                <Chip
-                  key={option}
-                  label={option}
-                  active={interests.includes(option)}
-                  onClick={() => toggleInterest(option)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Prax */}
-          <div className="form-group">
-            <div className="form-label">
-              V akom odbore si pracoval(a)/brigadoval(a)
-            </div>
-            <div className="chips-container">
-              {experienceOptions.map(option => (
-                <Chip
-                  key={option}
-                  label={option}
-                  active={experience.includes(option)}
-                  onClick={() => toggleExperience(option)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* CTA tlačidlo */}
-          <button
-            type="button"
-            className="cta-button"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? 'Ukladám...' : 'Zobraziť výsledky'}
+        {loggedInUser && (
+          <button onClick={handleLogout} className="logout-button">
+            Odhlásiť sa
           </button>
+        )}
 
-          {/* Feedback správa po uložení */}
-          {saved && (
-            <div style={{ 
-              marginTop: '12px', 
-              padding: '12px', 
-              background: '#4ade80', 
-              color: '#0B0F14', 
-              borderRadius: '12px',
-              textAlign: 'center',
-              fontWeight: 600
-            }}>
-              Výsledky boli úspešne uložené
-            </div>
-          )}
+        <div className="deadline-badge">
+          <div>Prihlášky</div>
+          <div>do 30 6025</div>
         </div>
 
-        {/* PRAVÁ KARTA: Výsledky */}
-        <div className="card">
-          <h2 className="card-title">
-            Odbory, ktoré sa k tebe najviac hodia
-          </h2>
+        <div className="landing-content">
+          <h1 className="landing-title">
+            {loggedInUser ? `Vitaj späť, ${loggedInUser.name}!` : 'Nevieš, ktorý odbor na FEI je pre teba?'}
+          </h1>
+          
+          <p className="landing-description">
+            {loggedInUser 
+              ? 'Pokračuj vo svojom teste alebo si pozri tvoje výsledky.'
+              : 'Pomôžeme ti vybrať študijný program, ktorý sedí tvojim záujmom a skúsenostiam. Odpovedz na pár otázok a zisti, kam patríš.'
+            }
+          </p>
 
-          {results.length === 0 ? (
-            // Prázdny stav – ešte neboli vygenerované výsledky
-            <div className="empty-state">
-              Vyber svoje údaje a klikni na „Zobraziť výsledky"
+          {!loggedInUser && (
+            <div className="landing-features">
+            <div className="feature-card">
+              <div className="feature-icon">⚡</div>
+              <h3>Rýchle</h3>
+              <p>Otázky vyplníš za 2 minúty</p>
             </div>
-          ) : (
-            // Zobrazíme TOP 5 programov
-            <div className="results-list">
-              {results.map((program, index) => (
-                <div key={index} className="result-item">
-                  <div className="result-header">
-                    <div>
-                      <div className="result-title">{program.name}</div>
-                      <div className="result-subtitle">{program.field}</div>
-                    </div>
-                    <div className="result-percent">{program.score} %</div>
-                  </div>
-                  <ProgressBar percent={program.score} />
-                </div>
-              ))}
+            <div className="feature-card">
+              <div className="feature-icon">🎯</div>
+              <h3>Presné</h3>
+              <p>Výsledky na základe tvojho profilu</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">💾</div>
+              <h3>Uložené</h3>
+              <p>Výsledky si môžeš kedykoľvek pozrieť</p>
+            </div>
+          </div>
+          )}
+
+          {loggedInUser ? (
+            <div className="auth-options">
+              <Link href={`/finder?userId=${loggedInUser.id}`} className="auth-option-card" style={{ textDecoration: 'none' }}>
+                <div className="auth-icon">📊</div>
+                <h3>Moje výsledky</h3>
+                <p>Pozri si svoje uložené odpovede a výsledky</p>
+              </Link>
+              <Link href={`/finder?userId=${loggedInUser.id}`} className="auth-option-card" style={{ textDecoration: 'none' }}>
+                <div className="auth-icon">✏️</div>
+                <h3>Nový test</h3>
+                <p>Vyplň test s novými odpoveďami</p>
+              </Link>
+            </div>
+          ) : mode === 'select' ? (
+            <div className="auth-options">
+              <button
+                type="button"
+                className="auth-option-card"
+                onClick={() => setMode('auth')}
+              >
+                <div className="auth-icon">🔐</div>
+                <h3>Prihlásenie / Registrácia</h3>
+                <p>Ulož si výsledky navždy a pozri históriu</p>
+              </button>
+              <button
+                type="button"
+                className="auth-option-card"
+                onClick={() => setMode('guest')}
+              >
+                <div className="auth-icon">✉️</div>
+                <h3>Pokračovať bez prihlásenia</h3>
+                <p>Zadaj iba email a začni hneď</p>
+              </button>
+            </div>
+          ) : null}
+
+          {mode === 'guest' && (
+            <form onSubmit={handleStart} className="email-form">
+              <div>
+                <input
+                  type="email"
+                  placeholder="Tvoj email (napr. meno@email.sk)"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError('');
+                  }}
+                  className={`email-input ${error ? 'email-input-error' : ''}`}
+                />
+                {error && <div className="error-message">{error}</div>}
+              </div>
+              <div className="step-buttons">
+                <button
+                  type="button"
+                  className="step-button step-button-back"
+                  onClick={() => setMode('select')}
+                >
+                  Späť
+                </button>
+                <button type="submit" className="cta-button-large">
+                  Začať test
+                </button>
+              </div>
+            </form>
+          )}
+
+          {mode === 'auth' && (
+            <div className="auth-links">
+              <Link href="/login" className="auth-link-button auth-link-primary">
+                Prihlásenie
+              </Link>
+              <Link href="/register" className="auth-link-button auth-link-secondary">
+                Registrácia
+              </Link>
+              <button
+                type="button"
+                className="auth-back-link"
+                onClick={() => setMode('select')}
+              >
+                Späť na výber
+              </button>
             </div>
           )}
+
+          <div className="landing-stats">
+            <div className="stat">
+              <div className="stat-number">12</div>
+              <div className="stat-label">študijných programov</div>
+            </div>
+            <div className="stat">
+              <div className="stat-number">2</div>
+              <div className="stat-label">odbory (Informatika & Elektrotechnika)</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="landing-footer">
+          <p>Fakulta elektrotechniky a informatiky TUKE</p>
+          <p>Prihláška do 30.6.2025</p>
         </div>
       </div>
     </div>

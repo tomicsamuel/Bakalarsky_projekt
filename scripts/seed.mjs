@@ -8,13 +8,11 @@ const PROGRAMS = [
   { name: 'Elektroenergetika', field: 'Elektrotechnika' },
   { name: 'Fyzikálne inžinierstvo progresívnych materiálov', field: 'Elektrotechnika' },
   { name: 'Priemyselná elektrotechnika', field: 'Elektrotechnika' },
-  { name: 'Hospodárska informatika', field: 'Informatika' },
   { name: 'Informatika', field: 'Informatika' },
-  { name: 'Inteligentné systémy', field: 'Informatika' },
   { name: 'Kyberbezpečnosť', field: 'Informatika' },
   { name: 'Počítačové modelovanie', field: 'Informatika' },
   { name: 'Počítačové siete', field: 'Informatika' },
-  { name: 'Aplikovaná informatika', field: 'Informatika' },
+  { name: 'Umelá inteligencia', field: 'Informatika' },
 ];
 
 async function main() {
@@ -36,4 +34,3 @@ main()
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
-
