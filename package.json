@@ -32,4 +32,5 @@
   "prisma": {
     "seed": "node scripts/seed.mjs"
   }
+  
 }
