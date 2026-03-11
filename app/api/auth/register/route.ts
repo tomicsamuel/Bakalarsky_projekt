@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     if (existingAccount) {
       return NextResponse.json(
-        { success: false, error: 'Email je už registrovaný' },
+        { success: false, error: 'Tento email je už zaregistrovaný. Prihláste sa.' },
         { status: 400 }
       );
     }

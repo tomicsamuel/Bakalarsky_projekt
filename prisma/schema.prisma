@@ -11,14 +11,16 @@ datasource db {
 }
 
 // Model pre študijný program
-// Ukladá všetky programy FEI
+// Ukladá všetky programy FEI (popis a typické povolania zobrazované na detail stránke)
 model Program {
-  id        Int      @id @default(autoincrement())
-  name      String
-  field     String
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  name        String
+  field       String
+  description String?  @db.Text
+  occupations String?  @db.Text
+  createdAt   DateTime @default(now())
   
-  results   Result[]
+  results     Result[]
 }
 
 // Model pre používateľa/študenta
@@ -28,13 +30,14 @@ model Account {
   name      String
   email     String   @unique
   password  String
+  isAdmin   Boolean  @default(false)
   createdAt DateTime @default(now())
   
   users     User[]
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   name            String
   email           String
   school          String
@@ -44,7 +47,8 @@ model User {
   expectations    String[]
   interests       String[]
   experience      String[]
-  createdAt       DateTime @default(now())
+  consentGivenAt  DateTime?
+  createdAt       DateTime  @default(now())
   
   accountId  Int?
   account    Account? @relation(fields: [accountId], references: [id])
@@ -65,3 +69,38 @@ model Result {
   programId Int
   program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
 }
+
+// Aktivity katedry
+model DepartmentActivity {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  category    String
+  link        String?
+  createdAt   DateTime @default(now())
+}
+
+// Úspechy študentov
+model StudentAchievement {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  studentName  String
+  category     String
+  year         Int
+  link         String?
+  createdAt    DateTime @default(now())
+}
+
+// Blog (články z admin rozhrania)
+// section: aktivity = Aktivity katedry, studijne = Študijné aktuality
+model BlogPost {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String    @db.Text
+  summary     String?
+  section     String    @default("aktivity") // "aktivity" | "studijne"
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+

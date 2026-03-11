@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Admin rozhranie
+
+- Admin prihlásenie: `/admin/login`. Pre presmerovanie na `/admin` musí mať účet v databáze `isAdmin: true`.
+- V `.env` nastav `ADMIN_SECRET` (dlhý náhodný reťazec, min. 16 znakov) pre cookie session.
+- Migrácia: `npx prisma migrate dev`. Po zmene schémy: `npx prisma generate`.
+
 ## Getting Started
 
 First, run the development server:

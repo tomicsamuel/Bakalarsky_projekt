@@ -1,0 +1,67 @@
+.animated-stats-container {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 32px 0;
+}
+
+.animated-stat {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: stat-appear 0.6s ease-out forwards;
+}
+
+.animated-stat:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.animated-stat:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.animated-stat:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.stat-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+@keyframes stat-appear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .animated-stats-container {
+    gap: 24px;
+  }
+  
+  .stat-number {
+    font-size: 36px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+}
+
+

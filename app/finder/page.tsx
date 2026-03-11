@@ -1,27 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-
-type Program = {
-  name: string;
-  field: string;
-  score: number;
-};
-
-const PROGRAMS: Program[] = [
-  { name: 'Aplikovaná elektrotechnika', field: 'Elektrotechnika', score: 0 },
-  { name: 'Automobilová elektronika', field: 'Elektrotechnika', score: 0 },
-  { name: 'Elektroenergetika', field: 'Elektrotechnika', score: 0 },
-  { name: 'Fyzikálne inžinierstvo progresívnych materiálov', field: 'Elektrotechnika', score: 0 },
-  { name: 'Priemyselná elektrotechnika', field: 'Elektrotechnika', score: 0 },
-  { name: 'Informatika', field: 'Informatika', score: 0 },
-  { name: 'Kyberbezpečnosť', field: 'Informatika', score: 0 },
-  { name: 'Počítačové modelovanie', field: 'Informatika', score: 0 },
-  { name: 'Počítačové siete', field: 'Informatika', score: 0 },
-  { name: 'Umelá inteligencia', field: 'Informatika', score: 0 },
-];
+import { Check, Target, Briefcase } from 'lucide-react';
+import { Button } from '@heroui/button';
+import Confetti from '@/components/Confetti';
+import AnimatedBackground from '@/components/AnimatedBackground';
+import FloatingElements from '@/components/FloatingElements';
+import SidebarMenu from '@/components/SidebarMenu';
+import ResultsDisplay from '@/components/ResultsDisplay';
+import ResultsDashboard from '@/components/Results/ResultsDashboard';
+import { calculateScores } from '@/lib/scoring';
+import type { ScoreResult } from '@/lib/types';
 
 type ChipProps = {
   label: string;
@@ -29,11 +20,11 @@ type ChipProps = {
   onClick: () => void;
 };
 
-function Chip({ label, active, onClick }: ChipProps) {
+function ChipButton({ label, active, onClick }: ChipProps) {
   return (
     <button
       type="button"
-      className="chip"
+      className={`chip ${active ? 'active' : ''}`}
       aria-pressed={active}
       onClick={onClick}
     >
@@ -57,9 +48,17 @@ function ToastMessage({ message, onClose }: ToastMessageProps) {
   }, [onClose]);
 
   return (
-    <div className="toast">
-      <div className="toast-icon">✓</div>
+    <div className="toast" role="status">
+      <div className="toast-icon"><Check size={22} strokeWidth={2.5} /></div>
       <div className="toast-message">{message}</div>
+      <button
+        type="button"
+        className="toast-close"
+        onClick={onClose}
+        aria-label="Zavrieť"
+      >
+        ×
+      </button>
     </div>
   );
 }
@@ -93,7 +92,7 @@ function Category({ title, items, selected, onToggle }: CategoryProps) {
       {expanded && (
         <div className="chips-container" style={{ marginTop: '12px' }}>
           {items.map(item => (
-            <Chip
+            <ChipButton
               key={item}
               label={item}
               active={selected.includes(item)}
@@ -121,450 +120,10 @@ function ProgressBar({ percent }: ProgressBarProps) {
   );
 }
 
-function calculateScores(
-  school: string,
-  interests: string[],
-  experience: string[]
-): Program[] {
-  const programs = PROGRAMS.map(p => ({ ...p, score: 0 }));
-
-  interests.forEach(interest => {
-    switch (interest) {
-      case 'Web programovanie':
-      case 'Frontend programovanie':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Aplikačné programovanie':
-      case 'Desktop aplikácie':
-      case 'Mobilné aplikácie':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Herné programovanie':
-        programs.forEach(p => {
-          if (p.name === 'Informatika' || p.name === 'Počítačové modelovanie') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Backend programovanie':
-      case 'Full-stack programovanie':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 5;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Siete a sieťové technológie':
-      case 'Systémová administrácia':
-      case 'WiFi a bezdrôtové siete':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové siete') p.score += 5;
-          else if (p.name === 'Kyberbezpečnosť') p.score += 2;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Bezpečnosť sietí':
-      case 'Sieťová bezpečnosť':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové siete' || p.name === 'Kyberbezpečnosť') p.score += 5;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Cloud computing':
-      case 'Virtualizácia':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové siete' || p.name === 'Informatika') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Databázy':
-      case 'SQL':
-      case 'NoSQL databázy':
-        programs.forEach(p => {
-          if (p.name === 'Informatika' || p.name === 'Počítačové modelovanie') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Big Data':
-      case 'Data mining':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové modelovanie') p.score += 5;
-          else if (p.name === 'Informatika') p.score += 3;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Data Science':
-      case 'Data Analytics':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové modelovanie' || p.name === 'Umelá inteligencia') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'AI/ML':
-      case 'Strojové učenie':
-      case 'Hlboké učenie':
-      case 'Neurónové siete':
-        programs.forEach(p => {
-          if (p.name === 'Umelá inteligencia') p.score += 5;
-          else if (p.name === 'Počítačové modelovanie') p.score += 3;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Spracovanie prirodzeného jazyka':
-      case 'Počítačové videnie':
-        programs.forEach(p => {
-          if (p.name === 'Umelá inteligencia') p.score += 5;
-          else if (p.name === 'Počítačové modelovanie') p.score += 3;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Robotika a AI':
-        programs.forEach(p => {
-          if (p.name === 'Umelá inteligencia') p.score += 4;
-          else if (p.name === 'Aplikovaná elektrotechnika' || p.name === 'Priemyselná elektrotechnika') p.score += 3;
-          else if (p.field === 'Informatika' || p.field === 'Elektrotechnika') p.score += 1;
-        });
-        break;
-      
-      case 'Kyberbezpečnosť':
-      case 'Ethical hacking':
-      case 'Penetračné testovanie':
-      case 'Kryptografia':
-      case 'Informačná bezpečnosť':
-      case 'Digitálna forenzika':
-        programs.forEach(p => {
-          if (p.name === 'Kyberbezpečnosť') p.score += 5;
-          else if (p.name === 'Počítačové siete') p.score += 2;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Elektronika':
-      case 'Mikroprocesory':
-      case 'Mikrokontroléry':
-      case 'Arduino/Raspberry Pi':
-      case 'Digitálna elektronika':
-      case 'Analógová elektronika':
-      case 'Elektronické obvody':
-        programs.forEach(p => {
-          if (
-            p.name === 'Aplikovaná elektrotechnika' ||
-            p.name === 'Automobilová elektronika' ||
-            p.name === 'Priemyselná elektrotechnika'
-          ) {
-            p.score += 4;
-          } else if (p.field === 'Elektrotechnika') {
-            p.score += 2;
-          }
-        });
-        break;
-      
-      case 'Robotika':
-        programs.forEach(p => {
-          if (p.name === 'Aplikovaná elektrotechnika' || p.name === 'Priemyselná elektrotechnika') {
-            p.score += 4;
-          } else if (p.name === 'Umelá inteligencia') {
-            p.score += 3;
-          } else if (p.field === 'Elektrotechnika') {
-            p.score += 2;
-          }
-        });
-        break;
-      
-      case 'Automatizácia':
-      case 'PLC programovanie':
-      case 'SCADA systémy':
-      case 'Priemyselná automatizácia':
-      case 'Riadiace systémy':
-        programs.forEach(p => {
-          if (p.name === 'Priemyselná elektrotechnika' || p.name === 'Aplikovaná elektrotechnika') {
-            p.score += 5;
-          } else if (p.field === 'Elektrotechnika') {
-            p.score += 2;
-          }
-        });
-        break;
-      
-      case 'Energetika':
-      case 'Obnoviteľné zdroje':
-      case 'Solárna energia':
-      case 'Veterná energia':
-      case 'Energetická efektívnosť':
-      case 'Smart grid':
-      case 'Elektrické stroje':
-        programs.forEach(p => {
-          if (p.name === 'Elektroenergetika') p.score += 5;
-          else if (p.field === 'Elektrotechnika') p.score += 2;
-        });
-        break;
-      
-      case 'Fyzika':
-      case 'Materiálové inžinierstvo':
-      case 'Nanotechnológie':
-      case 'Kvantová fyzika':
-      case 'Optika':
-      case 'Magnetizmus':
-        programs.forEach(p => {
-          if (p.name === 'Fyzikálne inžinierstvo progresívnych materiálov') {
-            p.score += 5;
-          } else if (p.field === 'Elektrotechnika') {
-            p.score += 1;
-          }
-        });
-        break;
-      
-      case 'PC':
-        programs.forEach(p => {
-          if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Lietadlá':
-      case 'Automobilový priemysel':
-        programs.forEach(p => {
-          if (p.name === 'Automobilová elektronika') p.score += 3;
-          else if (p.field === 'Elektrotechnika') p.score += 1;
-        });
-        break;
-      
-      case 'Administratíva':
-      case 'Projektový manažment':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 2;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Grafika a dizajn':
-        programs.forEach(p => {
-          if (p.name === 'Informatika' || p.name === 'Počítačové modelovanie') p.score += 2;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-    }
-  });
-
-  switch (school) {
-    case 'SOŠ elektrotechnická':
-    case 'Priemyslovka':
-      programs.forEach(p => {
-        if (p.field === 'Elektrotechnika') p.score += 2;
-      });
-      break;
-    
-    case 'SOŠ informačných technológií':
-      programs.forEach(p => {
-        if (p.field === 'Informatika') p.score += 2;
-      });
-      break;
-    
-    case 'Gymnázium':
-      programs.forEach(p => {
-        p.score += 1;
-      });
-      break;
-  }
-
-  experience.forEach(exp => {
-    switch (exp) {
-      case 'IT support':
-        programs.forEach(p => {
-          if (
-            p.name === 'Informatika' ||
-            p.name === 'Kyberbezpečnosť' ||
-            p.name === 'Počítačové siete'
-          ) {
-            p.score += 3;
-          } else if (p.field === 'Informatika') {
-            p.score += 1;
-          }
-        });
-        break;
-      
-      case 'Web programovanie':
-      case 'Frontend vývoj':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Aplikačné programovanie':
-      case 'Mobilné aplikácie':
-      case 'Desktop aplikácie':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Backend vývoj':
-      case 'Full-stack vývoj':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 5;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Herný vývoj':
-        programs.forEach(p => {
-          if (p.name === 'Informatika' || p.name === 'Počítačové modelovanie') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Siete a administrácia':
-      case 'Systémová administrácia':
-      case 'Server administrácia':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové siete') p.score += 5;
-          else if (p.name === 'Kyberbezpečnosť') p.score += 3;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Cloud administrácia':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové siete' || p.name === 'Informatika') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Sieťová bezpečnosť':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové siete' || p.name === 'Kyberbezpečnosť') p.score += 5;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Databázy':
-      case 'Database administrácia':
-        programs.forEach(p => {
-          if (p.name === 'Informatika' || p.name === 'Počítačové modelovanie') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Data Science':
-      case 'Data Analytics':
-      case 'Big Data':
-        programs.forEach(p => {
-          if (p.name === 'Počítačové modelovanie' || p.name === 'Umelá inteligencia') p.score += 4;
-          else if (p.field === 'Informatika') p.score += 2;
-        });
-        break;
-      
-      case 'Kyberbezpečnosť':
-      case 'Penetračné testovanie':
-      case 'Security analýza':
-      case 'Incident response':
-        programs.forEach(p => {
-          if (p.name === 'Kyberbezpečnosť') p.score += 5;
-          else if (p.name === 'Počítačové siete') p.score += 2;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-      
-      case 'Servis elektroniky':
-      case 'Opravy elektroniky':
-      case 'Montáž elektroniky':
-      case 'Elektrické merania':
-        programs.forEach(p => {
-          if (
-            p.name === 'Aplikovaná elektrotechnika' ||
-            p.name === 'Automobilová elektronika' ||
-            p.name === 'Priemyselná elektrotechnika'
-          ) {
-            p.score += 4;
-          } else if (p.field === 'Elektrotechnika') {
-            p.score += 2;
-          }
-        });
-        break;
-      
-      case 'Elektroinštalácie':
-      case 'Elektrické inštalácie':
-        programs.forEach(p => {
-          if (p.name === 'Elektroenergetika' || p.name === 'Priemyselná elektrotechnika') {
-            p.score += 4;
-          } else if (p.field === 'Elektrotechnika') {
-            p.score += 2;
-          }
-        });
-        break;
-      
-      case 'Automatizácia':
-      case 'PLC programovanie':
-      case 'SCADA systémy':
-      case 'Priemyselná automatizácia':
-      case 'Robotika':
-        programs.forEach(p => {
-          if (p.name === 'Priemyselná elektrotechnika' || p.name === 'Aplikovaná elektrotechnika') {
-            p.score += 5;
-          } else if (p.field === 'Elektrotechnika') {
-            p.score += 2;
-          }
-        });
-        break;
-      
-      case 'Energetika':
-      case 'Elektrické rozvodne':
-      case 'Energetické audity':
-      case 'Obnoviteľné zdroje':
-        programs.forEach(p => {
-          if (p.name === 'Elektroenergetika') p.score += 5;
-          else if (p.field === 'Elektrotechnika') p.score += 2;
-        });
-        break;
-      
-      case 'Auto servis':
-        programs.forEach(p => {
-          if (p.name === 'Automobilová elektronika') p.score += 4;
-          else if (p.field === 'Elektrotechnika') p.score += 1;
-        });
-        break;
-      
-      case 'Administratíva':
-      case 'Projektový manažment':
-      case 'Technická dokumentácia':
-        programs.forEach(p => {
-          if (p.name === 'Informatika') p.score += 2;
-          else if (p.field === 'Informatika') p.score += 1;
-        });
-        break;
-    }
-  });
-
-  const maxScore = Math.max(...programs.map(p => p.score), 1);
-  
-  programs.forEach(p => {
-    p.score = Math.round((p.score / maxScore) * 100);
-  });
-
-  return programs
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
-}
-
 export default function FinderPage() {
   const searchParams = useSearchParams();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
+  const [consentChecked, setConsentChecked] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -575,9 +134,29 @@ export default function FinderPage() {
   const [expectations, setExpectations] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
   const [experience, setExperience] = useState<string[]>([]);
-  const [results, setResults] = useState<Program[]>([]);
+  const [results, setResults] = useState<ScoreResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const stepCardRef = useRef<HTMLDivElement>(null);
+  const stepTitleRef = useRef<HTMLHeadingElement>(null);
+  const summaryTriggerRef = useRef<HTMLButtonElement>(null);
+  const summaryCloseRef = useRef<HTMLButtonElement>(null);
+
+  const completenessPercent =
+    ([
+      Boolean(name.trim()),
+      Boolean(school),
+      howDidYouHear.length > 0,
+      interests.length > 0,
+      experience.length > 0,
+    ].filter(Boolean).length /
+      5) *
+    100;
 
   useEffect(() => {
     const emailParam = searchParams.get('email');
@@ -599,6 +178,37 @@ export default function FinderPage() {
       loadUserHistory(parseInt(userIdParam));
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (step < 6) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      stepTitleRef.current?.focus();
+    }
+  }, [step]);
+
+  useEffect(() => {
+    if (!showSummaryModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowSummaryModal(false);
+    };
+    summaryCloseRef.current?.focus();
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      window.removeEventListener('keydown', handleEscape);
+      summaryTriggerRef.current?.focus();
+    };
+  }, [showSummaryModal]);
+
+  useEffect(() => {
+    if (!showEmailModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowEmailModal(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showEmailModal]);
 
   const loadUserHistory = async (accountId: number) => {
     try {
@@ -624,6 +234,7 @@ export default function FinderPage() {
         setResults(resultsData);
         setStep(6);
         setSaved(true);
+        setConsentChecked(true);
       }
     } catch (error) {
       console.error('Chyba pri načítaní histórie:', error);
@@ -801,30 +412,37 @@ export default function FinderPage() {
 
   useEffect(() => {
     if (name || school || interests.length > 0 || experience.length > 0) {
-      const scored = calculateScores(school, interests, experience);
-      setResults(scored);
+      // calculateScores now returns ALL majors; UI can show top5 or all later.
+      setResults(calculateScores(school, interests, experience));
     }
   }, [name, school, interests, experience]);
 
   const nextStep = async () => {
+    if (step === 0) {
+      if (consentChecked) setStep(1);
+      return;
+    }
     if (step === 1 && !name.trim()) return;
     if (step === 2 && !school) return;
     if (step === 3 && howDidYouHear.length === 0) return;
     if (step === 4 && interests.length === 0) return;
     if (step === 5 && experience.length === 0) return;
     
-      if (step === 5 && userId) {
-      const success = await handleSubmit();
-      if (success && step < 7) {
-        setStep(step + 1);
-        // Smooth scroll k výsledkom
-        setTimeout(() => {
-          const resultsCard = document.querySelector('.results-card');
-          if (resultsCard) {
-            resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
-      }
+    // Confetti pri dokončení kroku
+    if (step < 5) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 2000);
+    }
+    
+    if (step === 5 && userId) {
+      await handleSubmit();
+      setStep(step + 1);
+      setTimeout(() => {
+        const resultsSection = document.querySelector('.results-section');
+        if (resultsSection) {
+          resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
       return;
     }
     
@@ -833,9 +451,9 @@ export default function FinderPage() {
       // Smooth scroll k výsledkom po kroku 2, 3, 4, 5
       if (step >= 2 && step < 6) {
         setTimeout(() => {
-          const resultsCard = document.querySelector('.results-card');
-          if (resultsCard) {
-            resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const resultsSection = document.querySelector('.results-section');
+          if (resultsSection) {
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }, 100);
       }
@@ -843,13 +461,14 @@ export default function FinderPage() {
   };
 
   const prevStep = () => {
-    if (step > 1) {
+    if (step > 0) {
       setStep(step - 1);
     }
   };
 
   const handleSubmit = async () => {
     setSaved(false);
+    setSaveError(null);
 
     if (name.trim()) {
       try {
@@ -888,12 +507,13 @@ export default function FinderPage() {
           console.log('Výsledky uložené:', data);
           return true;
         } else {
-          console.error('Chyba:', data.error);
+          setSaveError(data.error || 'Nepodarilo sa uložiť výsledky.');
           return false;
         }
 
       } catch (error) {
         console.error('Chyba pri volaní API:', error);
+        setSaveError('Nepodarilo sa uložiť výsledky. Skúste to znova.');
         return false;
       } finally {
         setLoading(false);
@@ -903,112 +523,304 @@ export default function FinderPage() {
   };
 
   return (
-    <div className="page-container">
-      <Link href="/" className="logo" style={{ display: 'inline-block', textDecoration: 'none' }}>
-        FEI TUKE
-      </Link>
+    <div className="page-container finder-page">
+      <AnimatedBackground />
+      <FloatingElements />
+      <Confetti active={showConfetti} />
 
-      {userId && (
-        <button
-          onClick={() => {
-            localStorage.removeItem('user');
-            window.location.href = '/';
+      <div className="finder-layout">
+        <SidebarMenu
+          currentStep={step}
+          totalSteps={7}
+          onStepClick={(stepNum) => {
+            if (stepNum <= step && stepNum >= 0) {
+              setStep(stepNum);
+            }
           }}
-          className="logout-button"
-        >
-          Odhlásiť sa
-        </button>
-      )}
-
-      <div className="deadline-badge">
-        <div>Prihlášky</div>
-        <div>do 30 6025</div>
-      </div>
-
+        />
+        <main id="main-content" className="finder-main">
       <header className="page-header">
         <h1 className="page-title">
-          Zisti, aké odbory<br />sa ti hodia na fakultu
+          Ktorý odbor na FEI je pre teba?
         </h1>
-        <div className="stepper">
-          <div className="stepper-item">
-            <div className={`stepper-dot ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`}>
-              {step > 1 ? '✓' : '1'}
-            </div>
-            <div className="stepper-label">Meno</div>
-          </div>
-          <div className={`stepper-line ${step >= 2 ? 'active' : ''}`}></div>
-          <div className="stepper-item">
-            <div className={`stepper-dot ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`}>
-              {step > 2 ? '✓' : '2'}
-            </div>
-            <div className="stepper-label">Škola</div>
-          </div>
-          <div className={`stepper-line ${step >= 3 ? 'active' : ''}`}></div>
-          <div className="stepper-item">
-            <div className={`stepper-dot ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`}>
-              {step > 3 ? '✓' : '3'}
-            </div>
-            <div className="stepper-label">Info</div>
-          </div>
-          <div className={`stepper-line ${step >= 4 ? 'active' : ''}`}></div>
-          <div className="stepper-item">
-            <div className={`stepper-dot ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`}>
-              {step > 4 ? '✓' : '4'}
-            </div>
-            <div className="stepper-label">Záujmy</div>
-          </div>
-          <div className={`stepper-line ${step >= 5 ? 'active' : ''}`}></div>
-          <div className="stepper-item">
-            <div className={`stepper-dot ${step >= 5 ? 'active' : ''} ${step === 5 ? 'current' : ''}`}>
-              {step > 5 ? '✓' : '5'}
-            </div>
-            <div className="stepper-label">Prax</div>
-          </div>
-          <div className={`stepper-line ${step >= 6 ? 'active' : ''}`}></div>
-          <div className="stepper-item">
-            <div className={`stepper-dot ${step >= 6 ? 'active' : ''} ${step === 6 ? 'current' : ''}`}>
-              ✓
-            </div>
-            <div className="stepper-label">Výsledky</div>
-          </div>
-        </div>
       </header>
 
-      <div className="content-grid">
-        <div className={`card step-content step-visible`} key={step}>
-          <h2 className="card-title">
+      {step === 6 ? (
+        <>
+          <div className="results-fullscreen">
+            {saveError && !userId && (
+              <div className="results-save-error-banner" role="alert">
+                {saveError}
+                {saveError.includes('Prihláste sa') && (
+                  <> <Link href="/login" className="results-save-error-banner__link">Prihlásiť sa a uložiť</Link></>
+                )}
+                {saveError.includes('Email je povinný') && (
+                  <> <button type="button" className="results-save-error-banner__link" onClick={() => setShowEmailModal(true)}>Doplniť email</button></>
+                )}
+              </div>
+            )}
+            <div className="results-toolbar">
+              <button
+                ref={summaryTriggerRef}
+                type="button"
+                className="results-toolbar-btn"
+                onClick={() => setShowSummaryModal(true)}
+              >
+                Súhrn odpovedí
+              </button>
+              {userId && (
+                <button
+                  type="button"
+                  className="results-toolbar-btn"
+                  onClick={() => setStep(1)}
+                >
+                  Vyplniť nový test
+                </button>
+              )}
+              {!userId && (
+                <>
+                  <button
+                    type="button"
+                    className="results-toolbar-btn results-toolbar-btn--primary"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    {loading ? 'Ukladám...' : 'Uložiť výsledky'}
+                  </button>
+                  {saveError && saveError.includes('Prihláste sa') && (
+                    <Link href="/login" className="results-toolbar-btn results-toolbar-btn--secondary">
+                      Prihlásiť sa a uložiť
+                    </Link>
+                  )}
+                </>
+              )}
+              {userId && (
+                <Link href="/" className="results-toolbar-btn results-toolbar-btn--primary">
+                  Späť na domov
+                </Link>
+              )}
+              {!userId && saved && (
+                <span className="results-toolbar-success">Výsledky boli uložené</span>
+              )}
+            </div>
+            <div className="results-section results-section--full">
+              <ResultsDashboard baseResults={results} completenessPercent={completenessPercent} />
+            </div>
+          </div>
+
+          {showSummaryModal && (
+            <div
+              className="summary-modal-overlay"
+              onClick={() => setShowSummaryModal(false)}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Súhrn odpovedí"
+            >
+              <div className="summary-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="summary-modal-header">
+                  <h3>Súhrn odpovedí</h3>
+                  <button ref={summaryCloseRef} type="button" className="summary-modal-close" onClick={() => setShowSummaryModal(false)}>
+                    Zavrieť
+                  </button>
+                </div>
+                <div className="summary">
+                  <div className="summary-item">
+                    <div className="summary-label">Email:</div>
+                    <div className="summary-value">{email}</div>
+                  </div>
+                  <div className="summary-item">
+                    <div className="summary-label">Meno:</div>
+                    <div className="summary-value">{name}</div>
+                  </div>
+                  <div className="summary-item">
+                    <div className="summary-label">Škola:</div>
+                    <div className="summary-value">{school}</div>
+                  </div>
+                  <div className="summary-item">
+                    <div className="summary-label">Ako sa dozvedel(a) o fakulte:</div>
+                    <div className="summary-value">
+                      {howDidYouHear.join(', ')}
+                      {howDidYouHearOther && howDidYouHear.includes('Iné') && ` (${howDidYouHearOther})`}
+                    </div>
+                  </div>
+                  {whyThisSchool.length > 0 && (
+                    <div className="summary-item">
+                      <div className="summary-label">Prečo si si vybral(a) túto fakultu:</div>
+                      <div className="summary-value">{whyThisSchool.join(', ')}</div>
+                    </div>
+                  )}
+                  {expectations.length > 0 && (
+                    <div className="summary-item">
+                      <div className="summary-label">Čo od štúdia očakávaš:</div>
+                      <div className="summary-value">{expectations.join(', ')}</div>
+                    </div>
+                  )}
+                  <div className="summary-item">
+                    <div className="summary-label">Záujmy:</div>
+                    <div className="summary-value">{interests.join(', ')}</div>
+                  </div>
+                  <div className="summary-item">
+                    <div className="summary-label">Prax:</div>
+                    <div className="summary-value">{experience.join(', ')}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showEmailModal && (
+            <div
+              className="summary-modal-overlay"
+              onClick={() => setShowEmailModal(false)}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Doplniť email"
+            >
+              <div className="summary-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="summary-modal-header">
+                  <h3>Doplniť email</h3>
+                  <button type="button" className="summary-modal-close" onClick={() => setShowEmailModal(false)}>
+                    Zavrieť
+                  </button>
+                </div>
+                <p style={{ marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '14px' }}>
+                  Zadaj svoj email, aby sme mohli uložiť tvoje výsledky.
+                </p>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const input = (e.target as HTMLFormElement).querySelector<HTMLInputElement>('input[type="email"]');
+                    const value = input?.value?.trim();
+                    if (value) {
+                      setEmail(value);
+                      setSaveError(null);
+                      setShowEmailModal(false);
+                    }
+                  }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                >
+                  <div>
+                    <label htmlFor="email-modal-input" className="form-label" style={{ display: 'block', marginBottom: '8px' }}>
+                      Email
+                    </label>
+                    <input
+                      id="email-modal-input"
+                      type="email"
+                      className="form-input"
+                      placeholder="meno@email.sk"
+                      defaultValue={email}
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      className="results-toolbar-btn"
+                      onClick={() => setShowEmailModal(false)}
+                    >
+                      Zrušiť
+                    </button>
+                    <button type="submit" className="results-toolbar-btn results-toolbar-btn--primary">
+                      Uložiť email
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+      <div className="finder-form-fullscreen">
+        <div className="finder-progress-bar" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={7} aria-label="Priebeh testu">
+          <div className="finder-progress-bar-inner">
+            <span className="finder-progress-label">
+              Krok {step + 1} z 7
+            </span>
+            <div className="finder-progress-track">
+              <div 
+                className="finder-progress-fill" 
+                style={{ width: `${((step + 1) / 7) * 100}%` }}
+              />
+            </div>
+          </div>
+          <div className="finder-progress-steps" aria-hidden>
+            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <span 
+                key={i} 
+                className={`finder-progress-dot ${i <= step + 1 ? 'done' : ''} ${i === step + 1 ? 'current' : ''}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="form-section form-section--full">
+          <div ref={stepCardRef} className={`card step-content step-visible`} key={step}>
+          <h2 ref={stepTitleRef} className="card-title" tabIndex={-1}>
+            {step === 0 && 'Súhlas so spracovaním údajov'}
             {step === 1 && 'Tvoje meno'}
             {step === 2 && 'Tvoja škola'}
             {step === 3 && 'Ako sa dozvedel o škole'}
             {step === 4 && `Tvoje záujmy${interests.length > 0 ? ` (${interests.length} vybraných)` : ''}`}
             {step === 5 && `Tvoja prax${experience.length > 0 ? ` (${experience.length} vybraných)` : ''}`}
-            {step === 6 && 'Súhrn tvojich odpovedí'}
           </h2>
 
+          {step === 0 && (
+            <div className="form-group step-content">
+              <p id="consent-description" style={{ marginBottom: '16px', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+                Súhlasím so spracovaním mojich osobných údajov v rozsahu potrebnom na odporúčanie študijného programu a na interný štatistický výskum.
+                {' '}
+                <Link href="/ochrana-udajov" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Viac informácií je v zásadách ochrany osobných údajov</Link>.
+              </p>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginBottom: '20px' }}>
+                <input
+                  type="checkbox"
+                  checked={consentChecked}
+                  onChange={(e) => setConsentChecked(e.target.checked)}
+                  aria-required
+                  aria-describedby="consent-description"
+                />
+                <span>Súhlasím</span>
+              </label>
+              <Button
+                type="button"
+                color="primary"
+                className="step-button step-button-next"
+                onPress={() => consentChecked && setStep(1)}
+                isDisabled={!consentChecked}
+              >
+                Pokračovať
+              </Button>
+            </div>
+          )}
+
           {step === 1 && (
-            <div className="form-group">
+            <div className="form-group step-content">
               <label htmlFor="name" className="form-label">
                 Ako sa voláš?
                 {!name.trim() && <span className="error-hint"> (povinné)</span>}
               </label>
               {!name.trim() && (
-                <div className="error-message" style={{ marginBottom: '8px' }}>
+                <div className="error-message" style={{ marginBottom: '12px' }}>
                   Meno je povinné
                 </div>
               )}
-              <input
-                type="text"
-                id="name"
-                className={`form-input ${!name.trim() ? 'form-input-error' : ''}`}
-                placeholder="Samuel"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  id="name"
+                  className={`form-input ${!name.trim() ? 'form-input-error' : ''}`}
+                  placeholder="Napríklad: Samuel"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoFocus
+                />
+              </div>
             </div>
           )}
 
           {step === 2 && (
-            <div className="form-group">
+            <div className="form-group step-content">
               <label htmlFor="school" className="form-label">
                 Na akej strednej škole si bol(a)?
                 {!school && <span className="error-hint"> (povinné)</span>}
@@ -1034,7 +846,7 @@ export default function FinderPage() {
           )}
 
           {step === 3 && (
-            <div className="form-group">
+            <div className="form-group step-content">
               <div className="form-label">
                 Ako sa dozvedel(a) o fakulte FEI?
                 {howDidYouHear.length === 0 && (
@@ -1048,7 +860,7 @@ export default function FinderPage() {
               )}
               <div className="chips-container">
                 {['Cez kamaráta/známeho', 'Sociálne siete (Facebook, Instagram, TikTok)', 'Web stránka fakulty', 'Dni otvorených dverí', 'Stredoškolský učiteľ', 'Maturitná prednáška', 'Výstava/veľtrh', 'Školský poradca', 'Mediá (TV, rádio, tlač)', 'Iné'].map(option => (
-                  <Chip
+                  <ChipButton
                     key={option}
                     label={option}
                     active={howDidYouHear.includes(option)}
@@ -1086,7 +898,7 @@ export default function FinderPage() {
               </div>
               <div className="chips-container">
                 {['Zaujímavé študijné programy', 'Dobrá reputácia', 'Blízko k domu', 'Tip od rodičov/rodiny', 'Možnosť brigády', 'Perspektívny odbor', 'Moderné vybavenie', 'Možnosť pokračovať v štúdiu'].map(option => (
-                  <Chip
+                  <ChipButton
                     key={option}
                     label={option}
                     active={whyThisSchool.includes(option)}
@@ -1106,7 +918,7 @@ export default function FinderPage() {
               </div>
               <div className="chips-container">
                 {['Praktické zručnosti', 'Teoretické vedomosti', 'Networking a kontakty', 'Výborné zamestnanie', 'Možnosť štúdia v zahraničí', 'Zaujímavé projekty', 'Kvalitné vzdelanie', 'Osobnostný rozvoj'].map(option => (
-                  <Chip
+                  <ChipButton
                     key={option}
                     label={option}
                     active={expectations.includes(option)}
@@ -1124,7 +936,7 @@ export default function FinderPage() {
           )}
 
           {step === 4 && (
-            <div className="form-group">
+            <div className="form-group step-content">
               <div className="form-label">
                 Vyber si aspoň jeden záujem
                 {interests.length === 0 && (
@@ -1138,7 +950,7 @@ export default function FinderPage() {
               )}
               {interests.length === 0 && (
                 <div className="empty-state-hint">
-                  <div className="empty-state-icon">🎯</div>
+                  <div className="empty-state-icon"><Target size={32} strokeWidth={2} /></div>
                   <div className="empty-state-text">
                     Rozklikni kategórie a vyber si, čo ťa zaujíma. Môžeš vybrať viacero možností.
                   </div>
@@ -1159,7 +971,7 @@ export default function FinderPage() {
           )}
 
           {step === 5 && (
-            <div className="form-group">
+            <div className="form-group step-content">
               <div className="form-label">
                 V akom odbore si pracoval(a)/brigadoval(a)?
                 {experience.length === 0 && (
@@ -1173,7 +985,7 @@ export default function FinderPage() {
               )}
               {experience.length === 0 && (
                 <div className="empty-state-hint">
-                  <div className="empty-state-icon">💼</div>
+                  <div className="empty-state-icon"><Briefcase size={32} strokeWidth={2} /></div>
                   <div className="empty-state-text">
                     Ak si ešte nepracoval(a) alebo brigádoval(a), vyber možnosť <strong>"Žiadny"</strong> v kategórii <strong>"Bez praxe"</strong>.
                   </div>
@@ -1193,168 +1005,41 @@ export default function FinderPage() {
             </div>
           )}
 
-          {step === 6 && (
-            <div className="summary">
-              <div className="summary-item">
-                <div className="summary-label">Email:</div>
-                <div className="summary-value">{email}</div>
-              </div>
-              <div className="summary-item">
-                <div className="summary-label">Meno:</div>
-                <div className="summary-value">{name}</div>
-              </div>
-              <div className="summary-item">
-                <div className="summary-label">Škola:</div>
-                <div className="summary-value">{school}</div>
-              </div>
-              <div className="summary-item">
-                <div className="summary-label">Ako sa dozvedel(a) o fakulte:</div>
-                <div className="summary-value">
-                  {howDidYouHear.join(', ')}
-                  {howDidYouHearOther && howDidYouHear.includes('Iné') && (
-                    <span> ({howDidYouHearOther})</span>
-                  )}
-                </div>
-              </div>
-              {whyThisSchool.length > 0 && (
-                <div className="summary-item">
-                  <div className="summary-label">Prečo si si vybral(a) túto fakultu:</div>
-                  <div className="summary-value">{whyThisSchool.join(', ')}</div>
-                </div>
-              )}
-              {expectations.length > 0 && (
-                <div className="summary-item">
-                  <div className="summary-label">Čo od štúdia očakávaš:</div>
-                  <div className="summary-value">{expectations.join(', ')}</div>
-                </div>
-              )}
-              <div className="summary-item">
-                <div className="summary-label">Záujmy:</div>
-                <div className="summary-value">{interests.join(', ')}</div>
-              </div>
-              <div className="summary-item">
-                <div className="summary-label">Prax:</div>
-                <div className="summary-value">{experience.join(', ')}</div>
-              </div>
-            </div>
-          )}
-
           <div className="step-buttons">
-            {step > 1 && step < 6 && (
-              <button
+            {step > 0 && step < 6 && (
+              <Button
                 type="button"
+                variant="bordered"
                 className="step-button step-button-back"
-                onClick={prevStep}
+                onPress={prevStep}
               >
                 Späť
-              </button>
+              </Button>
             )}
             
-            {step === 6 && userId && (
-              <button
+            {step === 0 ? null : (
+              <Button
                 type="button"
-                className="step-button step-button-back"
-                onClick={() => setStep(1)}
-              >
-                Vyplniť nový test
-              </button>
-            )}
-            
-            {step < 6 ? (
-              <button
-                type="button"
+                color="primary"
                 className="step-button step-button-next"
-                onClick={nextStep}
-                disabled={
+                onPress={nextStep}
+                isDisabled={
                   (step === 1 && !name.trim()) ||
                   (step === 2 && !school) ||
                   (step === 3 && howDidYouHear.length === 0) ||
-                  (step === 4 && interests.length === 0)
+                  (step === 4 && interests.length === 0) ||
+                  (step === 5 && experience.length === 0)
                 }
               >
                 Ďalej
-              </button>
-            ) : step === 5 ? (
-              <button
-                type="button"
-                className="step-button step-button-next"
-                onClick={nextStep}
-                disabled={experience.length === 0}
-              >
-                Ďalej
-              </button>
-            ) : userId ? (
-              <Link href="/" className="step-button step-button-next" style={{ textAlign: 'center', textDecoration: 'none' }}>
-                Späť na domov
-              </Link>
-            ) : (
-              <button
-                type="button"
-                className="cta-button"
-                onClick={handleSubmit}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <span className="loading-spinner"></span>
-                    Ukladám...
-                  </>
-                ) : (
-                  'Uložiť výsledky'
-                )}
-              </button>
+              </Button>
             )}
           </div>
 
-          {!userId && saved && (
-            <div style={{ 
-              marginTop: '12px', 
-              padding: '12px', 
-              background: '#4ade80', 
-              color: '#0B0F14', 
-              borderRadius: '12px',
-              textAlign: 'center',
-              fontWeight: 600
-            }}>
-              Výsledky boli úspešne uložené do databázy
-            </div>
-          )}
-        </div>
-
-        <div className="card results-card">
-          <h2 className="card-title">
-            Odbory, ktoré sa k tebe najviac hodia
-          </h2>
-
-          {results.length === 0 ? (
-            <div className="empty-state">
-              Postupne odpovedaj na otázky a uvidíš výsledky
-            </div>
-          ) : (
-            <div className="results-list">
-              {results.map((program, index) => (
-                <div key={index} className="result-item">
-                  <div className="result-header">
-                    <div style={{ flex: 1 }}>
-                      <Link 
-                        href={`/program/${encodeURIComponent(program.name)}/${encodeURIComponent(program.field)}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        <div className="result-title" style={{ cursor: 'pointer', textDecoration: 'underline' }}>
-                          {program.name}
-                        </div>
-                      </Link>
-                      <div className="result-subtitle">{program.field}</div>
-                    </div>
-                    <div className="result-percent">{program.score} %</div>
-                  </div>
-                  <ProgressBar percent={program.score} />
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
       </div>
+      )}
 
       {userId && saved && (
         <ToastMessage 
@@ -1362,6 +1047,8 @@ export default function FinderPage() {
           onClose={() => setSaved(false)}
         />
       )}
+        </main>
+      </div>
     </div>
   );
 }

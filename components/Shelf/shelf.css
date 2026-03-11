@@ -1,0 +1,113 @@
+.shelf-wrap {
+  background: #faf8f5;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  padding: 26px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.shelf-title {
+  margin: 0 0 6px 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.shelf-desc {
+  margin: 0 0 18px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.shelf-changelog {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 14px;
+  margin-bottom: 22px;
+  padding: 10px 0 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.shelf-changelog__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+
+.shelf-changelog__item {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.shelf-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.shelf-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Prvý stĺpec – „hlavný výber“, výraznejší bez generického gradientu */
+.shelf-col--best {
+  padding-left: 18px;
+  margin-left: -18px;
+  padding-right: 8px;
+  border-left: 4px solid var(--gradient-mid);
+  border-radius: 0 12px 12px 0;
+  background: rgba(255, 248, 240, 0.6);
+}
+
+.shelf-col__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.shelf-col--best .shelf-col__title {
+  font-size: 16px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid rgba(229, 91, 0, 0.35);
+  width: fit-content;
+}
+
+.shelf-col__hint {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.shelf-col__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shelf-col--best .shelf-col__cards {
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .shelf-columns {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .shelf-columns {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

@@ -1,0 +1,195 @@
+/* Mapa odborov – konštelácia / sieť bodov */
+.map-wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  position: relative;
+}
+
+.map-wrap--empty .map-desc {
+  margin-bottom: 0;
+}
+
+.map-title {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.map-desc {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.map-svg-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.map-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 280px;
+}
+
+/* Hrany medzi podobnými odbormi */
+.map-edges {
+  pointer-events: none;
+}
+
+.map-edge {
+  stroke: rgba(255, 138, 42, 0.25);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease;
+}
+
+.map-wrap:hover .map-edge {
+  stroke: rgba(255, 138, 42, 0.35);
+}
+
+/* Body (odbory) */
+.map-nodes {
+  cursor: pointer;
+}
+
+.map-node-wrap {
+  outline: none;
+}
+
+.map-node-wrap:focus-visible .map-node {
+  stroke: var(--text-primary);
+  stroke-width: 3;
+}
+
+.map-node {
+  cursor: pointer;
+  stroke: rgba(255, 255, 255, 0.6);
+  stroke-width: 2;
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+.map-node-wrap:hover .map-node,
+.map-node--hover {
+  transform: scale(1.12);
+}
+
+.map-node-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-secondary);
+  pointer-events: none;
+}
+
+/* Tooltip */
+.map-tooltip {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  max-width: 360px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(11, 15, 20, 0.15);
+  pointer-events: auto;
+  animation: map-tooltip-in 0.2s ease-out;
+}
+
+@keyframes map-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.map-tooltip__name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.map-tooltip__field {
+  font-size: 12px;
+  color: var(--gradient-end);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.map-tooltip__tagline {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0 0 12px 0;
+}
+
+.map-tooltip__activities {
+  margin: 0 0 10px 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.map-tooltip__hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.map-tooltip__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.map-tooltip__btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: white;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s, color 0.2s;
+}
+
+.map-tooltip__btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.map-node--selected {
+  stroke: var(--primary);
+  stroke-width: 3;
+}
+
+@media (min-width: 640px) {
+  .map-tooltip {
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+  }
+}

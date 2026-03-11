@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -52,15 +53,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="landing-page">
-      <div className="landing-container">
-        <Link href="/" className="logo" style={{ display: 'inline-block', textDecoration: 'none' }}>
-          FEI TUKE
-        </Link>
+    <div className="auth-page">
+      <div className="auth-container loaded">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h1>Vytvor si účet</h1>
+            <p>Zaberie to len chvíľu. Potom môžeš ukladať výsledky a kedykoľvek sa k nim vrátiť.</p>
+          </div>
 
-        <div className="landing-content" style={{ maxWidth: '500px', margin: '32px auto' }}>
-          <h1 className="landing-title" style={{ fontSize: '32px' }}>Registrácia</h1>
-          
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
               <label htmlFor="name" className="form-label">Meno</label>
@@ -68,7 +68,7 @@ export default function RegisterPage() {
                 type="text"
                 id="name"
                 className="form-input"
-                placeholder="Samuel"
+                placeholder="Ako ťa môžeme osloviť?"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -94,11 +94,12 @@ export default function RegisterPage() {
                 type="password"
                 id="password"
                 className="form-input"
-                placeholder="••••••••"
+                placeholder="Min. 6 znakov"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <p className="form-hint">Heslo musí mať aspoň 6 znakov.</p>
             </div>
 
             <div className="form-group">
@@ -107,33 +108,36 @@ export default function RegisterPage() {
                 type="password"
                 id="confirmPassword"
                 className="form-input"
-                placeholder="••••••••"
+                placeholder="Zadaj heslo znova"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && (
+              <div className="auth-form-error" role="alert">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
-              className="cta-button"
+              className="auth-submit-btn"
               disabled={loading}
-              style={{ width: '100%', marginTop: '16px' }}
+              aria-busy={loading}
             >
-              {loading ? 'Registrovanie...' : 'Zaregistrovať sa'}
+              {loading ? 'Registrujem...' : 'Zaregistrovať sa'}
             </button>
           </form>
 
-          <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+          <div className="auth-footer">
+            <p>
               Už máš účet?{' '}
-              <Link href="/login" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                Prihlás sa
-              </Link>
+              <Link href="/login">Prihlás sa</Link>
             </p>
-            <Link href="/" style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px', display: 'block' }}>
+            <Link href="/" className="auth-back">
+              <ArrowLeft size={18} strokeWidth={2} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
               Späť na domov
             </Link>
           </div>
@@ -142,6 +146,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-
-

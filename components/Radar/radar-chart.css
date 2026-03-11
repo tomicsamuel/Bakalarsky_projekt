@@ -1,0 +1,252 @@
+.radar-chart-wrap {
+  padding: 28px 24px 48px;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: linear-gradient(145deg, #FFF8F0 0%, #FFEFD8 50%, #FFE8CC 100%);
+  border: 1px solid rgba(255, 106, 26, 0.25);
+  border-radius: var(--radius-card);
+  box-shadow: 0 12px 40px rgba(255, 106, 26, 0.12), 0 0 0 1px rgba(255, 138, 42, 0.08);
+}
+
+.radar-chart-wrap--fullscreen {
+  max-width: none;
+  width: 100%;
+  min-height: min(90vh, 700px);
+  display: flex;
+  flex-direction: column;
+}
+
+.radar-chart__title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #C44A00;
+  margin: 0 0 8px;
+}
+
+.radar-chart__desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.radar-chart__layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 0;
+}
+
+.radar-chart-wrap--fullscreen .radar-chart__layout {
+  flex: 1;
+}
+
+.radar-chart__main {
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.radar-chart__main--mui {
+  width: 100%;
+  max-width: 600px;
+  padding: 28px;
+  overflow: visible;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 248, 240, 0.95) 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 106, 26, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 8px 32px rgba(255, 106, 26, 0.15);
+}
+
+/* MUI RadarChart – labely čitateľné, bez odrezania */
+.radar-chart__main--mui svg {
+  overflow: visible;
+}
+
+.radar-chart__main--mui text {
+  fill: #5C3D1E;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.radar-chart__svg {
+  width: 100%;
+  max-width: min(520px, 90vw);
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 12px;
+}
+
+.radar-chart__axis-label-wrap {
+  cursor: pointer;
+}
+
+.radar-chart__hover-zone {
+  cursor: pointer;
+}
+
+.radar-chart__axis-label {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text-secondary);
+  transition: fill 0.2s, font-weight 0.2s;
+}
+
+.radar-chart__axis-label--active {
+  fill: var(--primary);
+  font-weight: 800;
+}
+
+.radar-chart__axis-highlight {
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-opacity: 0.5;
+  pointer-events: none;
+}
+
+.radar-chart__polygon {
+  transition: opacity 0.2s, stroke 0.2s;
+}
+
+/* Menu pod radarom – zobrazí sa pri hover */
+.radar-chart__menu {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8F0 100%);
+  border: 2px solid rgba(255, 106, 26, 0.35);
+  border-radius: 16px;
+  box-shadow:
+    0 12px 32px rgba(255, 106, 26, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  margin-top: 24px;
+  animation: radar-menu-in 0.2s ease-out;
+}
+
+@keyframes radar-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.radar-chart__menu-name {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.radar-chart__menu-field {
+  display: block;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.radar-chart__menu-score {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FF6B1A 0%, #E55B00 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 106, 26, 0.4);
+  margin-bottom: 16px;
+}
+
+.radar-chart__menu-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.radar-chart__menu-btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 106, 26, 0.35);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F0 100%);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.radar-chart__menu-btn:hover {
+  background: linear-gradient(135deg, #FF6B1A 0%, #E55B00 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(255, 106, 26, 0.35);
+  transform: translateY(-1px);
+}
+
+.radar-chart__legend {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radar-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.radar-chart__legend-item:hover {
+  border-color: var(--primary);
+  background: rgba(196, 74, 0, 0.04);
+}
+
+.radar-chart__legend-item--active {
+  border-color: var(--primary);
+  background: rgba(196, 74, 0, 0.08);
+  box-shadow: 0 0 0 2px rgba(196, 74, 0, 0.2);
+}
+
+.radar-chart__legend-rank {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 28px;
+}
+
+.radar-chart__legend-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.radar-chart__legend-score {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}

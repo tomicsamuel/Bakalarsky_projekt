@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import Logo from '@/components/Logo';
 import { getProgramInfo } from '@/lib/programs';
+import { getProgramProfile } from '@/lib/programProfiles';
 
 type Program = {
   name: string;
@@ -33,18 +36,42 @@ export default function ProgramDetailPage() {
       }
     }
 
-    const programInfo = getProgramInfo(name, field);
+    const search = new URLSearchParams({ name, field }).toString();
+    const staticFallback = getProgramInfo(name, field);
 
-    if (programInfo) {
-      setProgram({
-        name: programInfo.name,
-        field: programInfo.field,
-        description: programInfo.description,
-        occupations: programInfo.occupations,
-      });
-    }
-
-    setLoading(false);
+    fetch(`/api/program-by-name?${search}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.program) {
+          const p = json.program;
+          setProgram({
+            name: p.name,
+            field: p.field,
+            description: (p.description && p.description.trim()) ? p.description.trim() : (staticFallback?.description ?? null),
+            occupations: (p.occupations && p.occupations.trim()) ? p.occupations.trim() : (staticFallback?.occupations ?? null),
+          });
+        } else {
+          if (staticFallback) {
+            setProgram({
+              name: staticFallback.name,
+              field: staticFallback.field,
+              description: staticFallback.description ?? null,
+              occupations: staticFallback.occupations ?? null,
+            });
+          }
+        }
+      })
+      .catch(() => {
+        if (staticFallback) {
+          setProgram({
+            name: staticFallback.name,
+            field: staticFallback.field,
+            description: staticFallback.description ?? null,
+            occupations: staticFallback.occupations ?? null,
+          });
+        }
+      })
+      .finally(() => setLoading(false));
   }, [params.name, params.field]);
 
   const handleBackToResults = () => {
@@ -58,8 +85,25 @@ export default function ProgramDetailPage() {
   if (loading) {
     return (
       <div className="page-container">
-        <div className="card" style={{ textAlign: 'center', padding: '60px' }}>
-          <div>Načítavam...</div>
+        <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+        <nav className="platform-nav" aria-label="Prehľad sekcií">
+          <Link href="/">Domov</Link>
+          <Link href="/programy">Študijné odbory</Link>
+          <Link href="/aktivity">Aktivity katedry</Link>
+          <Link href="/uspechy">Študijné aktuality</Link>
+          <Link href="/finder">Nájdi odbor</Link>
+        </nav>
+        <div className="card program-detail-card" style={{ maxWidth: '900px', margin: '32px auto' }}>
+          <div className="program-detail-skeleton">
+            <div className="program-detail-skeleton__breadcrumb" aria-hidden />
+            <div className="program-detail-skeleton__title" aria-hidden />
+            <div className="program-detail-skeleton__subtitle" aria-hidden />
+            <div className="program-detail-skeleton__block" aria-hidden />
+            <div className="program-detail-skeleton__block program-detail-skeleton__block--short" aria-hidden />
+            <p className="program-detail-loading-text" role="status" aria-live="polite">
+              Načítavam odbor…
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -68,10 +112,18 @@ export default function ProgramDetailPage() {
   if (!program) {
     return (
       <div className="page-container">
+        <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+        <nav className="platform-nav" aria-label="Prehľad sekcií">
+          <Link href="/">Domov</Link>
+          <Link href="/programy">Študijné odbory</Link>
+          <Link href="/aktivity">Aktivity katedry</Link>
+          <Link href="/uspechy">Študijné aktuality</Link>
+          <Link href="/finder">Nájdi odbor</Link>
+        </nav>
         <div className="card" style={{ textAlign: 'center', padding: '60px' }}>
-          <h2>Program nebol nájdený</h2>
-          <Link href="/" className="cta-button" style={{ marginTop: '24px', display: 'inline-block' }}>
-            Späť na domov
+          <h2>Program sa nenašiel</h2>
+          <Link href="/programy" className="cta-button" style={{ marginTop: '24px', display: 'inline-block' }}>
+            Prejsť na študijné odbory
           </Link>
         </div>
       </div>
@@ -80,26 +132,42 @@ export default function ProgramDetailPage() {
 
   return (
     <div className="page-container">
-      <Link href="/" className="logo" style={{ display: 'inline-block', textDecoration: 'none' }}>
-        FEI TUKE
-      </Link>
+      <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+      <nav className="platform-nav" aria-label="Prehľad sekcií">
+        <Link href="/">Domov</Link>
+        <Link href="/programy">Študijné odbory</Link>
+        <Link href="/aktivity">Aktivity katedry</Link>
+        <Link href="/uspechy">Študijné aktuality</Link>
+        <Link href="/finder">Nájdi odbor</Link>
+      </nav>
 
-      <div className="card" style={{ maxWidth: '900px', margin: '32px auto' }}>
+      <div className="card program-detail-card" style={{ maxWidth: '900px', margin: '32px auto' }}>
+        <nav className="program-detail-breadcrumb" aria-label="Breadcrumb">
+          <Link href="/finder">Nájdi odbor</Link>
+          <span className="program-detail-breadcrumb__sep" aria-hidden>›</span>
+          <span>Výsledky</span>
+          <span className="program-detail-breadcrumb__sep" aria-hidden>›</span>
+          <span className="program-detail-breadcrumb__current">{program.name}</span>
+        </nav>
         <div style={{ marginBottom: '24px' }}>
           <button
             onClick={handleBackToResults}
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              color: 'var(--text-secondary)', 
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-secondary)',
               textDecoration: 'none',
               cursor: 'pointer',
               fontFamily: 'inherit',
               fontSize: 'inherit',
-              padding: 0
+              padding: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
-            ← Späť na výsledky
+            <ArrowLeft size={18} strokeWidth={2} />
+            Späť na výsledky
           </button>
         </div>
 
@@ -143,6 +211,128 @@ export default function ProgramDetailPage() {
             </div>
           </div>
         )}
+
+        {(() => {
+          const profile = getProgramProfile(program.name, program.field);
+          if (!profile) return null;
+          const starLabels: { key: keyof typeof profile.starProfile; label: string }[] = [
+            { key: 'elektro', label: 'Elektro' },
+            { key: 'matematika', label: 'Matematika' },
+            { key: 'programovanie', label: 'Programovanie' },
+            { key: 'siete', label: 'Siete' },
+          ];
+          const semesters = [...new Set(profile.subjects.map((s) => s.semester))].sort();
+          return (
+            <>
+              {profile.pros.length > 0 && (
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
+                    Plusy
+                  </h2>
+                  <ul style={{ margin: 0, paddingLeft: '24px', lineHeight: 1.7, color: 'var(--text-primary)' }}>
+                    {profile.pros.map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {profile.cons.length > 0 && (
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
+                    Mínusy
+                  </h2>
+                  <ul style={{ margin: 0, paddingLeft: '24px', lineHeight: 1.7, color: 'var(--text-primary)' }}>
+                    {profile.cons.map((c, i) => (
+                      <li key={i}>{c}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {profile.forWho && (
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
+                    Pre koho je to ideálne
+                  </h2>
+                  <p style={{ margin: 0, lineHeight: 1.7, color: 'var(--text-primary)' }}>{profile.forWho}</p>
+                </div>
+              )}
+              <div style={{ marginBottom: '32px' }}>
+                <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
+                  Hviezdičkové zloženie
+                </h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {starLabels.map(({ key, label }) => {
+                    const n = profile.starProfile[key];
+                    const stars = '★'.repeat(n) + '☆'.repeat(5 - n);
+                    return (
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 600, minWidth: '140px', color: 'var(--text-primary)' }}>{label}:</span>
+                        <span style={{ fontFamily: 'var(--font-geist-mono, monospace)', fontSize: '1.1rem', letterSpacing: 2 }} aria-label={`${n} z 5`}>{stars}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              {profile.subjects.length > 0 && (
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
+                    Predmety podľa rokov
+                  </h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {semesters.map((sem) => {
+                      const list = profile.subjects.filter((s) => s.semester === sem);
+                      return (
+                        <div key={sem}>
+                          <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px', color: 'var(--primary)' }}>
+                            {sem}
+                          </h3>
+                          <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none' }}>
+                            {list.map((sub, i) => (
+                              <li
+                                key={i}
+                                style={{
+                                  padding: '14px 16px',
+                                  marginBottom: '8px',
+                                  background: 'white',
+                                  borderRadius: '12px',
+                                  border: '1px solid var(--card-border)',
+                                }}
+                              >
+                                <div style={{ fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
+                                  {sub.name}
+                                </div>
+                                {sub.evaluation && (
+                                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                                    {sub.evaluation}
+                                  </div>
+                                )}
+                                {sub.focus && (
+                                  <div style={{ fontSize: '0.9rem', lineHeight: 1.5, marginBottom: '6px', color: 'var(--text-primary)' }}>
+                                    <strong>Zameranie:</strong> {sub.focus}
+                                  </div>
+                                )}
+                                {sub.outcomes && (
+                                  <div style={{ fontSize: '0.9rem', lineHeight: 1.5, marginBottom: '6px', color: 'var(--text-primary)' }}>
+                                    {sub.outcomes}
+                                  </div>
+                                )}
+                                {sub.syllabus && (
+                                  <div style={{ fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--text-secondary)' }}>
+                                    {sub.syllabus}
+                                  </div>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          );
+        })()}
 
         <div style={{ marginBottom: '32px' }}>
           <h2 style={{ 

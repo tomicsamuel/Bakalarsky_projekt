@@ -1,0 +1,286 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import Logo from '@/components/Logo';
+import { ACTIVITY_CATEGORIES } from '@/lib/activities';
+
+const FEI_ARCHIVE_FAKULTNE = 'https://www.fei.tuke.sk/sk/archive/clanky?category=fakultne_aktuality&page=1';
+
+type ActivityItem = {
+  id: number | string;
+  title: string;
+  description: string;
+  category: string;
+  link?: string | null;
+};
+
+type FeiAktualityItem = {
+  title: string;
+  link: string;
+  date: string;
+  summary?: string;
+};
+
+type BlogItem = {
+  id: number;
+  title: string;
+  summary?: string | null;
+  publishedAt?: string | null;
+};
+
+export default function AktivityPage() {
+  const [categoryFilter, setCategoryFilter] = useState<string>('Všetky');
+  const [items, setItems] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [feiAktuality, setFeiAktuality] = useState<FeiAktualityItem[] | null>(null);
+  const [feiAktualityLoading, setFeiAktualityLoading] = useState(true);
+  const [blogPosts, setBlogPosts] = useState<BlogItem[]>([]);
+  const [blogLoading, setBlogLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setFeiAktualityLoading(true);
+    fetch('/api/fei-aktuality')
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled) return;
+        if (json.success && Array.isArray(json.data)) {
+          setFeiAktuality(json.data);
+        } else {
+          setFeiAktuality(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setFeiAktuality(null);
+      })
+      .finally(() => {
+        if (!cancelled) setFeiAktualityLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (categoryFilter !== 'Všetky') params.set('category', categoryFilter);
+    fetch(`/api/activities?${params.toString()}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled) return;
+        if (json.success && Array.isArray(json.data)) {
+          setItems(
+            json.data.map((a: { id: number; title: string; description: string; category: string; link?: string | null }) => ({
+              id: a.id,
+              title: a.title,
+              description: a.description,
+              category: a.category,
+              link: a.link ?? undefined,
+            }))
+          );
+        } else {
+          setItems([]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setItems([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [categoryFilter]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setBlogLoading(true);
+    fetch('/api/blog?section=aktivity')
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled) return;
+        if (json.success && Array.isArray(json.data)) setBlogPosts(json.data);
+        else setBlogPosts([]);
+      })
+      .catch(() => { if (!cancelled) setBlogPosts([]); })
+      .finally(() => { if (!cancelled) setBlogLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  return (
+    <div className="page-container">
+      <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+      <nav className="platform-nav" aria-label="Prehľad sekcií">
+        <Link href="/">Domov</Link>
+        <Link href="/programy">Študijné odbory</Link>
+        <Link href="/aktivity">Aktivity katedry</Link>
+        <Link href="/uspechy">Študijné aktuality</Link>
+        <Link href="/finder">Nájdi odbor</Link>
+      </nav>
+
+      <div className="card" style={{ maxWidth: '1000px', margin: '32px auto' }}>
+        <h1 className="page-title" style={{ marginBottom: '8px' }}>
+          Aktivity katedry
+        </h1>
+        <p className="landing-description" style={{ marginBottom: '24px' }}>
+          Čo sa na fakulte deje: projekty, spolupráca s priemyslom, výskum a aktivity pre študentov i verejnosť.
+        </p>
+
+        <section aria-labelledby="fei-aktuality-heading" className="card glass-feature" style={{ padding: '24px', marginBottom: '32px' }}>
+          <h2 id="fei-aktuality-heading" style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>
+            Fakultné aktuality (fei.tuke.sk)
+          </h2>
+          <p style={{ marginBottom: '16px', color: 'var(--text-secondary)' }}>
+            Najnovšie články a oznámenia priamo z oficiálnej stránky FEI TUKE.
+          </p>
+          {feiAktualityLoading ? (
+            <p style={{ color: 'var(--text-secondary)' }}>Načítavam aktuality...</p>
+          ) : feiAktuality && feiAktuality.length > 0 ? (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[...feiAktuality]
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map((article, i) => (
+                <li key={i}>
+                  <a
+                    href={article.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: 'block', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s' }}
+                  >
+                    <span style={{ fontWeight: 700 }}>{article.title}</span>
+                    {article.date && (
+                      <span style={{ display: 'block', fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                        {new Date(article.date).toLocaleDateString('sk-SK', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </span>
+                    )}
+                    {article.summary && (
+                      <span style={{ display: 'block', fontSize: '14px', marginTop: '6px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                        {article.summary}
+                      </span>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <a
+            href={FEI_ARCHIVE_FAKULTNE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cta-button"
+            style={{ marginTop: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+          >
+            Všetky fakultné aktuality na fei.tuke.sk
+            <ArrowRight size={18} strokeWidth={2} />
+          </a>
+        </section>
+
+        <section aria-labelledby="blog-aktivity-heading" className="card glass-feature" style={{ padding: '24px', marginBottom: '32px' }}>
+          <h2 id="blog-aktivity-heading" style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>
+            Články – Aktivity katedry
+          </h2>
+          <p style={{ marginBottom: '16px', color: 'var(--text-secondary)' }}>
+            Články a oznámenia z katedry publikované na tejto stránke.
+          </p>
+          {blogLoading ? (
+            <p style={{ color: 'var(--text-secondary)' }}>Načítavam články...</p>
+          ) : blogPosts.length > 0 ? (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[...blogPosts]
+                .sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime())
+                .map((article) => (
+                <li key={article.id}>
+                  <Link
+                    href={`/blog/${article.id}`}
+                    style={{ display: 'block', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s' }}
+                  >
+                    <span style={{ fontWeight: 700 }}>{article.title}</span>
+                    {article.publishedAt && (
+                      <span style={{ display: 'block', fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                        {new Date(article.publishedAt).toLocaleDateString('sk-SK', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </span>
+                    )}
+                    {article.summary && (
+                      <span style={{ display: 'block', fontSize: '14px', marginTop: '6px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                        {article.summary}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p style={{ color: 'var(--text-secondary)' }}>Zatiaľ tu nie sú žiadne články.</p>
+          )}
+        </section>
+
+        <div className="filter-row" style={{ marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Kategória:</span>
+          <button
+            type="button"
+            className={`chip ${categoryFilter === 'Všetky' ? 'active' : ''}`}
+            onClick={() => setCategoryFilter('Všetky')}
+            aria-pressed={categoryFilter === 'Všetky'}
+          >
+            Všetky
+          </button>
+          {ACTIVITY_CATEGORIES.map((c) => (
+            <button
+              key={c}
+              type="button"
+              className={`chip ${categoryFilter === c ? 'active' : ''}`}
+              onClick={() => setCategoryFilter(c)}
+              aria-pressed={categoryFilter === c}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
+        {loading ? (
+          <div className="empty-state" style={{ textAlign: 'center', padding: '48px 24px' }}>
+            <p>Načítavam...</p>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {items.map((activity) => (
+                <article
+                  key={activity.id}
+                  className="card glass-feature"
+                  style={{ padding: '24px' }}
+                >
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--primary)', marginBottom: '8px' }}>
+                    {activity.category}
+                  </div>
+                  <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '12px' }}>
+                    {activity.title}
+                  </h2>
+                  <p style={{ lineHeight: 1.6, color: 'var(--text-primary)' }}>
+                    {activity.description}
+                  </p>
+                  {activity.link && (
+                    <a href={activity.link} target="_blank" rel="noopener noreferrer" className="cta-button" style={{ marginTop: '12px', display: 'inline-block' }}>
+                      Viac informácií
+                    </a>
+                  )}
+                </article>
+              ))}
+            </div>
+
+            {items.length === 0 && !loading && (
+              <div className="empty-state" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                <p>Pre zvolenú kategóriu neboli nájdené žiadne aktivity.</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

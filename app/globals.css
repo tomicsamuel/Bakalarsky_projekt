@@ -1,3 +1,7 @@
+/* Tailwind v4 + HeroUI */
+@import "tailwindcss";
+@plugin "../hero.ts";
+
 /* ========================================
    FEI FINDER – GLOBÁLNE ŠTÝLY
    Žlto-oranžový gradient, mobile-first dizajn
@@ -10,12 +14,12 @@
   box-sizing: border-box;
 }
 
-/* Farebné premenné – ľahšie sa menia na jednom mieste */
+/* Farebné premenné – FEI paleta (#f9a620) pre celú aplikáciu */
 :root {
-  /* Gradient pozadia */
-  --gradient-start: #FFC44A;
-  --gradient-mid: #FF8A2A;
-  --gradient-end: #E55B00;
+  /* Gradient pozadia (odtiene FEI) */
+  --gradient-start: #fcd88c;
+  --gradient-mid: #f9a620;
+  --gradient-end: #e08a0a;
   
   /* Texty */
   --text-primary: #0B0F14;
@@ -28,7 +32,7 @@
   
   /* Chips */
   --chip-bg: #FFF8EF;
-  --chip-active: #FFD65C;
+  --chip-active: #f9a620;
   
   /* CTA tlačidlo */
   --cta-bg: #0B0F14;
@@ -36,7 +40,16 @@
   
   /* Progress bar */
   --progress-track: #EEE5DA;
-  --progress-fill: #FF9A2A;
+  --progress-fill: #f9a620;
+  
+  /* Akcent (odkazy, kategórie, focus) – FEI */
+  --primary: #f9a620;
+  
+  /* Rarity (Card Pack Reveal) */
+  --rarity-common: #6b7280;
+  --rarity-rare: #2563eb;
+  --rarity-epic: #7c3aed;
+  --rarity-legendary: #d97706;
   
   /* Rozmery */
   --radius-card: 18px;
@@ -49,13 +62,13 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
                'Helvetica Neue', Arial, sans-serif;
-  background: linear-gradient(160deg, var(--gradient-start) 0%, 
-                                      var(--gradient-mid) 50%, 
-                                      var(--gradient-end) 100%);
+  background: transparent;
   min-height: 100vh;
   color: var(--text-primary);
-  padding: 12px;
+  padding: 0;
   line-height: 1.5;
+  overflow-x: hidden;
+  position: relative;
 }
 
 /* Hlavný wrapper – centruje obsah */
@@ -63,20 +76,54 @@ body {
   max-width: 100%;
   margin: 0 auto;
   padding: 0;
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background-color: #fafafa;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.10) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0;
+  background-attachment: fixed;
 }
 
 /* Header – nadpis a stepper */
 .page-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 2;
+  animation: header-appear 0.8s ease-out;
+  padding: 28px 20px;
+  background: transparent;
+  border-bottom: none;
+}
+
+@keyframes header-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page-title {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 12px;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 20px;
   color: var(--text-primary);
+  display: block;
+  padding: 0;
+  border: none;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  letter-spacing: -0.02em;
 }
 
 @media (min-width: 481px) {
@@ -153,8 +200,21 @@ body {
   border-color: var(--gradient-mid);
   color: white;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(229, 91, 0, 0.4);
-  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 4px 12px rgba(229, 91, 0, 0.4),
+              0 0 20px rgba(229, 91, 0, 0.3);
+  animation: pulse 2s ease-in-out infinite,
+             stepper-glow 2s ease-in-out infinite;
+}
+
+@keyframes stepper-glow {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(229, 91, 0, 0.4),
+                0 0 20px rgba(229, 91, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(229, 91, 0, 0.6),
+                0 0 30px rgba(229, 91, 0, 0.5);
+  }
 }
 
 .stepper-line {
@@ -286,52 +346,427 @@ body {
   }
 }
 
-/* Layout – na mobile stack, na desktop 2 stĺpce */
+/* Nový layout – full-width s centrálnym obsahom */
 .content-grid {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0;
+  margin-top: 0;
+  position: relative;
+  z-index: 2;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* Desktop: dva stĺpce vedľa seba */
-@media (min-width: 769px) {
+.finder-main {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.finder-step-progress {
+  margin-top: 12px;
+  max-width: 320px;
+}
+
+.finder-step-progress__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.finder-step-progress__bar {
+  height: 6px;
+  background: var(--progress-track);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.finder-step-progress__fill {
+  height: 100%;
+  background: var(--progress-fill);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* Desktop: side-by-side layout */
+@media (min-width: 1024px) {
   .content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 0;
+    margin-top: 0;
+    /* PR8: jedna scroll plocha – bez fixnej výšky */
   }
   
   .page-container {
-    max-width: 1200px;
-    padding: 0 20px;
-  }
-}
-
-@media (min-width: 1201px) {
-  .content-grid {
-    gap: 40px;
+    max-width: 100%;
+    padding: 0;
   }
   
-  .page-container {
-    max-width: 1400px;
-    padding: 0 40px;
+  .finder-main {
+    padding: 0;
   }
 }
 
-/* Karta – svetlá, tieňovaná */
-.card {
+/* Full-screen formulár (kroky 0–5) + gamifikačný progress bar */
+.finder-form-fullscreen {
+  width: 100%;
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+.finder-progress-bar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--card-border);
+  padding: 16px 20px;
+  margin: 0 -20px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.finder-progress-bar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.finder-progress-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.finder-progress-track {
+  height: 10px;
+  background: var(--progress-track);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.finder-progress-fill {
+  height: 100%;
+  background: var(--progress-fill);
+  border-radius: 10px;
+  transition: width 0.35s ease-out;
+}
+
+.finder-progress-steps {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: center;
+}
+
+.finder-progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--progress-track);
+  transition: background 0.2s;
+}
+
+.finder-progress-dot.done {
+  background: var(--progress-fill);
+}
+
+.finder-progress-dot.current {
+  background: var(--primary);
+  box-shadow: 0 0 0 2px rgba(249, 166, 32, 0.3);
+}
+
+.form-section.form-section--full {
+  flex: 1;
+  padding: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Form section */
+.form-section {
+  padding: 40px;
+  /* PR8: jedna scroll plocha – bez vlastného scrollu */
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.results-section {
+  padding: 40px;
+  /* PR8: jedna scroll plocha – bez vlastného scrollu */
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 1023px) {
+  .form-section,
+  .results-section {
+    padding: 24px;
+  }
+  
+  .results-section {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Full-screen výsledky (krok 6) + toolbar + modal súhrnu */
+.results-fullscreen {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+.results-save-error-banner {
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.results-save-error-banner__link {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.results-save-error-banner__link:hover {
+  color: var(--gradient-end);
+}
+
+.results-toolbar {
+  position: sticky;
+  top: 12px;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(11, 15, 20, 0.08);
+}
+
+.results-toolbar-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.results-toolbar-btn:hover {
+  background: rgba(255, 138, 42, 0.12);
+}
+
+.results-toolbar-btn--primary {
+  background: var(--cta-bg);
+  color: var(--cta-text);
+  border-color: transparent;
+}
+
+.results-toolbar-btn--primary:hover {
+  background: #2a2d32;
+}
+
+.results-toolbar-btn--secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary);
+  border: 2px solid var(--gradient-mid);
+}
+
+.results-toolbar-btn--secondary:hover {
+  background: rgba(255, 138, 42, 0.12);
+}
+
+.results-toolbar-error {
+  font-size: 13px;
+  color: var(--error, #dc2626);
+}
+
+.results-toolbar-email-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.results-toolbar-email-link:hover {
+  color: var(--text-primary);
+}
+
+.results-toolbar-success {
+  font-size: 14px;
+  font-weight: 700;
+  color: #166534;
+}
+
+.results-section--full {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+.summary-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 15, 20, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.summary-modal {
+  width: min(520px, 100%);
+  max-height: 85vh;
+  overflow: auto;
   background: var(--card-bg);
+  border-radius: 18px;
   border: 1px solid var(--card-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--card-shadow);
-  padding: 16px;
+  box-shadow: 0 24px 60px rgba(11, 15, 20, 0.2);
+  padding: 20px;
+}
+
+.summary-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.summary-modal-close {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.summary-modal .summary-item {
+  margin-bottom: 12px;
+}
+
+.summary-modal .summary-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.summary-modal .summary-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+/* Karta – svetlá, tieňovaná s glassmorphism a animáciami */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.08),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  padding: 32px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: card-shine 8s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes card-shine {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18),
+              0 4px 16px rgba(0, 0, 0, 0.12),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border-color: rgba(249, 166, 32, 0.5);
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   color: var(--text-primary);
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 @media (min-width: 481px) {
@@ -340,71 +775,203 @@ body {
   }
   
   .card-title {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 26px;
+    margin-bottom: 28px;
   }
 }
 
 @media (min-width: 769px) {
   .card {
-    padding: 28px;
+    padding: 32px;
   }
   
   .card-title {
-    font-size: 22px;
-    margin-bottom: 24px;
+    font-size: 28px;
+    margin-bottom: 32px;
   }
 }
 
 @media (min-width: 1201px) {
   .card {
-    padding: 36px;
+    padding: 40px;
   }
   
   .card-title {
-    font-size: 24px;
-    margin-bottom: 28px;
+    font-size: 30px;
+    margin-bottom: 36px;
   }
+}
+
+/* Program detail – skeleton loading */
+.program-detail-skeleton {
+  padding: 16px 0;
+}
+
+.program-detail-skeleton__breadcrumb {
+  height: 18px;
+  width: 200px;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%);
+  background-size: 200% 100%;
+  animation: program-detail-shine 1.2s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.program-detail-skeleton__title {
+  height: 36px;
+  width: 70%;
+  max-width: 400px;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.08) 25%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0.08) 75%);
+  background-size: 200% 100%;
+  animation: program-detail-shine 1.2s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.program-detail-skeleton__subtitle {
+  height: 22px;
+  width: 180px;
+  margin-bottom: 28px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%);
+  background-size: 200% 100%;
+  animation: program-detail-shine 1.2s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.program-detail-skeleton__block {
+  height: 80px;
+  width: 100%;
+  margin-bottom: 16px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.09) 50%, rgba(0,0,0,0.05) 75%);
+  background-size: 200% 100%;
+  animation: program-detail-shine 1.2s ease-in-out infinite;
+  border-radius: 10px;
+}
+
+.program-detail-skeleton__block--short {
+  height: 48px;
+  width: 85%;
+}
+
+.program-detail-loading-text {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+@keyframes program-detail-shine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Program detail – breadcrumb */
+.program-detail-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.program-detail-breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.program-detail-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.program-detail-breadcrumb__sep {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.program-detail-breadcrumb__current {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 /* Formulárové polia */
 .form-group {
   margin-bottom: 24px;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+/* Form group vždy viditeľný aj keď má step-content */
+.form-group.step-content {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+  display: block !important;
 }
 
 .form-label {
   display: block;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   color: var(--text-primary);
+  font-size: 16px;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 8px;
+  width: 100%;
+  display: block;
+}
+
+.input-wrapper input {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .form-input,
 .form-select {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 15px;
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-input);
-  background: white;
-  color: var(--text-primary);
-  font-family: inherit;
-  transition: border-color 0.2s;
+  width: 100% !important;
+  padding: 20px 28px !important;
+  font-size: 18px !important;
+  background: #FFFFFF !important;
+  border: 4px solid #000000 !important;
+  border-color: rgba(0, 0, 0, 0.3) !important;
+  border-radius: 16px !important;
+  color: #0B0F14 !important;
+  font-family: inherit !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2),
+              inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  min-height: 60px !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 100 !important;
+  margin: 0 !important;
 }
 
 @media (min-width: 481px) {
   .form-input,
   .form-select {
-    padding: 12px 16px;
-    font-size: 16px;
+    padding: 18px 24px;
+    font-size: 18px;
   }
 }
 
 @media (min-width: 1201px) {
   .form-input,
   .form-select {
-    padding: 14px 18px;
-    font-size: 17px;
+    padding: 20px 28px;
+    font-size: 19px;
+    min-height: 60px;
   }
 }
 
@@ -412,6 +979,17 @@ body {
 .form-select:focus {
   outline: none;
   border-color: var(--gradient-mid);
+  box-shadow: 0 0 0 4px rgba(255, 138, 42, 0.25),
+              0 6px 16px rgba(0, 0, 0, 0.15),
+              inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  background: #fff;
+}
+
+.form-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+  font-size: 16px;
 }
 
 .form-input:disabled {
@@ -549,6 +1127,8 @@ body {
 .chip:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: rgba(249, 166, 32, 0.4);
+  background: rgba(249, 166, 32, 0.08);
 }
 
 .chip:active {
@@ -573,7 +1153,7 @@ body {
   border: none;
   border-radius: var(--radius-cta);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   font-family: inherit;
   margin-top: 8px;
 }
@@ -618,14 +1198,14 @@ body {
 
 /* Animácie pri prechode medzi krokmi */
 .step-content {
-  opacity: 0;
-  transform: translateY(10px);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .step-content.step-visible {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 /* Empty states */
@@ -757,66 +1337,205 @@ body {
   padding: 40px 20px;
 }
 
-/* Logo v ľavom hornom rohu */
-.logo {
-  display: inline-block;
-  padding: 10px 20px;
-  background: var(--cta-bg);
-  color: var(--cta-text);
-  font-weight: 800;
-  font-size: 18px;
-  border-radius: 12px;
+/* Horný riadok: logá vľavo, logout vpravo; vpravo miesto pre deadline badge */
+.landing-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 24px;
-  letter-spacing: 0.5px;
-}
-
-/* Logout button */
-.logout-button {
-  position: absolute;
-  top: 12px;
-  right: 100px;
-  padding: 8px 16px;
-  background: white;
-  color: var(--text-primary);
-  border: 2px solid var(--card-border);
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.logout-button:hover {
-  background: #f5f5f5;
-  transform: translateY(-2px);
+  flex-wrap: wrap;
 }
 
 @media (min-width: 481px) {
-  .logout-button {
-    top: 16px;
-    right: 150px;
-    padding: 10px 18px;
-    font-size: 14px;
+  .landing-top-row {
+    padding-right: 100px;
   }
 }
 
-@media (min-width: 769px) {
-  .logout-button {
-    top: 20px;
-    right: 200px;
-    padding: 10px 20px;
-    font-size: 14px;
+.landing-top-row .logo {
+  margin-bottom: 0;
+}
+
+.landing-logos {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: nowrap;
+  --logo-img-height: 80px;
+  --logo-row-height: 84px;
+}
+
+/* Rovnaká výška oboch log, obrázky v jednej línii */
+.landing-logos .logo {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--logo-row-height);
+  height: var(--logo-row-height);
+  box-sizing: border-box;
+  line-height: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* Next.js Image obal – zarovnať s obrázkom */
+.landing-logos .logo span {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  line-height: 0;
+}
+
+.landing-logos .logo .logo-img {
+  height: var(--logo-img-height);
+  width: auto;
+  max-height: var(--logo-img-height);
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+  vertical-align: middle;
+}
+
+.landing-logos .logo-wrap--fei {
+  background: transparent;
+  padding: 0;
+  box-sizing: border-box;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.landing-logos .logo-wrap--kps {
+  background: transparent;
+  border: none !important;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+  outline: none;
+}
+
+.landing-logos .logo-wrap--kps:hover {
+  box-shadow: none;
+}
+
+/* Bez hover efektov na landingu */
+.landing-logos .logo:hover,
+.landing-logos .logo:focus,
+.landing-logos .logo:focus-visible {
+  transform: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.landing-logos .logo-wrap--kps .logo-img {
+  height: var(--logo-img-height);
+  max-height: var(--logo-img-height);
+  width: auto;
+  border: none;
+  outline: none;
+  object-fit: contain;
+  object-position: center center;
+}
+
+/* Logo v ľavom hornom rohu */
+.logo {
+  display: inline-block;
+  padding: 12px 24px;
+  background: rgba(11, 15, 20, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--cta-text);
+  font-weight: 800;
+  font-size: 18px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 10;
+  animation: logo-glow 2s ease-in-out infinite;
+}
+
+@keyframes logo-glow {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 24px rgba(255, 154, 42, 0.4);
   }
 }
 
-@media (min-width: 1201px) {
-  .logout-button {
-    top: 24px;
-    right: 240px;
-    padding: 12px 24px;
-    font-size: 15px;
+.logo:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(255, 154, 42, 0.5);
+}
+
+/* Logo obrázok (komponent Logo) */
+.logo .logo-img {
+  display: block;
+  height: auto;
+  object-fit: contain;
+}
+.logo.logo-wrap--fei {
+  background: #000;
+  padding: 10px 16px;
+  line-height: 0;
+}
+.logo.logo-wrap--fei:hover {
+  box-shadow: 0 6px 20px rgba(249, 166, 32, 0.35);
+}
+/* KPS logo – PNG s priehľadným pozadím, žiadny box */
+.logo.logo-wrap--kps {
+  background: transparent;
+  padding: 0;
+  line-height: 0;
+  border: none;
+}
+.auth-logo.logo-wrap--fei {
+  background: #000;
+  padding: 12px 20px;
+  border-radius: 16px;
+}
+.auth-logo .logo-img {
+  display: block;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Logout button – v landing-top-row vedľa loga, nad deadline badge */
+.logout-button {
+  position: relative;
+  z-index: 20;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+@keyframes button-pulse {
+  0%, 100% {
+    transform: scale(1);
   }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.logout-button:hover {
+  background: rgba(255, 255, 255, 1);
+  color: var(--text-primary);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Toast notifikácia */
@@ -847,9 +1566,31 @@ body {
 }
 
 .toast-message {
+  flex: 1;
   font-size: 16px;
   font-weight: 600;
-  flex: 1;
+}
+
+.toast-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.12);
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close:hover {
+  background: rgba(0, 0, 0, 0.2);
 }
 
 @keyframes toastSlideUp {
@@ -984,8 +1725,10 @@ body {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(255, 255, 255, 0.25);
-  border: 2px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   padding: 10px 14px;
   border-radius: 50%;
   text-align: center;
@@ -997,6 +1740,24 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  animation: badge-bounce 3s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+@keyframes badge-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.deadline-badge:hover {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .deadline-badge div:first-child {
@@ -1005,6 +1766,43 @@ body {
 
 .deadline-badge div:last-child {
   font-size: 14px;
+}
+
+.platform-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 20px;
+  margin-bottom: 24px;
+  padding: 12px 0;
+}
+
+.platform-nav a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.platform-nav a:hover {
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.platform-nav a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.program-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }
 
 @media (min-width: 481px) {
@@ -1062,6 +1860,41 @@ body {
 }
 
 /* Summary view */
+.summary-block .summary-intro {
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.summary-block .summary {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summary-block .summary-item {
+  padding: 18px;
+  background: white;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--card-border);
+}
+
+.summary-block .summary-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.summary-block .summary-value {
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Fallback ak summary je bez summary-block */
 .summary {
   display: flex;
   flex-direction: column;
@@ -1217,9 +2050,7 @@ body {
   }
   
   .logout-button {
-    position: absolute;
-    top: 16px;
-    right: 200px;
+    position: static;
   }
 }
 
@@ -1345,6 +2176,95 @@ body {
   line-height: 1.5;
 }
 
+.auth-option-card--primary {
+  border-color: var(--gradient-mid);
+  background: linear-gradient(135deg, rgba(255, 244, 231, 0.6) 0%, rgba(255, 255, 255, 1) 100%);
+  box-shadow: 0 4px 16px rgba(255, 138, 42, 0.12);
+}
+
+.landing-page .auth-option-card--primary {
+  background: var(--landing-primary);
+  border: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  color: #fff;
+}
+
+.landing-page .auth-option-card--primary .auth-icon,
+.landing-page .auth-option-card--primary h3,
+.landing-page .auth-option-card--primary p,
+.landing-page .auth-option-card--primary .auth-option-bullets,
+.landing-page .auth-option-card--primary .auth-option-bullets li {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.landing-page .auth-option-card--primary .auth-option-bullets li::before {
+  color: #fff;
+}
+
+.landing-page .auth-option-card--primary:hover {
+  filter: brightness(0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.auth-option-card--primary:hover {
+  border-color: var(--gradient-end);
+  box-shadow: 0 8px 24px rgba(255, 138, 42, 0.18);
+}
+
+.auth-option-card--secondary {
+  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.landing-page .auth-option-card--secondary {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--landing-text);
+}
+
+.landing-page .auth-option-card--secondary h3,
+.landing-page .auth-option-card--secondary p {
+  color: var(--landing-text);
+}
+
+.landing-page .auth-option-card--secondary .auth-option-bullets,
+.landing-page .auth-option-card--secondary .auth-option-bullets li {
+  color: var(--landing-text-muted);
+}
+
+.landing-page .auth-option-card--secondary .auth-option-bullets li::before {
+  color: var(--landing-primary);
+}
+
+.auth-option-bullets {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.auth-option-bullets li {
+  position: relative;
+  padding-left: 14px;
+  margin-top: 4px;
+}
+
+.auth-option-bullets li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--gradient-mid);
+}
+
+.landing-redirect-hint {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
 .auth-links {
   display: flex;
   flex-direction: column;
@@ -1401,12 +2321,123 @@ body {
   text-decoration: underline;
 }
 
-/* Landing page štýly */
+/* Landing page štýly – paleta: primary #f9a620, biela, kockované pozadie */
 .landing-page {
+  --landing-primary: #f9a620;
+  --landing-bg: #ffffff;
+  --landing-text: #0a0a0a;
+  --landing-text-muted: #444;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--landing-bg);
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0;
+  background-attachment: fixed;
+}
+
+/* Landing: bez oranžového gradientu – biele pozadie, jemné shapes */
+.landing-page .animated-bg .bg-gradient {
+  background: var(--landing-bg);
+  animation: none;
+}
+.landing-page .animated-bg .shape {
+  opacity: 0.08;
+}
+.landing-page .animated-bg .shape-1,
+.landing-page .animated-bg .shape-2,
+.landing-page .animated-bg .shape-3,
+.landing-page .animated-bg .shape-4 {
+  background: radial-gradient(circle, rgba(249, 166, 32, 0.12), transparent);
+}
+.landing-page .animated-bg .bg-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0;
+  background-attachment: fixed;
+  opacity: 1;
+  animation: none;
+}
+
+/* Landing: floating elements jemnejšie na bielom */
+.landing-page .floating-element {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.06), transparent);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+}
+.landing-page .floating-element:nth-child(3n) {
+  background: radial-gradient(circle, rgba(249, 166, 32, 0.08), transparent);
+}
+.landing-page .floating-element:nth-child(5n) {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.05), transparent);
+}
+
+/* Finder: biele pozadie s kockovanou mriežkou v celej ploche */
+.finder-page {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0;
+  background-attachment: fixed;
+}
+
+.finder-page .animated-bg .bg-gradient {
+  background: #ffffff;
+  animation: none;
+}
+
+.finder-page .animated-bg .shape {
+  opacity: 0.08;
+}
+
+.finder-page .animated-bg .shape-1,
+.finder-page .animated-bg .shape-2,
+.finder-page .animated-bg .shape-3,
+.finder-page .animated-bg .shape-4 {
+  background: radial-gradient(circle, rgba(249, 166, 32, 0.12), transparent);
+}
+
+.finder-page .animated-bg .bg-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0;
+  background-attachment: fixed;
+  opacity: 1;
+  animation: none;
+}
+
+.finder-page .floating-element {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.06), transparent);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+}
+
+.finder-page .floating-element:nth-child(3n) {
+  background: radial-gradient(circle, rgba(249, 166, 32, 0.08), transparent);
+}
+
+.finder-page .floating-element:nth-child(5n) {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.05), transparent);
+}
+
+.finder-page .page-header {
+  padding: 24px 20px;
+}
+
+.finder-page .finder-progress-bar {
+  margin-bottom: 16px;
+}
+
+.finder-page .finder-form-fullscreen {
+  min-height: calc(100vh - 120px);
 }
 
 .landing-container {
@@ -1424,6 +2455,12 @@ body {
   margin: 32px 0;
 }
 
+.landing-page .landing-content {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
 .landing-title {
   font-size: 48px;
   font-weight: 800;
@@ -1432,12 +2469,21 @@ body {
   color: var(--text-primary);
 }
 
+.landing-page .landing-title,
+.landing-page .landing-description {
+  color: var(--landing-text);
+}
+
 .landing-description {
   font-size: 20px;
   line-height: 1.6;
   color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto 48px;
+}
+
+.landing-page .landing-description {
+  color: var(--landing-text-muted);
 }
 
 .landing-features {
@@ -1454,9 +2500,39 @@ body {
   border: 1px solid var(--card-border);
 }
 
+.landing-page .feature-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 14px 16px;
+}
+
+.landing-page .landing-features {
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.landing-page .feature-card h3 {
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.landing-page .feature-card p {
+  font-size: 14px;
+}
+
+.landing-page .feature-icon {
+  font-size: 36px;
+  margin-bottom: 6px;
+}
+
 .feature-icon {
   font-size: 48px;
   margin-bottom: 12px;
+}
+
+.landing-page .feature-icon {
+  color: var(--landing-primary);
 }
 
 .feature-card h3 {
@@ -1466,9 +2542,17 @@ body {
   color: var(--text-primary);
 }
 
+.landing-page .feature-card h3 {
+  color: var(--landing-text);
+}
+
 .feature-card p {
   font-size: 15px;
   color: var(--text-secondary);
+}
+
+.landing-page .feature-card p {
+  color: var(--landing-text-muted);
 }
 
 .email-form {
@@ -1550,16 +2634,193 @@ body {
   line-height: 1;
 }
 
+.landing-page .stat-number {
+  color: var(--landing-text);
+}
+
 .stat-label {
   font-size: 14px;
   color: var(--text-secondary);
   margin-top: 8px;
 }
 
+.landing-page .stat-label {
+  color: var(--landing-text-muted);
+}
+
+.landing-page .email-form {
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 24px;
+  gap: 12px;
+}
+
+.landing-page .email-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 16px;
+  font-size: 15px;
+  border-width: 1px;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: var(--landing-text);
+}
+
+.landing-page .email-input:focus {
+  border-color: var(--landing-primary);
+}
+
 .landing-footer {
   margin-top: 32px;
   color: var(--text-secondary);
   font-size: 15px;
+}
+
+.landing-page .landing-footer {
+  color: var(--landing-text-muted);
+}
+
+/* Logo na landingu: FEI TUKE v tmavom wrapperi (čierny podklad) */
+.landing-page .landing-logos .logo-wrap--fei {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none;
+}
+.landing-page .landing-logos .logo:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+/* Deadline badge: primary rám/pozadie */
+.landing-page .deadline-badge {
+  background: var(--landing-primary);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.landing-page .deadline-badge div:first-child,
+.landing-page .deadline-badge div:last-child {
+  color: #fff;
+}
+
+/* Navigácia: čierna/sivá, hover v primary */
+.landing-page .platform-nav a {
+  color: var(--landing-text);
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.landing-page .platform-nav a:hover {
+  color: var(--landing-primary);
+  border-color: var(--landing-primary);
+  box-shadow: 0 2px 12px rgba(249, 166, 32, 0.2);
+}
+.landing-page .platform-nav a:focus-visible {
+  outline-color: var(--landing-primary);
+}
+
+/* Tlačidlá na landingu: primárne #f9a620, sekundárne obrysové */
+.landing-page .cta-button-large {
+  background: var(--landing-primary);
+  color: #fff;
+  padding: 8px 20px;
+  font-size: 14px;
+  width: auto;
+}
+.landing-page .cta-button-large:hover {
+  box-shadow: 0 6px 20px rgba(249, 166, 32, 0.4);
+}
+
+.landing-page .step-buttons {
+  max-width: 360px;
+  margin-top: 12px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 10px;
+  justify-content: center;
+}
+
+.landing-page .step-button,
+.landing-page .step-button-back {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  padding: 8px 20px;
+  font-size: 14px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex !important;
+}
+
+.landing-page .step-button-back {
+  min-width: 100px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: var(--landing-text);
+  background: #fff;
+}
+
+.landing-page .step-button-back span,
+.landing-page .step-button-back [class*="content"],
+.landing-page .step-button-back > * {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  width: 100%;
+}
+
+/* Všetky tlačidlá v step-buttons – text na stred */
+.landing-page .step-buttons button {
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.landing-page .step-buttons button *,
+.landing-page .step-buttons button span,
+.landing-page .step-buttons button [class*="content"],
+.landing-page .step-buttons .cta-button-large span,
+.landing-page .step-buttons .cta-button-large [class*="content"],
+.landing-page .step-buttons .cta-button-large > * {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  min-width: 0;
+}
+
+.landing-page .step-button-back:hover {
+  background: #f5f5f5;
+  border-color: var(--landing-primary);
+  color: var(--landing-primary);
+}
+
+.landing-page .step-button-back .step-button-inner {
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
+.landing-page .step-buttons .cta-button-large .step-button-inner {
+  flex: 0 0 auto;
+}
+
+.landing-page .auth-link-primary {
+  background: var(--landing-primary);
+  color: #fff;
+}
+.landing-page .auth-link-primary:hover {
+  box-shadow: 0 4px 16px rgba(249, 166, 32, 0.35);
+}
+.landing-page .auth-link-secondary {
+  border: 2px solid var(--landing-text);
+  color: var(--landing-text);
+  background: transparent;
+}
+.landing-page .auth-link-secondary:hover {
+  border-color: var(--landing-primary);
+  color: var(--landing-primary);
 }
 
 .landing-footer p {
@@ -1590,5 +2851,785 @@ body {
   
   .landing-stats {
     gap: 32px;
+  }
+}
+
+/* 1920×1080 / 16:9 – celý landing bez skrolovania */
+@media (min-width: 1024px) and (max-height: 1080px) {
+  .landing-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 6px 0 16px;
+  }
+
+  .landing-page .landing-container {
+    margin-top: 0;
+  }
+
+  .landing-page main.landing-container {
+    padding-top: 0;
+  }
+
+  .landing-top-row {
+    margin-bottom: 8px;
+  }
+
+  .platform-nav {
+    margin-bottom: 8px;
+    padding: 4px 0;
+  }
+
+  .landing-page .landing-content {
+    padding: 28px 36px;
+    margin: 12px 0;
+  }
+
+  .landing-page .landing-title {
+    font-size: 38px;
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+
+  .landing-page .landing-description {
+    font-size: 17px;
+    margin: 0 auto 16px;
+    line-height: 1.5;
+  }
+
+  .landing-page .landing-stats,
+  .landing-stats {
+    gap: 40px;
+    margin-bottom: 14px;
+  }
+
+  .landing-page .stat-number {
+    font-size: 40px;
+  }
+
+  .landing-page .stat-label {
+    margin-top: 4px;
+    font-size: 13px;
+  }
+
+  .landing-page .landing-features {
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .landing-page .feature-card {
+    padding: 14px 16px;
+  }
+
+  .landing-page .feature-icon {
+    font-size: 36px;
+    margin-bottom: 6px;
+  }
+
+  .landing-page .feature-card h3 {
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+
+  .landing-page .feature-card p {
+    font-size: 14px;
+  }
+
+  .landing-page .auth-options,
+  .auth-options {
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+
+  .landing-page .auth-option-card {
+    padding: 20px 18px;
+  }
+
+  .landing-page .auth-option-card h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .landing-page .auth-option-card p {
+    font-size: 13px;
+  }
+
+  .landing-page .auth-option-bullets {
+    margin-top: 8px;
+    font-size: 11px;
+  }
+
+  .landing-page .landing-footer {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  .landing-page .landing-footer p {
+    margin: 2px 0;
+  }
+}
+
+/* ========================================
+   NOVÝ DIZAJN - Glassmorphism, 3D efekty, Particles
+   ======================================== */
+
+/* Particle background */
+.particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(160deg, var(--gradient-start) 0%, 
+                                      var(--gradient-mid) 50%, 
+                                      var(--gradient-end) 100%);
+  overflow: hidden;
+}
+
+.particles-bg::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 2px, transparent 2px),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 80px 80px, 60px 60px, 100px 100px;
+  animation: particles-float 25s infinite linear;
+  opacity: 0.6;
+}
+
+.particles-bg::after {
+  content: '';
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background-image: 
+    radial-gradient(circle at 60% 30%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+  background-size: 120px 120px, 90px 90px;
+  animation: particles-float-reverse 30s infinite linear;
+  opacity: 0.4;
+}
+
+@keyframes particles-float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-50px, -50px) rotate(360deg); }
+}
+
+@keyframes particles-float-reverse {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(50px, 50px) rotate(-360deg); }
+}
+
+/* Glassmorphism efekty */
+.glass-card {
+  background: rgba(255, 244, 231, 0.75) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.glass-feature {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.glass-feature:hover {
+  box-shadow: var(--card-shadow);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: var(--gradient-mid) !important;
+  box-shadow: 0 0 0 3px rgba(255, 138, 42, 0.2);
+}
+
+/* Hero title s gradientom */
+.hero-title {
+  font-size: 56px !important;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--gradient-end) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px !important;
+  animation: title-appear 0.8s ease-out;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes title-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-container {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.landing-container.loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Auth stránky (registrácia / prihlásenie) – biela + kockované pozadie ako úvod */
+.auth-page {
+  position: fixed;
+  inset: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background-color: #ffffff !important;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.14) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+  background-position: 0 0 !important;
+  background-attachment: fixed !important;
+  background-repeat: repeat !important;
+  overflow: auto;
+}
+
+.auth-page::before {
+  display: none !important;
+}
+
+.auth-page .auth-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+}
+
+.auth-page .auth-logo {
+  display: none;
+}
+
+.auth-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: 0 24px 48px rgba(11, 15, 20, 0.15), 0 0 0 1px rgba(255,255,255,0.5) inset;
+  padding: 40px 32px;
+  border-left: 4px solid var(--gradient-end);
+  text-align: left;
+}
+
+.auth-header {
+  margin-bottom: 28px;
+}
+
+.auth-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.auth-header p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.auth-form .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-form .form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.auth-form .form-input {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 16px;
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-input);
+  background: white;
+  color: var(--text-primary);
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-form .form-input:hover {
+  border-color: rgba(0,0,0,0.18);
+}
+
+.auth-form .form-input:focus {
+  outline: none;
+  border-color: var(--gradient-mid);
+  box-shadow: 0 0 0 3px rgba(255, 138, 42, 0.2);
+}
+
+.auth-form .form-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.auth-form .form-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.auth-form .error-message,
+.auth-form-error {
+  padding: 12px 16px;
+  border-radius: var(--radius-input);
+  background: #fef2f2;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.auth-form .cta-button {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 17px;
+  font-weight: 700;
+  margin-top: 8px;
+  border-radius: var(--radius-cta);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Tlačidlo Prihlásiť sa – výrazné, FEI farba (natívny button) */
+.auth-form .auth-submit-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 16px 24px;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-cta);
+  box-shadow: 0 4px 14px rgba(249, 166, 32, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.auth-form .auth-submit-btn:hover:not(:disabled) {
+  background: #e08a0a;
+  box-shadow: 0 6px 20px rgba(249, 166, 32, 0.5);
+  transform: translateY(-2px);
+}
+
+.auth-form .auth-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.auth-form .auth-submit-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.auth-form .auth-submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.auth-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--card-border);
+  text-align: center;
+}
+
+.auth-footer p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 12px 0;
+}
+
+.auth-footer a {
+  color: var(--gradient-end);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.auth-footer a:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.auth-footer .auth-back {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.auth-footer .auth-back:hover {
+  color: var(--text-primary);
+}
+
+/* Hero CTA button s 3D efektom */
+.hero-cta-button {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hero-cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.hero-cta-button:hover::before {
+  left: 100%;
+}
+
+.hero-cta-button:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(11, 15, 20, 0.35);
+}
+
+.hero-cta-button:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* 3D hover efekty pre karty */
+.feature-card {
+  transform-style: preserve-3d;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px) rotateX(2deg);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+}
+
+.auth-option-card {
+  transform-style: preserve-3d;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.auth-option-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.auth-option-card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+/* ========================================
+   PRÍSTUPNOSŤ - Screen reader, Keyboard, High contrast
+   ======================================== */
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus indicators - výrazné pre prístupnosť */
+*:focus-visible {
+  outline: 3px solid var(--gradient-mid);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--gradient-mid);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #000000;
+    --text-secondary: #000000;
+    --card-bg: #FFFFFF;
+    --card-border: #000000;
+    --chip-active: #FFD700;
+  }
+  
+  .glass-card,
+  .glass-feature,
+  .glass-input {
+    background: #FFFFFF !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 2px solid #000000 !important;
+  }
+}
+
+/* Reduced motion - rešpektuje používateľské nastavenia */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .particles-bg::before,
+  .particles-bg::after {
+    animation: none !important;
+  }
+}
+
+/* Large text option */
+body.large-text {
+  font-size: 1.25rem;
+}
+
+body.large-text h1 {
+  font-size: 2.5rem;
+}
+
+body.large-text h2 {
+  font-size: 2rem;
+}
+
+body.large-text .landing-title {
+  font-size: 3rem !important;
+}
+
+/* Keyboard navigation improvements */
+.chip:focus-visible,
+.category-header:focus-visible,
+.step-button:focus-visible {
+  outline: 3px solid var(--gradient-mid);
+  outline-offset: 3px;
+  z-index: 10;
+}
+
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--cta-bg);
+  color: var(--cta-text);
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 100;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ========================================
+   GAMIFIKÁCIA - Confetti, Progress, Feedback
+   ======================================== */
+
+/* Enhanced progress bars */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.progress-fill {
+  position: relative;
+  overflow: hidden;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Chip selection feedback */
+.chip {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: chip-idle 4s ease-in-out infinite;
+}
+
+@keyframes chip-idle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+.chip::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 214, 92, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.chip:active::before {
+  width: 200px;
+  height: 200px;
+}
+
+.chip.active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 214, 92, 0.4),
+              0 0 20px rgba(255, 214, 92, 0.2);
+  animation: chip-active-pulse 2s ease-in-out infinite;
+}
+
+@keyframes chip-active-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(255, 214, 92, 0.4),
+                0 0 20px rgba(255, 214, 92, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(255, 214, 92, 0.6),
+                0 0 30px rgba(255, 214, 92, 0.4);
+  }
+}
+
+.chip:hover:not(.active) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Step completion animation - len pre karty */
+.card.step-content {
+  animation: step-fade-in 0.4s ease-out;
+}
+
+@keyframes step-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Success feedback */
+.success-pulse {
+  animation: success-pulse 0.6s ease-out;
+}
+
+@keyframes success-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responzívne úpravy pre nový dizajn */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 36px !important;
+  }
+  
+  .particles-bg::before,
+  .particles-bg::after {
+    background-size: 60px 60px, 40px 40px, 80px 80px;
+  }
+  
+  .glass-card {
+    padding: 32px 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 28px !important;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-4px);
   }
 }

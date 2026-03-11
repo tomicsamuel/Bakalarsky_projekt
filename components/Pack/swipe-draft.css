@@ -1,0 +1,290 @@
+/* Swipe Draft – Tinder-like stack */
+
+.swipe-draft {
+  padding: 20px 16px 100px;
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.swipe-draft--complete {
+  justify-content: center;
+}
+
+.swipe-draft__complete-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.swipe-draft__progress {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.swipe-draft__progress-bar {
+  width: 120px;
+  height: 4px;
+  background: var(--progress-track);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.swipe-draft__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.swipe-draft__counters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.swipe-draft__counter {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.swipe-draft__counter--like { color: #16a34a; }
+.swipe-draft__counter--pass { color: #6b7280; }
+.swipe-draft__counter--super { color: var(--rarity-legendary); }
+
+.swipe-draft__stack {
+  position: relative;
+  width: min(400px, 96%);
+  min-height: 540px;
+  margin: 0 auto;
+}
+
+.swipe-draft__card-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.swipe-draft__card-wrap:last-of-type {
+  pointer-events: auto;
+}
+
+.swipe-draft__actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.swipe-draft__btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--card-border);
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.swipe-draft__btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.swipe-draft__btn--undo {
+  font-size: 20px;
+}
+
+.swipe-draft__btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.swipe-draft__btn--undo svg {
+  width: 28px;
+  height: 28px;
+}
+
+.swipe-draft__btn--pass { color: #6b7280; }
+.swipe-draft__btn--like { color: #16a34a; border-color: #16a34a; }
+.swipe-draft__btn--super { color: var(--rarity-legendary); border-color: var(--rarity-legendary); }
+
+/* Single card – zosúladené so šírkou stacku */
+.swipe-card {
+  position: absolute;
+  width: 100%;
+  max-width: 400px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.swipe-card:active {
+  cursor: grabbing;
+}
+
+.swipe-card__inner {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Nápisy vedľa karty – Záujem (vpravo) a Nie (vľavo) */
+.swipe-card__hint {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  z-index: 1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.swipe-card__hint--pass {
+  left: -8px;
+  transform: translate(-100%, -50%);
+  color: #64748b;
+  font-size: 1.75rem;
+  letter-spacing: 0.08em;
+}
+
+.swipe-card__hint--like {
+  right: -8px;
+  transform: translate(100%, -50%);
+  color: #15803d;
+  font-size: 1.75rem;
+  letter-spacing: 0.08em;
+}
+
+.swipe-card__hint--super {
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  color: var(--rarity-legendary);
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+}
+
+/* Stack: scale back cards – miernejší úbytok pre lepšiu čitateľnosť */
+.swipe-draft__card-wrap:nth-last-of-type(1) .swipe-card { z-index: 6; transform: scale(1); }
+.swipe-draft__card-wrap:nth-last-of-type(2) .swipe-card { z-index: 5; transform: scale(0.97); }
+.swipe-draft__card-wrap:nth-last-of-type(3) .swipe-card { z-index: 4; transform: scale(0.94); }
+.swipe-draft__card-wrap:nth-last-of-type(4) .swipe-card { z-index: 3; transform: scale(0.91); }
+.swipe-draft__card-wrap:nth-last-of-type(5) .swipe-card { z-index: 2; transform: scale(0.88); }
+.swipe-draft__card-wrap:nth-last-of-type(6) .swipe-card { z-index: 1; transform: scale(0.85); }
+
+/* Result screen after swipe draft */
+.swipe-result {
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.swipe-result__title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.swipe-result__explain {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.swipe-result__explain strong,
+.swipe-result__explain .swipe-result__super {
+  color: var(--rarity-legendary);
+}
+
+.swipe-result__cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.swipe-result__card {
+  width: min(200px, 100%);
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  text-align: left;
+}
+
+.swipe-result__card--winner {
+  border-color: var(--rarity-legendary);
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.25);
+}
+
+.swipe-result__card-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.swipe-result__card-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.swipe-result__card-score {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.swipe-result__reasons {
+  text-align: left;
+  max-width: 420px;
+  margin: 0 auto 20px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(255, 244, 231, 0.6) 0%, rgba(254, 243, 199, 0.4) 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(217, 119, 6, 0.15);
+}
+
+.swipe-result__reasons-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.swipe-result__reasons-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.swipe-result__reasons-list li {
+  margin-bottom: 4px;
+}
+
+.swipe-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}

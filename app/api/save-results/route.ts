@@ -29,11 +29,34 @@ export async function POST(request: NextRequest) {
     // 1) Načítame dáta z requestu
     const data: SaveResultsRequest = await request.json();
 
-    // 2) Vytvoríme používateľa v databáze
+    const email = (data.email || '').trim().toLowerCase();
+    if (!email) {
+      return NextResponse.json(
+        { success: false, error: 'Email je povinný.' },
+        { status: 400 }
+      );
+    }
+
+    // 2) Kontrola: s týmto emailom už nebol dotazník odoslaný
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
+    });
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'S týmto emailom ste už dotazník vyplnili. Prihláste sa pre zobrazenie výsledkov.',
+          code: 'EMAIL_ALREADY_USED',
+        },
+        { status: 400 }
+      );
+    }
+
+    // 3) Vytvoríme používateľa v databáze (súhlas so spracovaním evidujeme pri odoslaní)
     const user = await prisma.user.create({
       data: {
         name: data.name,
-        email: data.email,
+        email: email,
         school: data.school,
         howDidYouHear: data.howDidYouHear || [],
         howDidYouHearOther: data.howDidYouHearOther || null,
@@ -42,6 +65,7 @@ export async function POST(request: NextRequest) {
         interests: data.interests,
         experience: data.experience,
         accountId: data.accountId || null,
+        consentGivenAt: new Date(),
       },
     });
 

@@ -1,0 +1,470 @@
+/* Sidebar – od okraja, zložiteľný (zbaliť = len ikony) */
+
+.sidebar-hamburger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+  width: 52px;
+  height: 52px;
+  background: rgba(11, 15, 20, 0.9);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 0 12px 12px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+}
+
+.sidebar-hamburger:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hamburger {
+  width: 24px;
+  height: 18px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger span {
+  width: 100%;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+  transition: all 0.3s;
+  transform-origin: center;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(8px, -8px);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  animation: overlay-fade 0.3s;
+}
+
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Spacer v flow – zaberá miesto pre sidebar */
+.sidebar-spacer {
+  flex-shrink: 0;
+  transition: width 0.3s ease;
+}
+
+/* Wrapper sidebaru – fixed, šírka sa mení */
+.sidebar-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1000;
+  transition: width 0.3s ease;
+}
+
+.sidebar-menu {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Mobile: sidebar skrytý, zobrazí sa pri .sidebar-wrap--open */
+@media (max-width: 1023px) {
+  .sidebar-wrap {
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-wrap.sidebar-wrap--open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 56px;
+}
+
+.sidebar-wrap--collapsed .sidebar-header {
+  padding: 12px;
+  justify-content: center;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar-logo-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-content: center;
+  border-radius: 10px;
+  background: linear-gradient(145deg, var(--gradient-start), var(--gradient-end));
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.sidebar-logo-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar-logo-text {
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: var(--text-primary);
+}
+
+.sidebar-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+.sidebar-progress {
+  padding: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.progress-text {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.progress-percent {
+  color: var(--gradient-mid);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.sidebar-steps {
+  flex: 1;
+  list-style: none;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-wrap--collapsed .sidebar-steps {
+  padding: 8px;
+  gap: 4px;
+}
+
+.sidebar-step {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s;
+  text-align: left;
+  font-family: inherit;
+}
+
+.sidebar-wrap--collapsed .sidebar-step {
+  padding: 10px;
+  justify-content: center;
+}
+
+.sidebar-step:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateX(4px);
+}
+
+.sidebar-wrap--collapsed .sidebar-step:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.sidebar-step.active {
+  background: linear-gradient(135deg, rgba(255, 196, 74, 0.2), rgba(255, 138, 42, 0.2));
+  border-color: var(--gradient-mid);
+  box-shadow: 0 4px 12px rgba(255, 138, 42, 0.2);
+}
+
+.sidebar-step.completed {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.sidebar-step.upcoming {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sidebar-step:disabled {
+  cursor: not-allowed;
+}
+
+.step-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.sidebar-wrap--collapsed .step-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.sidebar-step.active .step-icon {
+  background: transparent;
+  color: var(--gradient-mid);
+  animation: icon-bounce 0.6s ease;
+}
+
+@keyframes icon-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.step-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.step-number {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.step-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sidebar-step.active .step-label {
+  color: var(--gradient-end);
+}
+
+.step-check {
+  width: 24px;
+  height: 24px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  flex-shrink: 0;
+  animation: check-appear 0.3s ease;
+}
+
+@keyframes check-appear {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.sidebar-footer {
+  padding: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-wrap--collapsed .sidebar-footer {
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.sidebar-link:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateX(4px);
+}
+
+.sidebar-link--icon {
+  padding: 10px;
+}
+
+.sidebar-wrap--collapsed .sidebar-link:hover {
+  transform: scale(1.05);
+}
+
+/* Tlačidlo Zbaliť / Rozbaliť */
+.sidebar-fold-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: auto;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  font: inherit;
+  color: var(--text-secondary);
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-fold-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
+}
+
+.sidebar-fold-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sidebar-wrap--collapsed .sidebar-fold-btn {
+  padding: 12px;
+}
+
+/* Finder layout – flex, sidebar spacer + main */
+.finder-layout {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  z-index: 1;
+}
+
+.finder-layout > main {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .sidebar-hamburger {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sidebar-spacer {
+    width: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-menu {
+    width: 280px;
+  }
+}

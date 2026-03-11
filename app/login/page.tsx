@@ -1,15 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    if (error && emailInputRef.current) {
+      emailInputRef.current.focus();
+    }
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,26 +47,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="landing-page">
-      <div className="landing-container">
-        <Link href="/" className="logo" style={{ display: 'inline-block', textDecoration: 'none' }}>
-          FEI TUKE
-        </Link>
+    <div className="auth-page">
+      <div className="auth-container loaded">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h1>Vitaj späť</h1>
+            <p>Prihlás sa a pokračuj tam, kde si skončil. Tvoje odporúčania na teba čakajú.</p>
+          </div>
 
-        <div className="landing-content" style={{ maxWidth: '500px', margin: '32px auto' }}>
-          <h1 className="landing-title" style={{ fontSize: '32px' }}>Prihlásenie</h1>
-          
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
               <label htmlFor="email" className="form-label">Email</label>
               <input
+                ref={emailInputRef}
                 type="email"
                 id="email"
-                className="form-input"
+                className={`form-input ${error ? 'form-input-error' : ''}`}
                 placeholder="meno@email.sk"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                aria-invalid={!!error}
+                aria-describedby={error ? 'login-error' : undefined}
               />
             </div>
 
@@ -75,26 +85,29 @@ export default function LoginPage() {
               />
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && (
+              <div id="login-error" className="auth-form-error" role="alert">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
-              className="cta-button"
+              className="auth-submit-btn"
               disabled={loading}
-              style={{ width: '100%', marginTop: '16px' }}
+              aria-busy={loading}
             >
-              {loading ? 'Prihlasovanie...' : 'Prihlásiť sa'}
+              {loading ? 'Prihlasujem...' : 'Prihlásiť sa'}
             </button>
           </form>
 
-          <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+          <div className="auth-footer">
+            <p>
               Nemáš účet?{' '}
-              <Link href="/register" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                Zaregistruj sa
-              </Link>
+              <Link href="/register">Zaregistruj sa</Link>
             </p>
-            <Link href="/" style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px', display: 'block' }}>
+            <Link href="/" className="auth-back">
+              <ArrowLeft size={18} strokeWidth={2} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
               Späť na domov
             </Link>
           </div>
@@ -103,6 +116,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
-

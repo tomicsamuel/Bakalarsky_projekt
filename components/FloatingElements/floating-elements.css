@@ -1,0 +1,50 @@
+.floating-elements-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.floating-element {
+  position: absolute;
+  bottom: -100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(2px);
+  animation: float-up linear infinite;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(50px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Rôzne veľkosti a rýchlosti */
+.floating-element:nth-child(3n) {
+  animation-duration: 20s;
+  background: radial-gradient(circle, rgba(255, 214, 92, 0.2), rgba(255, 214, 92, 0));
+}
+
+.floating-element:nth-child(5n) {
+  animation-duration: 25s;
+  background: radial-gradient(circle, rgba(255, 138, 42, 0.15), rgba(255, 138, 42, 0));
+}
+
+

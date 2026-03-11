@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { setAdminCookie, canSetAdminCookie } from '@/lib/adminAuth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,14 +27,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    const isAdmin = Boolean((account as { isAdmin?: boolean }).isAdmin);
+    const cookieCanBeSet = canSetAdminCookie();
+    const response = NextResponse.json({
       success: true,
       user: {
         id: account.id,
         name: account.name,
         email: account.email,
+        isAdmin,
       },
+      cookieSet: isAdmin ? cookieCanBeSet : undefined,
     });
+    if (isAdmin && cookieCanBeSet) {
+      setAdminCookie(response, account.id);
+    }
+    return response;
 
   } catch (error) {
     console.error('Chyba pri prihlasovaní:', error);

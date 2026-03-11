@@ -1,0 +1,113 @@
+/* Runoff – vstupná obrazovka, aréna, výsledok. 0 scroll, clean + game. */
+
+/* ---------- RunoffIntro ---------- */
+.runoff-intro {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--runoff-bg, #f5f3f0);
+}
+
+.runoff-intro__card {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 28px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.runoff-intro__title {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.runoff-intro__sub {
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.runoff-intro__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.runoff-intro__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.runoff-intro__chip-rarity {
+  margin-left: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  opacity: 0.85;
+}
+
+.runoff-intro__chip--legendary { border-color: rgba(217, 119, 6, 0.35); color: #b45309; }
+.runoff-intro__chip--epic { border-color: rgba(124, 58, 237, 0.3); color: #6d28d9; }
+.runoff-intro__chip--rare { border-color: rgba(37, 99, 235, 0.3); color: #2563eb; }
+.runoff-intro__chip--common { border-color: rgba(107, 114, 128, 0.25); color: #4b5563; }
+
+.runoff-intro__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.runoff-intro__btn {
+  width: 100%;
+  max-width: 200px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 800;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(145deg, #ea580c 0%, #c2410c 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.35);
+}
+
+.runoff-intro__btn--primary:focus-visible {
+  outline: 2px solid #ea580c;
+  outline-offset: 2px;
+}
+
+.runoff-intro__link {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.runoff-intro__link:hover {
+  color: var(--text-primary);
+}

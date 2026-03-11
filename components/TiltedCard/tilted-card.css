@@ -1,0 +1,33 @@
+.tilted-card {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+
+.tilted-card:hover {
+  z-index: 1;
+}
+
+.tilted-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.tilted-card__shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Wrapper for card grids – preserve layout */
+.major-card-tilt,
+.shelf-card-tilt {
+  display: block;
+  width: 100%;
+}
