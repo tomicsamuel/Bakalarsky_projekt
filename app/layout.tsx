@@ -4,12 +4,10 @@ import { Providers } from "./providers";
 import "./globals.css";
 import "@/components/Confetti/confetti.css";
 import "@/components/AnimatedStats/animated-stats.css";
-import "@/components/Typewriter/typewriter.css";
 import "@/components/FloatingElements/floating-elements.css";
 import "@/components/AnimatedBackground/animated-background.css";
 import "@/components/SidebarMenu/sidebar-menu.css";
 import "@/components/ResultsDisplay/results-display.css";
-import "@/components/InteractiveResults/interactive-results.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

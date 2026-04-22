@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import Logo from '@/components/Logo';
+import Logos from '@/components/Logos';
 import { Button } from '@heroui/button';
 
 export default function AdminLoginPage() {
@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-container loaded">
-        <Logo variant="fei" href="/" className="auth-logo" width={200} height={56} />
+        <Logos className="auth-logo" feiWidth={200} feiHeight={56} kpsWidth={130} kpsHeight={56} />
 
         <div className="auth-card">
           <div className="auth-header">

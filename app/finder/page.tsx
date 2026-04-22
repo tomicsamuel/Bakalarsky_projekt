@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Check, Target, Briefcase } from 'lucide-react';
+import { Check, Target, Briefcase, X } from 'lucide-react';
 import { Button } from '@heroui/button';
 import Confetti from '@/components/Confetti';
 import AnimatedBackground from '@/components/AnimatedBackground';
@@ -120,14 +121,37 @@ function ProgressBar({ percent }: ProgressBarProps) {
   );
 }
 
+// Kraje a konkrétnejšie časti (okresy / mestá) pre dropdown „Odkiaľ si?“ 
+const LOCATION_REGIONS: Record<string, string[]> = {
+  'Bratislavský kraj': ['Bratislava I', 'Bratislava II', 'Bratislava III', 'Bratislava IV', 'Bratislava V', 'Malacky', 'Pezinok', 'Senec'],
+  'Trnavský kraj': ['Dunajská Streda', 'Galanta', 'Hlohovec', 'Piešťany', 'Senica', 'Skalica', 'Trnava'],
+  'Trenčiansky kraj': ['Bánovce nad Bebravou', 'Ilava', 'Myjava', 'Nové Mesto nad Váhom', 'Partizánske', 'Považská Bystrica', 'Prievidza', 'Púchov', 'Trenčín'],
+  'Nitriansky kraj': ['Komárno', 'Levice', 'Nitra', 'Nové Zámky', 'Šaľa', 'Topoľčany', 'Zlaté Moravce'],
+  'Žilinský kraj': ['Bytča', 'Čadca', 'Dolný Kubín', 'Kysucké Nové Mesto', 'Liptovský Mikuláš', 'Martin', 'Námestovo', 'Ružomberok', 'Turčianske Teplice', 'Tvrdošín', 'Žilina'],
+  'Banskobystrický kraj': ['Banská Bystrica', 'Banská Štiavnica', 'Brezno', 'Detva', 'Krupina', 'Lučenec', 'Poltár', 'Revúca', 'Rimavská Sobota', 'Veľký Krtíš', 'Zvolen', 'Žarnovica', 'Žiar nad Hronom'],
+  'Prešovský kraj': ['Bardejov', 'Humenné', 'Kežmarok', 'Levoča', 'Medzilaborce', 'Poprad', 'Prešov', 'Sabinov', 'Snina', 'Stará Ľubovňa', 'Stropkov', 'Svidník', 'Vranov nad Topľou'],
+  'Košický kraj': ['Gelnica', 'Košice I', 'Košice II', 'Košice III', 'Košice IV', 'Michalovce', 'Rožňava', 'Sobrance', 'Spišská Nová Ves', 'Trebišov'],
+};
+
+const REGION_OPTIONS = Object.keys(LOCATION_REGIONS);
+
 export default function FinderPage() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [consentChecked, setConsentChecked] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
+  // Mounted flag – počas SSR a prvého renderu nevieme, čo je v URL,
+  // takže nebudeme renderovať nič (zabráni SSR „flashu" GDPR modalu).
+  const [mounted, setMounted] = useState(false);
+  // Pri prechode na /finder?userId=... – najprv načítame históriu, aby neblikal GDPR modal
+  const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(true);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [school, setSchool] = useState('');
+  const [locationRegion, setLocationRegion] = useState('');
+  const [locationPart, setLocationPart] = useState('');
+  const [age, setAge] = useState('');
+  const [wantsToStudyAtTUKE, setWantsToStudyAtTUKE] = useState<boolean | null>(null);
   const [howDidYouHear, setHowDidYouHear] = useState<string[]>([]);
   const [howDidYouHearOther, setHowDidYouHearOther] = useState('');
   const [whyThisSchool, setWhyThisSchool] = useState<string[]>([]);
@@ -176,11 +200,16 @@ export default function FinderPage() {
       }
       
       loadUserHistory(parseInt(userIdParam));
+    } else {
+      // Pre istotu – ak userId chýba, nečakáme na žiadnu históriu
+      setIsLoadingHistory(false);
     }
+    // Až teraz môžeme renderovať UI (po určení, či máme userId)
+    setMounted(true);
   }, [searchParams]);
 
   useEffect(() => {
-    if (step < 6) {
+    if (step < 7) {
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
@@ -219,6 +248,17 @@ export default function FinderPage() {
         setName(data.data.name);
         setEmail(data.data.email);
         setSchool(data.data.school);
+        const loc = data.data.location || '';
+        const dashIdx = loc.indexOf(' - ');
+        if (dashIdx >= 0) {
+          setLocationRegion(loc.slice(0, dashIdx));
+          setLocationPart(loc.slice(dashIdx + 3));
+        } else {
+          setLocationRegion(loc);
+          setLocationPart('');
+        }
+        setAge(data.data.age != null ? String(data.data.age) : '');
+        setWantsToStudyAtTUKE(data.data.wantsToStudyAtTUKE ?? null);
         setHowDidYouHear(data.data.howDidYouHear || []);
         setHowDidYouHearOther(data.data.howDidYouHearOther || '');
         setWhyThisSchool(data.data.whyThisSchool || []);
@@ -232,12 +272,14 @@ export default function FinderPage() {
           score: r.score,
         }));
         setResults(resultsData);
-        setStep(6);
+        setStep(7);
         setSaved(true);
         setConsentChecked(true);
       }
     } catch (error) {
       console.error('Chyba pri načítaní histórie:', error);
+    } finally {
+      setIsLoadingHistory(false);
     }
   };
 
@@ -424,17 +466,17 @@ export default function FinderPage() {
     }
     if (step === 1 && !name.trim()) return;
     if (step === 2 && !school) return;
-    if (step === 3 && howDidYouHear.length === 0) return;
-    if (step === 4 && interests.length === 0) return;
-    if (step === 5 && experience.length === 0) return;
+    if (step === 4 && howDidYouHear.length === 0) return;
+    if (step === 5 && interests.length === 0) return;
+    if (step === 6 && experience.length === 0) return;
     
     // Confetti pri dokončení kroku
-    if (step < 5) {
+    if (step < 6) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 2000);
     }
     
-    if (step === 5 && userId) {
+    if (step === 6 && userId) {
       await handleSubmit();
       setStep(step + 1);
       setTimeout(() => {
@@ -446,10 +488,10 @@ export default function FinderPage() {
       return;
     }
     
-    if (step < 7) {
+    if (step < 8) {
       setStep(step + 1);
-      // Smooth scroll k výsledkom po kroku 2, 3, 4, 5
-      if (step >= 2 && step < 6) {
+      // Smooth scroll k výsledkom po kroku 2–6
+      if (step >= 2 && step < 7) {
         setTimeout(() => {
           const resultsSection = document.querySelector('.results-section');
           if (resultsSection) {
@@ -478,6 +520,15 @@ export default function FinderPage() {
           name: name.trim(),
           email: email,
           school,
+          location: (locationRegion && locationPart)
+            ? `${locationRegion} - ${locationPart}`
+            : (locationRegion || locationPart).trim() || null,
+          age: (() => {
+            if (!age.trim()) return null;
+            const n = parseInt(age, 10);
+            return (Number.isNaN(n) || n < 7 || n > 99) ? null : n;
+          })(),
+          wantsToStudyAtTUKE,
           howDidYouHear,
           howDidYouHearOther: howDidYouHearOther.trim() || null,
           whyThisSchool,
@@ -522,6 +573,16 @@ export default function FinderPage() {
     return false;
   };
 
+  // Počas SSR / prvého renderu / načítavania histórie nič nerenderujeme –
+  // zabráni to SSR flashu GDPR modalu pred tým, než sa spustí JS a nastaví step=7.
+  if (!mounted || isLoadingHistory) {
+    return (
+      <div className="page-container finder-page">
+        <AnimatedBackground />
+      </div>
+    );
+  }
+
   return (
     <div className="page-container finder-page">
       <AnimatedBackground />
@@ -531,7 +592,7 @@ export default function FinderPage() {
       <div className="finder-layout">
         <SidebarMenu
           currentStep={step}
-          totalSteps={7}
+          totalSteps={8}
           onStepClick={(stepNum) => {
             if (stepNum <= step && stepNum >= 0) {
               setStep(stepNum);
@@ -545,10 +606,10 @@ export default function FinderPage() {
         </h1>
       </header>
 
-      {step === 6 ? (
+      {step === 7 ? (
         <>
           <div className="results-fullscreen">
-            {saveError && !userId && (
+            {saveError && (
               <div className="results-save-error-banner" role="alert">
                 {saveError}
                 {saveError.includes('Prihláste sa') && (
@@ -732,47 +793,36 @@ export default function FinderPage() {
         </>
       ) : (
       <div className="finder-form-fullscreen">
-        <div className="finder-progress-bar" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={7} aria-label="Priebeh testu">
-          <div className="finder-progress-bar-inner">
-            <span className="finder-progress-label">
-              Krok {step + 1} z 7
-            </span>
-            <div className="finder-progress-track">
-              <div 
-                className="finder-progress-fill" 
-                style={{ width: `${((step + 1) / 7) * 100}%` }}
-              />
-            </div>
-          </div>
-          <div className="finder-progress-steps" aria-hidden>
-            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-              <span 
-                key={i} 
-                className={`finder-progress-dot ${i <= step + 1 ? 'done' : ''} ${i === step + 1 ? 'current' : ''}`}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="form-section form-section--full">
-          <div ref={stepCardRef} className={`card step-content step-visible`} key={step}>
-          <h2 ref={stepTitleRef} className="card-title" tabIndex={-1}>
-            {step === 0 && 'Súhlas so spracovaním údajov'}
-            {step === 1 && 'Tvoje meno'}
-            {step === 2 && 'Tvoja škola'}
-            {step === 3 && 'Ako sa dozvedel o škole'}
-            {step === 4 && `Tvoje záujmy${interests.length > 0 ? ` (${interests.length} vybraných)` : ''}`}
-            {step === 5 && `Tvoja prax${experience.length > 0 ? ` (${experience.length} vybraných)` : ''}`}
-          </h2>
-
-          {step === 0 && (
-            <div className="form-group step-content">
-              <p id="consent-description" style={{ marginBottom: '16px', lineHeight: 1.6, color: 'var(--text-primary)' }}>
-                Súhlasím so spracovaním mojich osobných údajov v rozsahu potrebnom na odporúčanie študijného programu a na interný štatistický výskum.
-                {' '}
-                <Link href="/ochrana-udajov" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Viac informácií je v zásadách ochrany osobných údajov</Link>.
-              </p>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginBottom: '20px' }}>
+        {step === 0 && !isLoadingHistory && typeof document !== 'undefined' && createPortal(
+          <div
+            className="consent-modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="consent-modal-title"
+            aria-describedby="consent-description"
+          >
+            <div className="consent-modal" onClick={(e) => e.stopPropagation()}>
+              <Link
+                href="/"
+                className="consent-modal-close"
+                aria-label="Zavrieť a vrátiť sa na úvodnú stránku"
+              >
+                <X size={20} strokeWidth={2.5} />
+              </Link>
+              <h2 id="consent-modal-title" className="consent-modal-title">
+                Súhlas so spracovaním osobných údajov
+              </h2>
+              <div id="consent-description" className="consent-modal-text">
+                <p><strong>Správca:</strong> Fakulta elektrotechniky a informatiky Slovenskej technickej univerzity v Košiciach (FEI TUKE).</p>
+                <p><strong>Účel spracovania:</strong> Odporúčanie študijného programu na základe vašich odpovedí v dotazníku. Zozbierané údaje môžu byť využité na interný štatistický výskum fakulty; využitie na štatistiky nie je povinné.</p>
+                <p><strong>Rozsah údajov:</strong> Údaje vyplnené v dotazníku (meno, e-mail, škola, odkiaľ ste, vek, či plánujete študovať na TUKE, ako ste sa dozvedeli o fakulte, prečo ste si vybrali fakultu, očakávania, záujmy, prax) a výsledky odporúčania.</p>
+                <p><strong>Právny základ:</strong> Súhlas podľa čl. 6 ods. 1 písm. a) GDPR.</p>
+                <p><strong>Práva:</strong> Máte právo súhlas kedykoľvek odvolať, právo na prístup k údajom, na ich opravu alebo vymazanie, na obmedzenie spracovania a na podanie sťažnosti u dozorného úradu. Viac informácií, vrátane vašich práv, nájdete v zásadách ochrany osobných údajov.</p>
+                <p>
+                  <Link href="/ochrana-udajov" className="consent-modal-link">Zásady ochrany osobných údajov</Link>
+                </p>
+              </div>
+              <label className="consent-modal-checkbox">
                 <input
                   type="checkbox"
                   checked={consentChecked}
@@ -785,14 +835,54 @@ export default function FinderPage() {
               <Button
                 type="button"
                 color="primary"
-                className="step-button step-button-next"
-                onPress={() => consentChecked && setStep(1)}
+                className="step-button step-button-next consent-modal-btn"
+                onPress={() => {
+                  if (consentChecked) {
+                    setConsentChecked(true);
+                    setStep(1);
+                  }
+                }}
                 isDisabled={!consentChecked}
               >
                 Pokračovať
               </Button>
             </div>
-          )}
+          </div>,
+          document.body
+        )}
+        <div className="finder-progress-bar" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={8} aria-label="Priebeh testu">
+          <div className="finder-progress-bar-inner">
+            <span className="finder-progress-label">
+              Krok {step + 1} z 8
+            </span>
+            <div className="finder-progress-track">
+              <div 
+                className="finder-progress-fill" 
+                style={{ width: `${((step + 1) / 8) * 100}%` }}
+              />
+            </div>
+          </div>
+          <div className="finder-progress-steps" aria-hidden>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <span 
+                key={i} 
+                className={`finder-progress-dot ${i <= step + 1 ? 'done' : ''} ${i === step + 1 ? 'current' : ''}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {step !== 0 && (
+        <div className="form-section form-section--full">
+          <div ref={stepCardRef} className={`card step-content step-visible`} key={step}>
+          <h2 ref={stepTitleRef} className="card-title" tabIndex={-1}>
+            {step === 1 && 'Tvoje meno'}
+            {step === 2 && 'Tvoja škola'}
+            {step === 3 && 'O vás'}
+            {step === 4 && 'Ako sa dozvedel o škole'}
+            {step === 5 && `Tvoje záujmy${interests.length > 0 ? ` (${interests.length} vybraných)` : ''}`}
+            {step === 6 && `Tvoja prax${experience.length > 0 ? ` (${experience.length} vybraných)` : ''}`}
+          </h2>
 
           {step === 1 && (
             <div className="form-group step-content">
@@ -812,7 +902,8 @@ export default function FinderPage() {
                   className={`form-input ${!name.trim() ? 'form-input-error' : ''}`}
                   placeholder="Napríklad: Samuel"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => setName(e.target.value.replace(/[^\p{L}\p{M}\s-]/gu, ''))}
+                  autoComplete="name"
                   autoFocus
                 />
               </div>
@@ -846,6 +937,90 @@ export default function FinderPage() {
           )}
 
           {step === 3 && (
+            <div className="form-group step-content">
+              <label htmlFor="location-region" className="form-label">
+                Odkiaľ si? (kraj)
+              </label>
+              <div className="input-wrapper" style={{ marginBottom: '16px' }}>
+                <select
+                  id="location-region"
+                  className="form-select"
+                  value={locationRegion}
+                  onChange={(e) => {
+                    setLocationRegion(e.target.value);
+                    setLocationPart('');
+                  }}
+                >
+                  <option value="">– Vyber kraj –</option>
+                  {REGION_OPTIONS.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+              {locationRegion && (
+                <>
+                  <label htmlFor="location-part" className="form-label">
+                    Konkrétnejšie (okres / mesto)
+                  </label>
+                  <div className="input-wrapper" style={{ marginBottom: '16px' }}>
+                    <select
+                      id="location-part"
+                      className="form-select"
+                      value={locationPart}
+                      onChange={(e) => setLocationPart(e.target.value)}
+                    >
+                      <option value="">– Vyber –</option>
+                      {(LOCATION_REGIONS[locationRegion] || []).map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+              <label htmlFor="age" className="form-label">
+                Koľko máš rokov?
+              </label>
+              <div className="input-wrapper" style={{ marginBottom: '16px' }}>
+                <input
+                  type="number"
+                  id="age"
+                  className="form-input"
+                  min={7}
+                  max={99}
+                  step={1}
+                  placeholder="Napríklad: 18"
+                  value={age}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, '').slice(0, 2);
+                    setAge(raw);
+                  }}
+                  onBlur={() => {
+                    if (age === '') return;
+                    const num = parseInt(age, 10);
+                    if (Number.isNaN(num) || num < 7) setAge('');
+                    else if (num > 99) setAge('99');
+                  }}
+                />
+              </div>
+              <div className="form-label" style={{ marginBottom: '8px' }}>
+                Plánuješ študovať na TUKE?
+              </div>
+              <div className="chips-container">
+                <ChipButton
+                  label="Áno"
+                  active={wantsToStudyAtTUKE === true}
+                  onClick={() => setWantsToStudyAtTUKE(true)}
+                />
+                <ChipButton
+                  label="Nie"
+                  active={wantsToStudyAtTUKE === false}
+                  onClick={() => setWantsToStudyAtTUKE(false)}
+                />
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
             <div className="form-group step-content">
               <div className="form-label">
                 Ako sa dozvedel(a) o fakulte FEI?
@@ -935,7 +1110,7 @@ export default function FinderPage() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="form-group step-content">
               <div className="form-label">
                 Vyber si aspoň jeden záujem
@@ -970,7 +1145,7 @@ export default function FinderPage() {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div className="form-group step-content">
               <div className="form-label">
                 V akom odbore si pracoval(a)/brigadoval(a)?
@@ -1006,7 +1181,7 @@ export default function FinderPage() {
           )}
 
           <div className="step-buttons">
-            {step > 0 && step < 6 && (
+            {step > 0 && step < 7 && (
               <Button
                 type="button"
                 variant="bordered"
@@ -1026,9 +1201,9 @@ export default function FinderPage() {
                 isDisabled={
                   (step === 1 && !name.trim()) ||
                   (step === 2 && !school) ||
-                  (step === 3 && howDidYouHear.length === 0) ||
-                  (step === 4 && interests.length === 0) ||
-                  (step === 5 && experience.length === 0)
+                  (step === 4 && howDidYouHear.length === 0) ||
+                  (step === 5 && interests.length === 0) ||
+                  (step === 6 && experience.length === 0)
                 }
               >
                 Ďalej
@@ -1038,6 +1213,7 @@ export default function FinderPage() {
 
           </div>
         </div>
+        )}
       </div>
       )}
 

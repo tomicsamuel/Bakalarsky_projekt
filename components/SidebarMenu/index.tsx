@@ -6,6 +6,7 @@ import {
   Check,
   User,
   School,
+  MapPin,
   Info,
   Target,
   Briefcase,
@@ -23,10 +24,11 @@ const STEPS = [
   { number: 0, label: 'Súhlas', Icon: Check },
   { number: 1, label: 'Meno', Icon: User },
   { number: 2, label: 'Škola', Icon: School },
-  { number: 3, label: 'Info', Icon: Info },
-  { number: 4, label: 'Záujmy', Icon: Target },
-  { number: 5, label: 'Prax / skúsenosti', Icon: Briefcase },
-  { number: 6, label: 'Výsledky', Icon: Sparkles },
+  { number: 3, label: 'O vás', Icon: MapPin },
+  { number: 4, label: 'Info', Icon: Info },
+  { number: 5, label: 'Záujmy', Icon: Target },
+  { number: 6, label: 'Prax / skúsenosti', Icon: Briefcase },
+  { number: 7, label: 'Výsledky', Icon: Sparkles },
 ];
 
 export interface SidebarMenuProps {

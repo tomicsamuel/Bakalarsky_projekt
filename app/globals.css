@@ -16,52 +16,71 @@
 
 /* Farebné premenné – FEI paleta (#f9a620) pre celú aplikáciu */
 :root {
+  /* Breakpointy – konzistentné pre celú aplikáciu */
+  --bp-xs: 360px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1440px;
+  --bp-2xl: 1920px;
+
   /* Gradient pozadia (odtiene FEI) */
   --gradient-start: #fcd88c;
   --gradient-mid: #f9a620;
   --gradient-end: #e08a0a;
-  
+
   /* Texty */
   --text-primary: #0B0F14;
   --text-secondary: #323843;
-  
+
   /* Karty a svetlé plochy */
   --card-bg: #FFF4E7;
   --card-border: rgba(0, 0, 0, 0.10);
   --card-shadow: 0 12px 30px rgba(11, 15, 20, 0.10);
-  
+
   /* Chips */
   --chip-bg: #FFF8EF;
   --chip-active: #f9a620;
-  
+
   /* CTA tlačidlo */
   --cta-bg: #0B0F14;
   --cta-text: #FFE8C7;
-  
+
   /* Progress bar */
   --progress-track: #EEE5DA;
   --progress-fill: #f9a620;
-  
+
   /* Akcent (odkazy, kategórie, focus) – FEI */
   --primary: #f9a620;
-  
+
   /* Rarity (Card Pack Reveal) */
   --rarity-common: #6b7280;
   --rarity-rare: #2563eb;
   --rarity-epic: #7c3aed;
   --rarity-legendary: #d97706;
-  
+
   /* Rozmery */
   --radius-card: 18px;
   --radius-input: 14px;
   --radius-chip: 24px;
   --radius-cta: 28px;
+
+  /* Fluidná typografia – škáluje s viewportom */
+  --text-body: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
+  --text-title-page: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --text-title-card: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --text-label: clamp(0.8125rem, 0.75rem + 0.2vw, 0.9375rem);
 }
 
 /* Body – gradient na celú obrazovku */
+html {
+  overflow-x: hidden;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
                'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--text-body);
   background: transparent;
   min-height: 100vh;
   color: var(--text-primary);
@@ -88,6 +107,34 @@ body {
   background-attachment: fixed;
 }
 
+/* Responzívny padding pre stránky okrem findera */
+.page-container:not(.finder-page) {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+@media (min-width: 640px) {
+  .page-container:not(.finder-page) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container:not(.finder-page) {
+    padding-left: 32px;
+    padding-right: 32px;
+    max-width: 1400px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .page-container:not(.finder-page) {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+
 /* Header – nadpis a stepper */
 .page-header {
   text-align: center;
@@ -112,7 +159,7 @@ body {
 }
 
 .page-title {
-  font-size: 32px;
+  font-size: var(--text-title-page);
   font-weight: 800;
   line-height: 1.3;
   margin-bottom: 20px;
@@ -489,6 +536,56 @@ body {
   box-shadow: 0 0 0 2px rgba(249, 166, 32, 0.3);
 }
 
+/* Finder – responzívne úpravy */
+@media (max-width: 639px) {
+  .finder-form-fullscreen {
+    padding: 0 12px 24px;
+    min-height: calc(100vh - 120px);
+  }
+  .finder-progress-bar {
+    padding: 12px 12px;
+    margin: 0 -12px 16px;
+  }
+  .finder-progress-label {
+    font-size: 13px;
+  }
+  .finder-progress-track {
+    height: 8px;
+  }
+  .finder-progress-steps {
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .finder-progress-dot {
+    width: 8px;
+    height: 8px;
+  }
+  .finder-page .page-header {
+    padding: 16px 12px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .finder-layout {
+    max-width: 1360px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .finder-form-fullscreen {
+    max-width: 920px;
+  }
+}
+
+/* Veľké monitory a TV – obmedzenie šírky, mierne zväčšenie čitateľnosti */
+@media (min-width: 1920px) {
+  .page-container:not(.finder-page) {
+    max-width: 1600px;
+  }
+  .finder-layout {
+    max-width: 1500px;
+  }
+}
+
 .form-section.form-section--full {
   flex: 1;
   padding: 0;
@@ -533,6 +630,38 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px 40px;
+}
+
+@media (max-width: 639px) {
+  .results-fullscreen {
+    padding: 0 12px 24px;
+  }
+  .results-toolbar {
+    padding: 10px 12px;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .results-toolbar-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    flex-shrink: 1;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-fullscreen {
+    padding: 0 8px 20px;
+  }
+  .results-toolbar {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .results-toolbar-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
 }
 
 .results-save-error-banner {
@@ -649,6 +778,131 @@ body {
   background: transparent;
 }
 
+/* Consent modal – blokujúci pop-up pre GDPR súhlas (bez zatvorenia klikom mimo / ESC) */
+.consent-modal-overlay {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(11, 15, 20, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 99999;
+}
+
+@media (max-width: 639px) {
+  .consent-modal-overlay {
+    padding: 12px;
+    align-items: flex-start;
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+}
+
+.consent-modal {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--card-bg);
+  border-radius: 18px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 24px 60px rgba(11, 15, 20, 0.25);
+  padding: 24px;
+}
+
+/* X tlačidlo v pravom hornom rohu – návrat na úvodnú stránku */
+.consent-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.consent-modal-close:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.consent-modal-close:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 639px) {
+  .consent-modal {
+    max-height: 90vh;
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .consent-modal-title {
+    font-size: 18px;
+  }
+  .consent-modal-text {
+    font-size: 13px;
+  }
+}
+
+.consent-modal-title {
+  margin: 0 0 16px;
+  padding-right: 44px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.consent-modal-text {
+  margin-bottom: 20px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.consent-modal-text p {
+  margin: 0 0 12px;
+}
+
+.consent-modal-text p:last-of-type {
+  margin-bottom: 0;
+}
+
+.consent-modal-link {
+  color: var(--primary);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.consent-modal-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.consent-modal-btn {
+  width: 100%;
+  justify-content: center;
+}
+
 .summary-modal-overlay {
   position: fixed;
   inset: 0;
@@ -660,6 +914,14 @@ body {
   z-index: 1000;
 }
 
+@media (max-width: 639px) {
+  .summary-modal-overlay {
+    padding: 12px;
+    align-items: flex-start;
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+}
+
 .summary-modal {
   width: min(520px, 100%);
   max-height: 85vh;
@@ -669,6 +931,13 @@ body {
   border: 1px solid var(--card-border);
   box-shadow: 0 24px 60px rgba(11, 15, 20, 0.2);
   padding: 20px;
+}
+
+@media (max-width: 639px) {
+  .summary-modal {
+    max-height: 90vh;
+    padding: 16px;
+  }
 }
 
 .summary-modal-header {
@@ -761,7 +1030,7 @@ body {
 }
 
 .card-title {
-  font-size: 24px;
+  font-size: var(--text-title-card);
   font-weight: 700;
   margin-bottom: 24px;
   color: var(--text-primary);
@@ -916,6 +1185,7 @@ body {
 
 .form-label {
   display: block;
+  font-size: var(--text-label);
   font-weight: 600;
   margin-bottom: 12px;
   color: var(--text-primary);
@@ -1398,12 +1668,15 @@ body {
   vertical-align: middle;
 }
 
-.landing-logos .logo-wrap--fei {
+/* Prebíja .logo.logo-wrap--fei (čierne pozadie) na všetkých stránkach kde sa používa Logos komponent */
+.landing-logos .logo.logo-wrap--fei,
+.landing-logos .auth-logo.logo-wrap--fei {
   background: transparent;
   padding: 0;
   box-sizing: border-box;
   justify-content: center;
   box-shadow: none;
+  border-radius: 0;
 }
 
 .landing-logos .logo-wrap--kps {
@@ -1772,9 +2045,17 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px 20px;
+  gap: 10px 16px;
   margin-bottom: 24px;
   padding: 12px 0;
+}
+
+@media (max-width: 639px) {
+  .platform-nav {
+    gap: 8px 12px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+  }
 }
 
 .platform-nav a {
@@ -1782,7 +2063,11 @@ body {
   text-decoration: none;
   font-weight: 600;
   font-size: 15px;
-  padding: 8px 14px;
+  padding: 10px 16px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.9);
   border: 2px solid rgba(255, 255, 255, 0.5);
@@ -1967,10 +2252,6 @@ body {
 
 /* Responzívne úpravy pre malé mobilné zariadenia (do 480px) */
 @media (max-width: 480px) {
-body {
-    padding: 12px;
-  }
-  
   .page-header {
     margin-bottom: 20px;
   }
@@ -2186,7 +2467,7 @@ body {
   background: var(--landing-primary);
   border: none;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .landing-page .auth-option-card--primary .auth-icon,
@@ -2194,11 +2475,11 @@ body {
 .landing-page .auth-option-card--primary p,
 .landing-page .auth-option-card--primary .auth-option-bullets,
 .landing-page .auth-option-card--primary .auth-option-bullets li {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
 }
 
 .landing-page .auth-option-card--primary .auth-option-bullets li::before {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .landing-page .auth-option-card--primary:hover {
@@ -2432,6 +2713,12 @@ body {
   padding: 24px 20px;
 }
 
+@media (max-width: 1023px) {
+  .finder-page .page-header {
+    padding: 20px 16px 20px 64px;
+  }
+}
+
 .finder-page .finder-progress-bar {
   margin-bottom: 16px;
 }
@@ -2444,6 +2731,23 @@ body {
   max-width: 900px;
   width: 100%;
   text-align: center;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 768px) {
+  .landing-container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .landing-container {
+    max-width: 1100px;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
 }
 
 .landing-content {
@@ -2455,6 +2759,19 @@ body {
   margin: 32px 0;
 }
 
+@media (max-width: 639px) {
+  .landing-content {
+    padding: 28px 20px;
+    margin: 20px 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .landing-content {
+    padding: 44px 32px;
+  }
+}
+
 .landing-page .landing-content {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -2462,7 +2779,7 @@ body {
 }
 
 .landing-title {
-  font-size: 48px;
+  font-size: clamp(1.75rem, 1.5rem + 2vw, 3rem);
   font-weight: 800;
   line-height: 1.1;
   margin-bottom: 24px;
@@ -2475,7 +2792,7 @@ body {
 }
 
 .landing-description {
-  font-size: 20px;
+  font-size: clamp(0.9375rem, 0.85rem + 0.4vw, 1.25rem);
   line-height: 1.6;
   color: var(--text-secondary);
   max-width: 600px;
@@ -2488,9 +2805,23 @@ body {
 
 .landing-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 1fr;
   gap: 24px;
   margin-bottom: 48px;
+}
+
+@media (min-width: 640px) {
+  .landing-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-features {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
 }
 
 .feature-card {

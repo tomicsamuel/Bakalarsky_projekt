@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import Logo from '@/components/Logo';
+import Logos from '@/components/Logos';
 
 const FEI_ARCHIVE_URL = 'https://www.fei.tuke.sk/sk/archive/clanky?category=aktuality_studijne_oddelenie&page=1';
 
@@ -68,7 +68,7 @@ export default function UspechyPage() {
 
   return (
     <div className="page-container">
-      <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+      <Logos />
       <nav className="platform-nav" aria-label="Prehľad sekcií">
         <Link href="/">Domov</Link>
         <Link href="/programy">Študijné odbory</Link>

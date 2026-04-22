@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import Logo from '@/components/Logo';
+import Logos from '@/components/Logos';
 import { ACTIVITY_CATEGORIES } from '@/lib/activities';
 
 const FEI_ARCHIVE_FAKULTNE = 'https://www.fei.tuke.sk/sk/archive/clanky?category=fakultne_aktuality&page=1';
@@ -114,7 +114,7 @@ export default function AktivityPage() {
 
   return (
     <div className="page-container">
-      <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+      <Logos />
       <nav className="platform-nav" aria-label="Prehľad sekcií">
         <Link href="/">Domov</Link>
         <Link href="/programy">Študijné odbory</Link>

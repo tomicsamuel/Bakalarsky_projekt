@@ -51,6 +51,7 @@ export default function MajorCard({
   /** Klasický režim (Shelf): Porovnať + Prečo */
   isInCompare = false,
   onCompare,
+  disableTilt = false,
 }: {
   result: ScoreResult;
   rank: number;
@@ -62,6 +63,7 @@ export default function MajorCard({
   confidence?: number;
   isInCompare?: boolean;
   onCompare?: (r: ScoreResult) => void;
+  disableTilt?: boolean;
 }) {
   const meta = getMajorMeta(result);
   const detailHref = `/program/${encodeURIComponent(result.name)}/${encodeURIComponent(result.field)}`;
@@ -78,7 +80,7 @@ export default function MajorCard({
   };
 
   return (
-    <TiltedCard rotateAmplitude={12} scaleOnHover={1.05} className="major-card-tilt">
+    <TiltedCard rotateAmplitude={12} scaleOnHover={1.05} className="major-card-tilt" disabled={disableTilt}>
       <article
         className={`major-card major-card--${rarity.toLowerCase()} ${showFoil ? 'major-card--foil' : ''}`}
         data-rank={rank}

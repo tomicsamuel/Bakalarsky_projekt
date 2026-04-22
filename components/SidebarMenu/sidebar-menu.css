@@ -444,11 +444,13 @@
   min-height: 100dvh;
   position: relative;
   z-index: 1;
+  overflow-x: hidden;
 }
 
 .finder-layout > main {
   flex: 1;
   min-width: 0;
+  overflow-x: hidden;
 }
 
 @media (min-width: 1024px) {
@@ -465,6 +467,15 @@
 
 @media (max-width: 768px) {
   .sidebar-menu {
-    width: 280px;
+    width: min(280px, 100vw - 24px);
+  }
+}
+
+@media (max-width: 360px) {
+  .sidebar-menu {
+    width: 100vw;
+  }
+  .sidebar-step {
+    min-height: 48px;
   }
 }

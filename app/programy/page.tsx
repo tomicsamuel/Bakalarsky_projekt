@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import Logo from '@/components/Logo';
+import Logos from '@/components/Logos';
 import { PROGRAMS_INFO, getProgramInfo } from '@/lib/programs';
 
 const FIELDS = ['Všetky', 'Informatika', 'Elektrotechnika'] as const;
@@ -61,7 +61,7 @@ export default function ProgramyPage() {
 
   return (
     <div className="page-container">
-      <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+      <Logos />
       <nav className="platform-nav" aria-label="Prehľad sekcií">
         <Link href="/">Domov</Link>
         <Link href="/programy">Študijné odbory</Link>

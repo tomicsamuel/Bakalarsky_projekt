@@ -17,11 +17,10 @@ export function confidenceFromStability(results: ScoreResult[]) {
 export function computeConfidence(params: {
   completeness01: number;
   results: ScoreResult[];
-  quizDelta?: number;
   duelDelta?: number;
 }) {
   const base = confidenceFromCompleteness(params.completeness01) + confidenceFromStability(params.results);
-  const withQuiz = base + (params.quizDelta ?? 0) + (params.duelDelta ?? 0);
-  return Math.max(0, Math.min(100, Math.round(withQuiz)));
+  const total = base + (params.duelDelta ?? 0);
+  return Math.max(0, Math.min(100, Math.round(total)));
 }
 

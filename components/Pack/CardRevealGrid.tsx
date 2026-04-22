@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Button } from '@heroui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import './pack.css';
 
@@ -26,6 +27,8 @@ type Props = {
   compare?: ScoreResult[];
   onCompare?: (r: ScoreResult) => void;
   onRevealComplete: () => void;
+  /** Skryť tlačidlo "Prejsť na výsledky" – napr. keď sme už na stránke výsledkov */
+  showDoneButton?: boolean;
 };
 
 export default function CardRevealGrid({
@@ -37,10 +40,15 @@ export default function CardRevealGrid({
   compare = [],
   onCompare,
   onRevealComplete,
+  showDoneButton = true,
 }: Props) {
   const top6 = results.slice(0, 6);
   const [isShuffling, setIsShuffling] = useState(true);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const packFlow = onAddToDuel != null;
+
+  const goPrev = () => setCarouselIndex((i) => Math.max(0, i - 1));
+  const goNext = () => setCarouselIndex((i) => Math.min(top6.length - 1, i + 1));
 
   useEffect(() => {
     const t = setTimeout(() => setIsShuffling(false), SHUFFLE_DURATION_MS);
@@ -105,6 +113,96 @@ export default function CardRevealGrid({
             className="card-reveal__content"
           >
       <h2 className="card-reveal__title">Tvoje odbory</h2>
+
+      {/* Mobil/tablet: pager s bočnými kartičkami (CSS transform stacking) */}
+      <div className="card-reveal__pager" aria-label="Prehľad odborov">
+        {/* Wrapper drží tlačidlá mimo overflow:hidden kontajnera */}
+        <div className="card-reveal__pager-track">
+          {/* card kontajner orezáva bočné kartičky */}
+          <div className="card-reveal__pager-card">
+            {top6.map((r, i) => {
+              const rank = i + 1;
+              const rarity = packFlow ? getPackRarity(rank) : getRarity(r, rank);
+              const offset = i - carouselIndex;
+              const absOffset = Math.abs(offset);
+              const clampedAbs = Math.min(absOffset, 2);
+              return (
+                <motion.div
+                  key={`${r.name}__${r.field}`}
+                  className="card-reveal__pager-slide"
+                  aria-hidden={i !== carouselIndex}
+                  animate={{
+                    x: `${offset * 93}%`,
+                    scale: 1 - clampedAbs * 0.1,
+                    opacity: Math.max(0, 1 - absOffset * 0.6),
+                    filter: `blur(${clampedAbs * 2}px)`,
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 320,
+                    damping: 32,
+                    mass: 0.75,
+                  }}
+                  style={{
+                    zIndex: 10 - absOffset * 3,
+                    pointerEvents: absOffset === 0 ? 'auto' : 'none',
+                  }}
+                >
+                  <MajorCard
+                    result={r}
+                    rank={rank}
+                    rarity={rarity}
+                    duelSlot={packFlow ? getDuelSlot(r) : null}
+                    onAddToDuel={packFlow ? onAddToDuel : undefined}
+                    onAddToShortlist={packFlow ? undefined : undefined}
+                    onExplain={onExplain}
+                    confidence={confidence}
+                    isInCompare={!packFlow && compare.some((c) => c.name === r.name && c.field === r.field)}
+                    onCompare={packFlow ? undefined : onCompare}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Tlačidlá sú mimo overflow:hidden, takže nie sú odrezané */}
+          <button
+            type="button"
+            className={`card-reveal__pager-btn card-reveal__pager-btn--prev ${carouselIndex === 0 ? 'card-reveal__pager-btn--hidden' : ''}`}
+            onClick={goPrev}
+            disabled={carouselIndex === 0}
+            aria-label="Predchádzajúci odbor"
+          >
+            <ChevronLeft size={24} strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            className={`card-reveal__pager-btn card-reveal__pager-btn--next ${carouselIndex >= top6.length - 1 ? 'card-reveal__pager-btn--hidden' : ''}`}
+            onClick={goNext}
+            disabled={carouselIndex >= top6.length - 1}
+            aria-label="Ďalší odbor"
+          >
+            <ChevronRight size={24} strokeWidth={2} />
+          </button>
+        </div>
+
+        <div className="card-reveal__pager-nav">
+          <div className="card-reveal__pager-dots">
+            {top6.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`card-reveal__pager-dot ${i === carouselIndex ? 'active' : ''}`}
+                onClick={() => setCarouselIndex(i)}
+                aria-label={`Odbor ${i + 1} z ${top6.length}`}
+                aria-current={i === carouselIndex ? 'true' : undefined}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: mriežka */}
       <div className="card-reveal__grid">
         <AnimatePresence mode="popLayout">
           {top6.map((r, i) => {
@@ -142,7 +240,7 @@ export default function CardRevealGrid({
           })}
         </AnimatePresence>
       </div>
-            {top6.length > 0 && (
+            {showDoneButton && top6.length > 0 && (
         <motion.div
           className="card-reveal__done"
           initial={{ opacity: 0 }}

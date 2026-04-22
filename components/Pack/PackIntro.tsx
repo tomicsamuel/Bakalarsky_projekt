@@ -9,13 +9,11 @@ import './pack.css';
 type Props = {
   confidence: number;
   onOpen: () => void;
-  onQuiz: () => void;
-  onSkip: () => void;
 };
 
 const SHAKE_DURATION_MS = 600;
 
-export default function PackIntro({ confidence, onOpen, onQuiz, onSkip }: Props) {
+export default function PackIntro({ confidence, onOpen }: Props) {
   const [isShaking, setIsShaking] = useState(false);
 
   const handleOpenPack = () => {
@@ -89,30 +87,7 @@ export default function PackIntro({ confidence, onOpen, onQuiz, onSkip }: Props)
           >
             Otvoriť pack
           </Button>
-          <Button
-            type="button"
-            color="primary"
-            variant="bordered"
-            size="lg"
-            onPress={onQuiz}
-            aria-label="Zvýšiť istotu pomocou krátkeho kvízu"
-            className="pack-intro__btn pack-intro__btn--secondary"
-          >
-            Zvýšiť istotu (1 min kvíz)
-          </Button>
         </div>
-        <p className="pack-intro__disclaimer">Žiadne peniaze, len vizuálny režim.</p>
-        <Button
-          type="button"
-          color="primary"
-          variant="ghost"
-          size="sm"
-          onPress={onSkip}
-          aria-label="Zobraziť rebríček bez pack animácie"
-          className="pack-intro__skip"
-        >
-          Zobraziť rebríček normálne
-        </Button>
       </motion.div>
     </motion.div>
   );

@@ -144,6 +144,14 @@
   box-shadow: 0 4px 12px rgba(194, 65, 12, 0.4);
 }
 
+/* Wrapper pre AnimatePresence – obaluje question + answers */
+.runoff-arena__question-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .runoff-arena__question-card {
   width: 100%;
   max-width: 480px;

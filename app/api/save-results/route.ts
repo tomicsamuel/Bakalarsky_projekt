@@ -9,6 +9,9 @@ type SaveResultsRequest = {
   name: string;
   email: string;
   school: string;
+  location?: string | null;
+  age?: number | null;
+  wantsToStudyAtTUKE?: boolean | null;
   howDidYouHear?: string[];
   howDidYouHearOther?: string | null;
   whyThisSchool?: string[];
@@ -37,27 +40,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2) Kontrola: s týmto emailom už nebol dotazník odoslaný
-    const existingUser = await prisma.user.findFirst({
-      where: { email: { equals: email, mode: 'insensitive' } },
-    });
-    if (existingUser) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'S týmto emailom ste už dotazník vyplnili. Prihláste sa pre zobrazenie výsledkov.',
-          code: 'EMAIL_ALREADY_USED',
-        },
-        { status: 400 }
-      );
+    // 2) Kontrola duplicity emailu – preskočíme pre prihlásených používateľov (accountId),
+    //    ktorí môžu robiť test opakovane. Pre hostí blokujeme duplicity.
+    if (!data.accountId) {
+      const existingUser = await prisma.user.findFirst({
+        where: { email: { equals: email, mode: 'insensitive' } },
+      });
+      if (existingUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'S týmto emailom ste už dotazník vyplnili. Prihláste sa pre zobrazenie výsledkov.',
+            code: 'EMAIL_ALREADY_USED',
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // 3) Vytvoríme používateľa v databáze (súhlas so spracovaním evidujeme pri odoslaní)
+    // Schema má location, age, wantsToStudyAtTUKE; po npx prisma generate sú v UserCreateInput
     const user = await prisma.user.create({
       data: {
         name: data.name,
         email: email,
         school: data.school,
+        location: data.location?.trim() || null,
+        age: data.age ?? null,
+        wantsToStudyAtTUKE: data.wantsToStudyAtTUKE ?? null,
         howDidYouHear: data.howDidYouHear || [],
         howDidYouHearOther: data.howDidYouHearOther || null,
         whyThisSchool: data.whyThisSchool || [],
@@ -66,7 +76,7 @@ export async function POST(request: NextRequest) {
         experience: data.experience,
         accountId: data.accountId || null,
         consentGivenAt: new Date(),
-      },
+      } as Parameters<typeof prisma.user.create>[0]['data'],
     });
 
     // 3) Pre každý výsledok:

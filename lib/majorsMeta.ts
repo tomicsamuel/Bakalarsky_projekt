@@ -61,9 +61,9 @@ const DEFAULT_META: MajorMeta = {
 
 export const majorsMeta: Record<string, MajorMeta> = {
   [k('Informatika', 'Informatika')]: {
-    tagline: 'Pre teba, ak chceš univerzálny IT základ a veľa smerov.',
+    tagline: 'Klasická FEI informatika – softvér, algoritmy, DB a systémy.',
     tags: ['Kód', 'Algoritmy', 'Vývoj'],
-    stars: { elektro: 1, matematika: 4, programovanie: 5, siete: 2 },
+    stars: { elektro: 1, matematika: 3, programovanie: 5, siete: 2 },
     duel: {
       Predmety: 'Programovanie, algoritmy, databázy, systémy.',
       'Typ práce': 'Vývoj softvéru, product teams, startupy.',
@@ -74,9 +74,9 @@ export const majorsMeta: Record<string, MajorMeta> = {
     topActivities: ['Programovanie', 'Algoritmy', 'Databázy'],
   },
   [k('Kyberbezpečnosť', 'Informatika')]: {
-    tagline: 'Pre teba, ak ťa baví bezpečnosť, útok/obrana a analýza.',
+    tagline: 'Bezpečnosť systémov, kryptografia a ochrana sietí.',
     tags: ['Bezpečnosť', 'Sieťovanie', 'Infraštruktúra'],
-    stars: { elektro: 2, matematika: 4, programovanie: 4, siete: 5 },
+    stars: { elektro: 1, matematika: 3, programovanie: 4, siete: 4 },
     duel: {
       Predmety: 'Kryptografia, bezpečnosť, forenzika, siete.',
       'Typ práce': 'Security analyst, pentester, SOC.',
@@ -87,9 +87,9 @@ export const majorsMeta: Record<string, MajorMeta> = {
     topActivities: ['Kryptografia', 'Bezpečnosť', 'Forenzika'],
   },
   [k('Počítačové siete', 'Informatika')]: {
-    tagline: 'Pre teba, ak chceš rozumieť infraštruktúre a sieťam do hĺbky.',
+    tagline: 'Najsieťovejší program – siete, komunikácie, cloud a bezpečnosť.',
     tags: ['Sieťovanie', 'Infraštruktúra', 'Cloud'],
-    stars: { elektro: 2, matematika: 4, programovanie: 4, siete: 5 },
+    stars: { elektro: 2, matematika: 3, programovanie: 4, siete: 5 },
     duel: {
       Predmety: 'Siete, protokoly, routing, systémy.',
       'Typ práce': 'Network engineer, admin, cloud infra.',
@@ -100,9 +100,9 @@ export const majorsMeta: Record<string, MajorMeta> = {
     topActivities: ['Siete a protokoly', 'Routing', 'Cloud infra'],
   },
   [k('Umelá inteligencia', 'Informatika')]: {
-    tagline: 'Pre teba, ak ťa baví ML, dáta a modely, ktoré robia rozhodnutia.',
-    tags: ['AI', 'Dáta', 'Štatistika'],
-    stars: { elektro: 1, matematika: 5, programovanie: 5, siete: 2 },
+    tagline: 'Najviac data/AI – Python, ML, hlboké učenie a robotika.',
+    tags: ['AI', 'Dáta', 'Algoritmy'],
+    stars: { elektro: 1, matematika: 4, programovanie: 5, siete: 2 },
     duel: {
       Predmety: 'Strojové učenie, štatistika, neurónové siete.',
       'Typ práce': 'ML engineer, data scientist.',
@@ -110,12 +110,12 @@ export const majorsMeta: Record<string, MajorMeta> = {
       'Baví ťa': 'Keď chceš „učiť“ stroje z dát.',
       'Ťaží ťa': 'Matika a iterovanie pokus/omyl.',
     },
-    topActivities: ['Strojové učenie', 'Štatistika', 'Neurónové siete'],
+    topActivities: ['Strojové učenie', 'Hlboké učenie', 'Dátová veda'],
   },
   [k('Počítačové modelovanie', 'Informatika')]: {
-    tagline: 'Pre teba, ak chceš kombinovať programovanie, modely a dáta.',
+    tagline: 'Najmatematickejší IT program – numerika, modelovanie a analýza.',
     tags: ['Modelovanie', 'Dáta', 'Algoritmy'],
-    stars: { elektro: 1, matematika: 4, programovanie: 4, siete: 2 },
+    stars: { elektro: 2, matematika: 5, programovanie: 4, siete: 1 },
     duel: {
       Predmety: 'Modelovanie, simulácie, dáta, algoritmy.',
       'Typ práce': 'Simulácie, analýza, R&D.',
@@ -123,40 +123,53 @@ export const majorsMeta: Record<string, MajorMeta> = {
       'Baví ťa': 'Keď ťa baví „ako to funguje“ pod povrchom.',
       'Ťaží ťa': 'Menej „produktového“ vývoja, viac analýzy.',
     },
-    topActivities: ['Modelovanie', 'Simulácie', 'Algoritmy'],
+    topActivities: ['Modelovanie', 'Simulácie', 'Numerika'],
+  },
+  [k('Aplikovaná informatika', 'Informatika')]: {
+    tagline: 'Praktické IT – softvér, systémy, DB a nasadenie do praxe.',
+    tags: ['Kód', 'Vývoj', 'Prax'],
+    stars: { elektro: 1, matematika: 3, programovanie: 5, siete: 3 },
+    duel: {
+      Predmety: 'Softvér, správa systémov, databázy, siete.',
+      'Typ práce': 'Aplikačný vývoj, IT support, integrácia.',
+      Skills: 'Programovanie, admin, DB, nasadenie.',
+      'Baví ťa': 'Keď chceš prakticky použiť IT v praxi a priemysle.',
+      'Ťaží ťa': 'Menej teórie, viac praktickej rutiny.',
+    },
+    topActivities: ['Softvér', 'Systémy', 'Databázy'],
   },
   [k('Aplikovaná elektrotechnika', 'Elektrotechnika')]: {
-    tagline: 'Pre teba, ak chceš praktický hardware a systémy v reálnom svete.',
+    tagline: 'Silnoprúd, pohony, výkonová elektronika a riadenie systémov.',
     tags: ['Hardware', 'Obvody', 'Merania'],
-    stars: { elektro: 5, matematika: 3, programovanie: 3, siete: 2 },
+    stars: { elektro: 5, matematika: 3, programovanie: 2, siete: 1 },
     duel: {
-      Predmety: 'Elektronika, merania, obvody, systémy.',
-      'Typ práce': 'Vývoj HW, integrácia, testovanie.',
+      Predmety: 'Pohony, výkonová elektronika, riadenie, meranie.',
+      'Typ práce': 'Vývoj HW, integrácia, priemyselné riadenie.',
       Skills: 'Meranie, návrh, prototypovanie.',
       'Baví ťa': 'Keď chceš vidieť výsledok „v rukách“.',
       'Ťaží ťa': 'Viac fyziky a laboratórií.',
     },
-    topActivities: ['Elektronika', 'Merania', 'Obvody'],
+    topActivities: ['Pohony', 'Výkonová elektronika', 'Riadenie'],
   },
   [k('Priemyselná elektrotechnika', 'Elektrotechnika')]: {
-    tagline: 'Pre teba, ak ťa láka automatizácia, PLC a priemysel.',
-    tags: ['Hardware', 'Merania', 'Diagnostika'],
-    stars: { elektro: 4, matematika: 3, programovanie: 3, siete: 2 },
+    tagline: 'Priemyselná prax – automatizácia, PLC, mikropočítače a IT.',
+    tags: ['Hardware', 'Diagnostika', 'Prax'],
+    stars: { elektro: 5, matematika: 3, programovanie: 3, siete: 1 },
     duel: {
-      Predmety: 'Automatizácia, riadenie, merania.',
+      Predmety: 'Automatizácia, riadenie, merania, PLC.',
       'Typ práce': 'Priemysel, výroba, integrátor.',
       Skills: 'PLC, diagnostika, procesy.',
       'Baví ťa': 'Keď chceš riešiť reálne výrobné systémy.',
       'Ťaží ťa': 'Práca s normami a bezpečnosťou.',
     },
-    topActivities: ['Automatizácia', 'PLC', 'Riadenie'],
+    topActivities: ['Automatizácia', 'PLC', 'Mikroprocesory'],
   },
   [k('Automobilová elektronika', 'Elektrotechnika')]: {
-    tagline: 'Pre teba, ak ťa baví automotive, embedded a senzory.',
+    tagline: 'Automobilová elektronika – embedded, senzory a diagnostika.',
     tags: ['Hardware', 'Merania', 'Diagnostika'],
-    stars: { elektro: 5, matematika: 3, programovanie: 3, siete: 2 },
+    stars: { elektro: 5, matematika: 3, programovanie: 2, siete: 1 },
     duel: {
-      Predmety: 'Elektronika, embedded, diagnostika.',
+      Predmety: 'Elektronika, embedded, diagnostika, mikrosystémy.',
       'Typ práce': 'Automotive R&D, testovanie, integrácia.',
       Skills: 'Systémy, embedded, kvalita.',
       'Baví ťa': 'Keď ťa lákajú autá a elektronika.',
@@ -165,24 +178,24 @@ export const majorsMeta: Record<string, MajorMeta> = {
     topActivities: ['Embedded', 'Diagnostika', 'Automotive'],
   },
   [k('Elektroenergetika', 'Elektrotechnika')]: {
-    tagline: 'Pre teba, ak chceš energie, siete a „smart grid“ svet.',
-    tags: ['Energetika', 'Infraštruktúra', 'Prax'],
-    stars: { elektro: 5, matematika: 4, programovanie: 2, siete: 3 },
+    tagline: 'Silnoprúd a energetika – elektrárne, rozvody a stanice.',
+    tags: ['Energetika', 'Infraštruktúra', 'Hardware'],
+    stars: { elektro: 5, matematika: 3, programovanie: 1, siete: 1 },
     duel: {
-      Predmety: 'Energetika, stroje, rozvodné siete.',
-      'Typ práce': 'Distribúcia, návrh, audit, smart grid.',
+      Predmety: 'Energetika, elektrické stroje, rozvodné siete.',
+      'Typ práce': 'Distribúcia, návrh, audit, energetické podniky.',
       Skills: 'Analýza, normy, technické myslenie.',
       'Baví ťa': 'Keď chceš riešiť infraštruktúru spoločnosti.',
       'Ťaží ťa': 'Normy, bezpečnosť, zodpovednosť.',
     },
-    topActivities: ['Energetika', 'Stroje', 'Smart grid'],
+    topActivities: ['Energetika', 'Elektrárne', 'Rozvody'],
   },
   [k('Fyzikálne inžinierstvo progresívnych materiálov', 'Elektrotechnika')]: {
-    tagline: 'Pre teba, ak ťa baví fyzika, materiály a výskum.',
+    tagline: 'Fyzika, nové materiály, diagnostika a modelovanie procesov.',
     tags: ['Fyzika', 'Modelovanie', 'Merania'],
-    stars: { elektro: 4, matematika: 5, programovanie: 2, siete: 2 },
+    stars: { elektro: 2, matematika: 4, programovanie: 2, siete: 1 },
     duel: {
-      Predmety: 'Materiály, fyzika, laboratóriá, analýza.',
+      Predmety: 'Materiály, fyzika, laboratóriá, modelovanie.',
       'Typ práce': 'Výskum, vývoj, lab.',
       Skills: 'Experiment, meranie, interpretácia.',
       'Baví ťa': 'Keď chceš objavovať nové materiály.',
@@ -210,4 +223,3 @@ export function fieldDefaults(field: MajorField | string) {
   }
   return { tags: DEFAULT_META.tags };
 }
-

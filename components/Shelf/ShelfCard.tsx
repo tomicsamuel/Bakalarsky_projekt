@@ -18,14 +18,15 @@ type Props = {
   isInCompare?: boolean;
   onCompare: (r: ScoreResult) => void;
   onExplain?: (r: ScoreResult, rank: number) => void;
+  disableTilt?: boolean;
 };
 
-export default function ShelfCard({ result, rank, variant = 'default', rarity, isInCompare = false, onCompare, onExplain }: Props) {
+export default function ShelfCard({ result, rank, variant = 'default', rarity, isInCompare = false, onCompare, onExplain, disableTilt = false }: Props) {
   const meta = getMajorMeta(result);
   const detailHref = `/program/${encodeURIComponent(result.name)}/${encodeURIComponent(result.field)}`;
 
   return (
-    <TiltedCard rotateAmplitude={12} scaleOnHover={1.05} className="shelf-card-tilt">
+    <TiltedCard rotateAmplitude={12} scaleOnHover={1.05} className="shelf-card-tilt" disabled={disableTilt}>
       <article
         className={`shelf-card shelf-card--${variant} ${rarity ? `shelf-card--rarity shelf-card--${rarity.toLowerCase()}` : ''}`}
         data-rank={rank}

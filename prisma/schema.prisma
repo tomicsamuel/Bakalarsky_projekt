@@ -37,18 +37,21 @@ model Account {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
-  name            String
-  email           String
-  school          String
-  howDidYouHear   String[]
-  howDidYouHearOther String?
-  whyThisSchool   String[]
-  expectations    String[]
-  interests       String[]
-  experience      String[]
-  consentGivenAt  DateTime?
-  createdAt       DateTime  @default(now())
+  id                  Int       @id @default(autoincrement())
+  name                String
+  email               String
+  school              String
+  location            String?   // odkiaľ je (mesto / región)
+  age                 Int?      // vek v rokoch
+  wantsToStudyAtTUKE  Boolean?  // či chce študovať na TUKE
+  howDidYouHear       String[]
+  howDidYouHearOther  String?
+  whyThisSchool       String[]
+  expectations        String[]
+  interests           String[]
+  experience          String[]
+  consentGivenAt      DateTime?
+  createdAt           DateTime  @default(now())
   
   accountId  Int?
   account    Account? @relation(fields: [accountId], references: [id])

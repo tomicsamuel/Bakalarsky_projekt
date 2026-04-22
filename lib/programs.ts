@@ -66,6 +66,12 @@ export const PROGRAMS_INFO: ProgramInfo[] = [
     description: 'Študijný program zameraný na programovanie a aplikáciu umelej inteligencie. Absolvent(ka) získava vedomosti z oblasti strojového učenia, neurónových sietí, spracovania prirodzeného jazyka a ďalších oblastí umelej inteligencie.',
     occupations: '• Špecialista(ka) v oblasti umelej inteligencie\n• Vývojár(ka) AI systémov\n• Data scientist\n• ML inžinier(ka)'
   },
+  {
+    name: 'Aplikovaná informatika',
+    field: 'Informatika',
+    description: 'Praktická aplikovaná IT vetva s dôrazom na využitie informačných a komunikačných technológií v praxi – softvér, správa systémov, databázy, siete a nasadenie riešení v priemysle a IKT sektore. Absolvent(ka) získava praktické zručnosti potrebné pre prácu v IT tímoch, vývoj a prevádzku aplikačných a informačných systémov.',
+    occupations: '• Aplikačný(á) programátor(ka)\n• Správca(kyňa) IT systémov\n• Databázový(á) špecialista(ka)\n• IT konzultant(ka)'
+  },
 ];
 
 export function getProgramInfo(name: string, field: string): ProgramInfo | undefined {

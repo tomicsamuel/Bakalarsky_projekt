@@ -8,7 +8,7 @@ import { Button } from '@heroui/button';
 import AnimatedStats from '@/components/AnimatedStats';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import FloatingElements from '@/components/FloatingElements';
-import Logo from '@/components/Logo';
+import Logos from '@/components/Logos';
 import { DEADLINE } from '@/lib/config';
 
 export default function Home() {
@@ -70,10 +70,7 @@ export default function Home() {
       
       <main id="main-content" className={`landing-container ${isLoaded ? 'loaded' : ''}`}>
         <div className="landing-top-row">
-          <div className="landing-logos">
-            <Logo variant="fei" href="/" className="logo" width={180} height={52} />
-            <Logo variant="kps" href="/" className="logo" width={120} height={52} />
-          </div>
+          <Logos />
           {loggedInUser && (
             <button
               type="button"

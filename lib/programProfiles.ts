@@ -1,6 +1,9 @@
 /**
- * Rozšírené profily programov: plusy, mínusy, pre koho, hviezdy, predmety.
+ * Rozšírené profily programov: hviezdičkové zloženie + predmety po semestroch.
  * Používa sa na detail stránke programu (/program/[name]/[field]).
+ *
+ * Polia pros/cons/forWho sú ponechané v type kvôli spätnej kompatibilite UI,
+ * ale v obsahu sú prázdne – reálne sa nezobrazujú.
  */
 
 export type StarProfile = {
@@ -13,7 +16,7 @@ export type StarProfile = {
 export type Subject = {
   name: string;
   semester: string;
-  evaluation: string;
+  evaluation?: string;
   outcomes?: string;
   syllabus?: string;
   phZh?: string;
@@ -32,574 +35,649 @@ function k(name: string, field: string): string {
   return `${name}__${field}`;
 }
 
+function names(semester: string, list: string[]): Subject[] {
+  return list.map((name) => ({ name, semester }));
+}
+
 const profiles: Record<string, ProgramProfile> = {
+  // =========================================================================
+  // INFORMATIKA
+  // =========================================================================
   [k('Informatika', 'Informatika')]: {
-    pros: [
-      'Silné jadro v programovaní (procedurálne C → pokročilé C → OOP).',
-      'Veľa „core IT“: OS Linux + systémové programovanie, algoritmy a dátové štruktúry, databázy, formálne jazyky.',
-      'Dobrá príprava na prax (Git, UML, testovanie, CI/CD, Docker, sieťové základy).',
-    ],
-    cons: [
-      'Matematika a teória (DM, NMPaŠ) vedia byť náročné, ak ti nesedí abstrakcia.',
-      '„Siete“ sú tu skôr ako dôležitý základ (CCNA intro), ale nie je to primárny fokus ako v odbore Počítačové siete.',
-    ],
-    forWho:
-      'Ak chceš ísť smerom vývoj softvéru, backend, infra basics, databázy, alebo pokračovať na 2. stupeň informatika.',
-    starProfile: {
-      matematika: 4,
-      programovanie: 5,
-      siete: 2,
-      elektro: 1,
-    },
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 1, matematika: 3, programovanie: 5, siete: 2 },
     subjects: [
-      // 1. rok ZS
-      {
-        name: 'FEI – Jazyk 1',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        outcomes: 'Jazyk min. A2, terminológia pre elektro + IKT.',
-        syllabus: 'OS a softvér, editor, tabuľky/databázy, grafika, DTP, programovanie a jazyky, multimédiá, internet/email/web, bezpečnosť internetu, komunikačné systémy.',
-      },
-      {
-        name: 'Repetitórium z matematiky (RzM)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        outcomes: 'Zopakovanie SŠ matematiky pre zvládnutie vyššej matematiky.',
-        syllabus: 'Úpravy výrazov, rovnice/nerovnice, Gauss, abs hodnota, polynómy + Horner, funkcie, komplexné čísla.',
-      },
-      {
-        name: 'Základy algoritmizácie a programovania (ZAP)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Návrh algoritmov + implementácia v procedurálnom jazyku.',
-        syllabus: 'Algoritmy, vývojové diagramy, typy, výrazy, vetvenie/cykly, I/O, funkcie/rekurzia, polia, záznamy, analýza algoritmov.',
-        phZh: 'PH/ZH: testy + zadanie, skúška (záverečný test).',
-      },
-      {
-        name: 'Základy inžinierstva materiálov (ZIM)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Elektrofyzikálne vlastnosti materiálov (slaboprúd/silnoprúd), polovodiče, technológie.',
-        syllabus: 'Vodivosť, optické vlákna, magnetizmus, supravodiče, dielektriká, PN prechod, kryštály, IO, trendy (nano).',
-        phZh: 'PH/ZH: testy + projekty, záverečný test + ústna skúška.',
-      },
-      {
-        name: 'Úvod do inžinierstva (UI)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        outcomes: 'Prehľad odborov FEI + súvislosti medzi odbormi.',
-        syllabus: 'Aplikovaná elektro, energetika, informatika, inteligentné systémy, siete, modelovanie, priemysel, automobilová elektronika.',
-      },
-      {
-        name: 'Telesná výchova I (TV I)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        outcomes: 'Kondícia, pohybové schopnosti, psychohygiena.',
-      },
-      {
-        name: 'Základy elektrotechnického inžinierstva (ZEI)',
-        semester: '1. rok ZS',
-        evaluation: 'klasifikovaný zápočet',
-        outcomes: 'DC obvody, bezpečnosť a predpisy, ochrana pred úrazom, technická dokumentácia + CAD.',
-        syllabus: 'Veličiny, topológia obvodov, prvky, lineárne obvody, účinky prúdu, prvá pomoc, ochrana, dokumentácia.',
-        phZh: 'PH: elektrotechnika písomka, BOZP test, zadania (rešerš, výkresy, schémy, elektroinštalácia).',
-      },
-      {
-        name: 'Matematika I (MAT I)',
-        semester: '1. rok ZS',
-        evaluation: 'klasifikovaný zápočet (min. 51 %)',
-        outcomes: 'Lineárna algebra + derivácie 1 premennej.',
-        syllabus: 'Komplexné čísla, matice/determinanty, sústavy rovníc, limita/spojitosť, derivácia, diferenciál, Taylor, extrémy, priebeh funkcie.',
-      },
-      {
-        name: 'Úvod do fyziky (UDF)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet (min. 51 %)',
-        outcomes: 'Zopakovanie SŠ fyziky.',
-        syllabus: 'Kinematika, dynamika, kmity a vlny.',
-      },
-      // 1. rok LS
-      {
-        name: 'Fyzika I (FI)',
-        semester: '1. rok LS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Mechanika, energia, rotácia, kmity/rezonancia, vlnenie, termodynamika, entropia.',
-      },
-      {
-        name: 'Princípy počítačového inžinierstva (PPI)',
-        semester: '1. rok LS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Architektúra + bezpečnosť PC systémov, HW/OS/aplikácie v sieťovom prostredí.',
-        syllabus: 'Koncepcia PC, siete, telematika, bezpečnosť PC aj sietí, zobrazovanie, logická úroveň, periférie, paralelné systémy.',
-      },
-      {
-        name: 'Telesná výchova II (TV II)',
-        semester: '1. rok LS',
-        evaluation: 'zápočet',
-      },
-      {
-        name: 'Základy softvérového inžinierstva (ZSwI)',
-        semester: '1. rok LS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Procesy vývoja softvéru, požiadavky, kvalita, tímová práca, iteratívny vývoj.',
-        syllabus: 'UML, Scrum/XP, Git, testovanie + automatizácia, kvalita kódu, ladenie, CI/CD, Docker, dokumentácia.',
-      },
-      {
-        name: 'Matematika II (MAT II)',
-        semester: '1. rok LS',
-        evaluation: 'klasifikovaný zápočet (min. 51 %)',
-        outcomes: 'Integrály + viacpremenné derivácie.',
-        syllabus: 'Neurčitý/určitý integrál, parciálne zlomky, nevlastné integrály, funkcia n-premenných, parciálne derivácie, Taylor, extrémy 2 premenných.',
-      },
-      {
-        name: 'Programovanie (Progr)',
-        semester: '1. rok LS',
-        evaluation: 'klasifikovaný zápočet + skúška',
-        outcomes: 'Pokročilé C (pamäť, štruktúry, regex, TDD základy), plus Arduino UNO základy.',
-        syllabus: 'Alokácia pamäte, smerníky, serializácia, triedenie, regex, linked listy, BST, Arduino, sériová komunikácia, stavové stroje, prerušenia, polling.',
-      },
-      {
-        name: 'FEI – Jazyk 2',
-        semester: '1. rok LS',
-        evaluation: 'zápočet',
-        outcomes: 'Jazyk min. B1, terminológia pre elektro + IKT.',
-      },
-      // 2. rok ZS
-      {
-        name: 'Údajové štruktúry a algoritmy (ÚŠaA)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Efektívne algoritmy, spracovanie údajov.',
-        syllabus: 'ADT, grafy/stromy, triedenia, hashovanie, BVS, vyvážené stromy, UF, haldy, B-stromy, externé pamäte.',
-      },
-      {
-        name: 'Architektúry počítačových systémov (APS)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Stavebné prvky, automaty, VHDL, MIPS ISA, CPU implementácie, pipeline, pamäte, I/O, FPGA, paralelizmus.',
-      },
-      {
-        name: 'Objektovo orientované programovanie (OOP)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'OOP princípy, LSP, generiká, lambda, výnimky, návrhové vzory, UML, OCP.',
-      },
-      {
-        name: 'Operačné systémy (OS)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Jadro OS (procesy/pamäť/súbory), systémové programovanie v Linuxe.',
-        syllabus: 'Procesy, plánovanie, pamäť, virtuálna pamäť, synchronizácia, zariadenia, súborový systém.',
-      },
-      {
-        name: 'Diskrétna matematika (DM)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Boolovská algebra + grafy + základy pre algoritmy.',
-        syllabus: 'Množiny, relácie, zväzy, boolovské funkcie, výroková logika, grafy/stromy, Euler/Hamilton, planárne grafy, digrafy, grafové algoritmy.',
-      },
-      // 2. rok LS
-      {
-        name: 'Počítačové siete (PS) – P',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'IP adresácia/podsiete, Ethernet, switching/routing základy, VLAN + interVLAN, DHCP/HSRP, routing základy, WLAN, sieťové programovanie.',
-        phZh: 'PH: podsieťovanie písomka + teória + praktická konfigurácia. Výstup: Cisco NetAcad → základ pre CCNA 200-301.',
-      },
-      {
-        name: 'Formálne jazyky (FJ) – P',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Regex, gramatiky, syntaktická analýza, základy prekladu a generovania kódu.',
-        syllabus: 'Regulárne jazyky, automaty, lexikálna analýza, CFG, parsing top-down/bottom-up, sémantika, optimalizácia, Turing.',
-      },
-      {
-        name: 'Numerická matematika, pravdepodobnosť a štatistika (NMPaŠ) – P',
-        semester: '2. rok LS',
-        evaluation: 'klasifikovaný zápočet (MATLAB zadanie)',
-        syllabus: 'Numerické metódy (rovnice, sústavy), aproximácia, integrál, pravdepodobnosť, popisná štatistika.',
-      },
-      {
-        name: 'Databázové systémy (DBS) – P',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Modelovanie, relačný model, algebra, normalizácia, SQL (DDL/DML/DCL), transakcie, indexy, procedurálne SQL, bezpečnosť.',
-      },
-      {
-        name: 'Komponentové programovanie (KP) – PV',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Java + komponentový štýl, viacvrstvové aplikácie.',
-        syllabus: 'Java základy, I/O, vlákna, DB prístup, DI, komponenty/služby, štandardy.',
-      },
-      {
-        name: 'Programovanie v prostredí DotNET (PDotNET) – PV',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        syllabus: '.NET platforma, C#, generiká/kolekcie, delegáty/udalosti, výnimky, XML serializácia, Visual Studio debugging, forms/controls, security.',
-      },
-      {
-        name: 'Fyzika II (FII) – PV',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Elektrostatika, prúd, magnetizmus, indukcia, Maxwell, optika, kvantové základy.',
-      },
-      // 3. rok ZS
-      {
-        name: 'Bakalársky projekt (BProj) – P',
-        semester: '3. rok ZS',
-        evaluation: 'klasifikovaný zápočet (min. 51 %)',
-        phZh: 'PH: samostatná práca na projekte. ZH: prezentácia výsledkov.',
-        outcomes: 'Prvý „veľký“ projekt – plán, rozdelenie úloh (aj tímovo), dokumentácia a prezentácia.',
-      },
-      {
-        name: 'Inteligentné systémy v informatike (ISI) – P',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Strojové učenie, dolovanie dát, agenti, vyhľadávanie (A*, UCS…). Prax: spam filter, basket analysis, detekcia podvodov, rozpoznávanie.',
-        syllabus: 'Supervised learning (SVM, stromy, kNN…), predspracovanie, validácia, klastrovanie, redukcia dimenzie, agentové systémy, BFS/DFS/UCS, greedy/A*, CSP, optimalizácie (ACO, hill climbing), hybridy.',
-      },
-      {
-        name: 'Používateľské rozhrania a používateľský zážitok (UX) – P',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'HCI + UX výskum, návrh, prototypovanie, použiteľnosť, prístupnosť, dizajn systémy. Prax: persony, scenáre, user stories, testovanie použiteľnosti, responzívny dizajn.',
-        syllabus: 'UX pravidlá, výskum/persony, návrh obsahu a interakcie, psychológia v UI, konzistentnosť, testovanie UX, rapid prototyping, typografia a layout.',
-      },
-      {
-        name: 'Manažment softvérových projektov (MSP) – P',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'Plánovanie, odhady, tímy, zdroje, procesy, kvalita, CMMI/SPICE/ITIL. Prax: plánovať, riadiť zmeny, testovanie, dokumentáciu, retrospektívy, agile vs waterfall.',
-        syllabus: 'Plánovanie, odhady, tímy, zdroje, procesy, kvalita, CMMI/SPICE/ITIL.',
-      },
-      {
-        name: 'Aplikácie počítačových sietí (AplikPS) – PV',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Pokračovanie Cisco (2.–3. semester), STP/EtherChannel, LAN security, WLAN, OSPF (single area), ACL, NAT/PAT, VPN + IPSec, QoS, troubleshooting, virtualizácia/automatizácia.',
-      },
-      {
-        name: 'SAP ABAP Programovanie (SAP) – PV',
-        semester: '3. rok ZS',
-        evaluation: 'klasifikovaný zápočet (min. 51 %)',
-        outcomes: 'Základy SAP + ABAP, práca s tabuľkami, reťazcami, výpočtami, databázové tabuľky. Výstup: vlastné jednoduché aplikácie v ABAP.',
-      },
-      {
-        name: 'Internet vecí a chytré zariadenia (SMART-IoT) – PV',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'IoT riešenie cez MQTT, Pico WH + MicroPython, Docker kompozícia, time-series DB, vizualizácia, bezpečnosť (OWASP IoT Top 10), PWA. Výstup: mini IoT stack (device → MQTT → služby → DB → dashboard/app).',
-      },
-      // 3. rok LS
-      {
-        name: 'Spoločenské vedy a technika (KSV_SVT) – P',
-        semester: '3. rok LS',
-        evaluation: 'klasifikovaný zápočet + test (min. 51 %)',
-        syllabus: 'Človek v digitálnej spoločnosti, psychológia kognícií, sociológia IKT/AI, etika AI, politika a bezpečnosť online. Dá sa nahradiť krátkodobými mobilitami.',
-      },
-      {
-        name: 'Bezpečnosť v počítačových systémoch (BvPS) – P',
-        semester: '3. rok LS',
-        evaluation: 'zápočet + skúška',
-        phZh: 'PH: projekt.',
-        outcomes: 'Kyberbezpečnosť – hrozby, techniky útočníkov, mechanizmy v sieťach/OS/aplikáciách + právne/etické minimum.',
-        syllabus: 'Kryptografia, autentifikácia, kontrola prístupu, malware, DoS/DDoS, bezpečnosť emailu, fyzická bezpečnosť, ľudský faktor, risk/audit, plány, právne/etické aspekty.',
-      },
-      {
-        name: 'Dizajn a vývoj počítačových hier (GameDev) – PV',
-        semester: '3. rok LS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Trendy, platformy, typy hráčov, teória hier, MDA/DPE/FDD, prototypovanie (RITE), storytelling, enginy (Unity/Godot/Phaser), testovanie/QA/playtesting, GDD.',
-      },
-      {
-        name: 'Generatívna umelá inteligencia (GenAI) – PV',
-        semester: '3. rok LS',
-        evaluation: 'zápočet + skúška (minimá 16 %/30 % + 36 %/70 %)',
-        outcomes: 'Generatívne modely vs diskriminačné, transformery + attention, BERT/GPT/T5, tréning/finetuning, RAG, etika. Rozumieš princípom a vieš ich použiť v praxi.',
-        syllabus: 'Generatívne modely, transformery, attention, BERT/GPT/T5, tréning, finetuning, RAG, etika.',
-      },
-      {
-        name: 'Asembler (ASM) – PV',
-        semester: '3. rok LS',
-        evaluation: 'zápočet + skúška',
-        outcomes: 'NASM, x86 (Pentium), prepojenie s vyššími jazykmi, zásobník, prerušenia, OS služby, FPU, x86-64 úvod. Nízkoúrovňové chápanie CPU, pamäť, calling convention.',
-        syllabus: 'NASM, x86, zásobník, prerušenia, OS služby, FPU, x86-64.',
-      },
-      {
-        name: 'Bakalárska práca (BP)',
-        semester: '3. rok LS',
-        evaluation: 'štátna skúška (obhajoba, min. 51 %)',
-        outcomes: 'Spracovanie témy, štruktúra práce, písomná aj ústna prezentácia, priebežné konzultácie. Podmieňujúci predmet: Bakalársky projekt.',
-      },
+      ...names('1. rok ZS', [
+        'FEI – Jazyk 1',
+        'Repetitórium z matematiky',
+        'ZAP',
+        'Základy inžinierstva materiálov',
+        'Úvod do inžinierstva',
+        'Telesná výchova I',
+        'Základy elektrotechnického inžinierstva',
+        'Matematika I',
+        'Úvod do fyziky',
+      ]),
+      ...names('1. rok LS', [
+        'Princípy počítačového inžinierstva',
+        'Telesná výchova II',
+        'Základy softvérového inžinierstva',
+        'Matematika II',
+        'Programovanie',
+        'FEI – Jazyk 2',
+        'Fyzika I',
+      ]),
+      ...names('2. rok ZS', [
+        'Údajové štruktúry a algoritmy',
+        'Architektúry počítačových systémov',
+        'Objektovo orientované programovanie',
+        'Diskrétna matematika',
+        'Operačné systémy',
+      ]),
+      ...names('2. rok LS', [
+        'Počítačové siete',
+        'Formálne jazyky',
+        'Numerická matematika, pravdepodobnosť a štatistika',
+        'Databázové systémy',
+        'Programovanie v DotNET',
+        'Komponentové programovanie',
+        'Fyzika II',
+      ]),
+      ...names('3. rok ZS', [
+        'Bakalársky projekt',
+        'Inteligentné systémy v informatike',
+        'UX',
+        'Manažment softvérových projektov',
+        'Aplikácie počítačových sietí',
+        'SAP ABAP',
+        'Internet vecí',
+      ]),
+      ...names('3. rok LS', [
+        'Spoločenské vedy a technika',
+        'Bezpečnosť v počítačových systémoch',
+        'Dizajn a vývoj počítačových hier',
+        'Asembler',
+        'Základy Internetu vecí',
+      ]),
     ],
   },
 
+  // =========================================================================
+  // POČÍTAČOVÉ SIETE
+  // =========================================================================
   [k('Počítačové siete', 'Informatika')]: {
-    pros: [
-      'Siete do hĺbky – Cisco NetAcad, CCNA základy, OSI/TCP-IP, adresácia, routing, VPN.',
-      'Silný základ z operačných systémov a systémového programovania (Linux) – dôležité pre sieťovú prax.',
-      'Prax a tooling: Git, CI/CD, Docker, tímová práca už od prvého roka.',
-    ],
-    cons: [
-      'Menej „čistého“ programovania ako v odbore Informatika – viac konfigurácie a infra.',
-      'Elektro a fyzika v prvom roku – technický základ, nie primárny fokus.',
-    ],
-    forWho:
-      'Ak chceš ísť smerom sieťový inžinier, infraštruktúra, cloud, bezpečnosť sietí alebo administrácia systémov.',
-    starProfile: {
-      matematika: 4,
-      programovanie: 4,
-      siete: 5,
-      elektro: 2,
-    },
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 2, matematika: 3, programovanie: 4, siete: 5 },
     subjects: [
-      // 1. rok ZS
-      {
-        name: 'FEI – Jazyk 1',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        focus: 'Angličtina (min. A2) + terminológia pre elektro/IKT.',
-        syllabus: 'OS a softvér, text, tabuľky/databázy, grafika, web, internet/email, bezpečnosť, komunikačné systémy.',
-      },
-      {
-        name: 'Repetitórium z matematiky (RzM)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        focus: 'Dobeh stredoškolskej matematiky na vyššiu matiku.',
-        syllabus: 'Rovnice/nerovnice, Gauss, funkcie, polynómy, komplexné čísla.',
-      },
-      {
-        name: 'Základy algoritmizácie a programovania (ZAP)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Algoritmy + procedurálne programovanie (základy).',
-        syllabus: 'Typy, výrazy, cykly, I/O, funkcie, rekurzia, polia, záznamy, riešenie úloh.',
-      },
-      {
-        name: 'Základy inžinierstva materiálov (ZIM)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Elektrotechnické materiály a ich vlastnosti (vodivosť, dielektriká, polovodiče…).',
-        outcomes: 'Prínos pre siete: skôr technický základ, nie „sieťarina“, ale dá kontext HW svetu.',
-      },
-      {
-        name: 'Úvod do inžinierstva (UI)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        focus: 'Prehľad odborov na FEI (aj Počítačové siete) + interdisciplinárne súvislosti.',
-      },
-      {
-        name: 'Telesná výchova I',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        focus: 'Klasika TV.',
-      },
-      {
-        name: 'Základy elektrotechnického inžinierstva (ZEI)',
-        semester: '1. rok ZS',
-        evaluation: 'klasifikovaný zápočet',
-        focus: 'Jednosmerné obvody + BOZP + základy technickej dokumentácie a CAD.',
-        outcomes: 'Prínos pre siete: chápanie elektrických veličín + bezpečnosť práce.',
-      },
-      {
-        name: 'Matematika I (MAT I)',
-        semester: '1. rok ZS',
-        evaluation: 'klasifikovaný zápočet',
-        focus: 'Lineárna algebra + derivácie.',
-        syllabus: 'Matice/determinanty, sústavy rovníc, limity, derivácia, Taylor, extrémy.',
-      },
-      {
-        name: 'Úvod do fyziky (UDF)',
-        semester: '1. rok ZS',
-        evaluation: 'zápočet',
-        focus: 'Zopakovanie SŠ fyziky (hlavne mechanika, kmity, vlnenie).',
-      },
-      // 1. rok LS
-      {
-        name: 'Fyzika I (FI)',
-        semester: '1. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Mechanika + termodynamika ako základ pre technické predmety.',
-      },
-      {
-        name: 'Princípy počítačového inžinierstva (PPI)',
-        semester: '1. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Ako funguje počítač + architektúra + bezpečnosť + siete v kontexte systémov.',
-        syllabus: 'HW princípy, sieťové technológie, telematika, bezpečnosť, periférie, paralelné systémy.',
-      },
-      {
-        name: 'Základy softvérového inžinierstva (ZSwI)',
-        semester: '1. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Procesy vývoja softvéru, Git, testovanie, CI/CD, Docker, UML, Scrum.',
-        outcomes: 'Prínos pre siete: užitočné pre prax (projekty, tooling, tímová práca).',
-      },
-      {
-        name: 'Matematika II (MAT II)',
-        semester: '1. rok LS',
-        evaluation: 'klasifikovaný zápočet',
-        focus: 'Integrály + viac premenných.',
-        syllabus: 'Integrály, aplikácie, parciálne derivácie, extrémy funkcie dvoch premenných.',
-      },
-      {
-        name: 'Programovanie (Progr)',
-        semester: '1. rok LS',
-        evaluation: 'klasifikovaný zápočet + skúška',
-        focus: 'Pokročilejší C: pointery, dynamická pamäť, štruktúry, regex, zoznamy, stromy + úvod Arduino.',
-        outcomes: 'Prínos pre siete: silný základ na low-level myslenie a neskôr aj sieťové programovanie.',
-      },
-      {
-        name: 'FEI – Jazyk 2',
-        semester: '1. rok LS',
-        evaluation: 'zápočet',
-        focus: 'Jazyk na úrovni B1 + IKT terminológia.',
-      },
-      {
-        name: 'Telesná výchova II',
-        semester: '1. rok LS',
-        evaluation: 'zápočet',
-        focus: 'Klasika TV.',
-      },
-      // 2. rok ZS
-      {
-        name: 'Údajové štruktúry a algoritmy (ÚŠaA)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Efektívne štruktúry a algoritmy.',
-        syllabus: 'Grafy/stromy, triedenie, hashovanie, BVS, vyvážené stromy, haldy, B-stromy, externé pamäte.',
-      },
-      {
-        name: 'Architektúry počítačových systémov (APS)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        focus: 'CPU architektúra, pamäť, ISA (napr. MIPS), VHDL, FPGA, paralelizmus.',
-        outcomes: 'Prínos pre siete: dobré „pod kapotou“ chápanie výkonu, HW limitov, systémov.',
-      },
-      {
-        name: 'Objektovo orientované programovanie (OOP)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        focus: 'OOP princípy, návrhové vzory, generics, výnimky, UML.',
-        outcomes: 'Prínos pre siete: praktické pre vývoj nástrojov/služieb.',
-      },
-      {
-        name: 'Operačné systémy (OS)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Procesy, pamäť, plánovanie, FS, Linux systémové programovanie.',
-        outcomes: 'Prínos pre siete: extrémne dôležité (sieťová prax stojí na OS).',
-      },
-      {
-        name: 'Diskrétna matematika (DM)',
-        semester: '2. rok ZS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Logika, grafy, relácie, boolovská algebra, základy analýzy algoritmov.',
-        outcomes: 'Prínos pre siete: grafy/logika = základ pre smerovanie a sieťové myslenie.',
-      },
-      // 2. rok LS
-      {
-        name: 'Počítačové siete (PS) – P',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Základný sieťový predmet (OSI/TCP-IP, adresácia, subnetting, switching/routing).',
-        outcomes: 'Pokrytie Cisco NetAcad (1. + časť 2. semestra) + základ pre CCNA.',
-      },
-      {
-        name: 'Formálne jazyky (FJ) – P',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Regex, gramatiky, syntaktická analýza, automaty.',
-        outcomes: 'Prínos pre siete: nepriamo (logika/parsovanie/configy), hlavne teória informatiky.',
-      },
-      {
-        name: 'Numerická matematika, pravdepodobnosť a štatistika (NMPaŠ) – P',
-        semester: '2. rok LS',
-        evaluation: 'klasifikovaný zápočet',
-        focus: 'Numerika + štatistika v MATLABe.',
-      },
-      {
-        name: 'Databázové systémy (DBS) – P',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'SQL + relačný model + normalizácia + transakcie.',
-      },
-      {
-        name: 'Aplikácie počítačových sietí (AplikPS) – PV',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'Pokročilejšie siete (STP, VLAN, OSPF, ACL, NAT, VPN/IPSec, QoS, troubleshooting).',
-        outcomes: 'Pokračovanie Cisco (2.–3. semester) + bližšie ku CCNA.',
-      },
-      {
-        name: 'Internet vecí a chytré zariadenia (SMART-IoT) – PV',
-        semester: '2. rok LS',
-        evaluation: 'zápočet + skúška',
-        focus: 'IoT stack (MQTT, Pico WH, Docker, TS DB, security, PWA).',
-      },
-      // 3. rok ZS
-      {
-        name: 'Objektovo orientované programovanie (OOP_PS) – P',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Triedy/objekty, dedičnosť, polymorfizmus, generiká, výnimky, modelovanie, návrhové vzory.',
-      },
-      {
-        name: 'Bakalársky projekt (BPJ_PS) – P',
-        semester: '3. rok ZS',
-        evaluation: 'klasifikovaný zápočet',
-        syllabus: 'Analýza, štúdium zdrojov, návrh riešenia, priebežný progres, verejná prezentácia.',
-      },
-      {
-        name: 'Aplikácie počítačových sietí (APCS_PS) – P',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'DHCP/DNS, STP pokročile, VTP, dynamické routing protokoly, VPN/IPsec, WAN, monitoring (syslog, SNMP, NetFlow), dizajn architektúr.',
-      },
-      {
-        name: 'Programovanie audio aplikácií (PAA_PS) – PV',
-        semester: '3. rok ZS',
-        evaluation: 'klasifikovaný zápočet',
-        syllabus: 'DSP audio, časová/frekvenčná oblasť, filtrácia, kódeky, web audio.',
-      },
-      {
-        name: 'Webové technológie (WT_PS) – PV',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'HTML/CSS/JS, PHP/Python, SQL, React/Angular, Django/Flask, UI/UX, dynamické weby.',
-      },
-      {
-        name: 'Programovanie meracích systémov (PMS_PS) – PV',
-        semester: '3. rok ZS',
-        evaluation: 'klasifikovaný zápočet',
-        syllabus: 'LabVIEW, zber dát, automatizované meranie, súbory, HW ovládanie, synchronizácia.',
-      },
-      {
-        name: 'Mobilné technológie a služby (MTS_PS) – PV',
-        semester: '3. rok ZS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'GSM/UMTS/LTE/5G, MIMO, kanálové modely, antény, MANET/DTN.',
-      },
-      {
-        name: 'Náhľad do modernej fyziky (Ndmf) – V',
-        semester: '3. rok ZS',
-        evaluation: 'klasifikovaný zápočet',
-        syllabus: 'Relativita, kvantová fyzika, CERN, kozmológia.',
-      },
-      // 3. rok LS
-      {
-        name: 'Spoločenské vedy a technika (KSV_SVT) – P',
-        semester: '3. rok LS',
-        evaluation: 'klasifikovaný zápočet',
-        syllabus: 'Psychológia v digitále, sociológia AI, infodémia, bezpečnosť/politika, etika AI, profesijná etika.',
-      },
-      {
-        name: 'Bezpečnosť v počítačových systémoch (BPS_PS) – P',
-        semester: '3. rok LS',
-        evaluation: 'zápočet + skúška',
-        syllabus: 'Kryptografia (sym/asym), hash, RNG, podpisy, certifikáty, autentifikácia/autorizácia, email security, malware, trendy.',
-      },
+      ...names('1. rok ZS', [
+        'Matematika I',
+        'Základy elektrotechnického inžinierstva',
+        'Úvod do inžinierstva',
+        'Základy inžinierstva materiálov',
+        'Telesná výchova I',
+        'ZAP',
+        'FEI – Jazyk 1',
+        'Repetitórium z matematiky',
+        'Úvod do fyziky',
+      ]),
+      ...names('1. rok LS', [
+        'Fyzika I',
+        'Programovanie',
+        'Telesná výchova II',
+        'FEI – Jazyk 2',
+        'Základy komunikačných technológií',
+        'Matematika II',
+        'Princípy počítačového inžinierstva',
+      ]),
+      ...names('2. rok ZS', [
+        'Operačné systémy',
+        'Údajové štruktúry a algoritmy',
+        'Diskrétna matematika',
+        'Úvod do počítačových sietí',
+        'Architektúry počítačových systémov',
+      ]),
+      ...names('2. rok LS', [
+        'Numerická matematika, pravdepodobnosť a matematická štatistika',
+        'Databázové systémy',
+        'Počítačové siete',
+        'Multimediálne signály v komunikačných sieťach',
+        'Fyzika II',
+        'Úvod do digitálnych komunikácií',
+        'Prenosové médiá',
+        'Základy elektroniky a logických obvodov',
+        'Vedecký projekt',
+      ]),
+      ...names('3. rok ZS', [
+        'Objektovo orientované programovanie',
+        'Bakalársky projekt',
+        'Aplikácie počítačových sietí',
+        'Programovanie audio aplikácií',
+        'Webové technológie',
+        'Programovanie meracích systémov',
+        'Mobilné technológie a služby',
+        'Náhľad do modernej fyziky',
+      ]),
+      ...names('3. rok LS', [
+        'Spoločenské vedy a technika',
+        'Bezpečnosť v počítačových systémoch',
+        'Základy klaudových technológií',
+        'Rečové interaktívne komunikačné systémy',
+        'Optoelektronika',
+        'Základy softvérového inžinierstva',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // APLIKOVANÁ ELEKTROTECHNIKA
+  // =========================================================================
+  [k('Aplikovaná elektrotechnika', 'Elektrotechnika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 5, matematika: 3, programovanie: 2, siete: 1 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'ZAP',
+        'Repetitórium z matematiky',
+        'Matematika I',
+        'Základy inžinierstva materiálov',
+        'Úvod do inžinierstva',
+        'Základy elektrotechnického inžinierstva',
+        'FEI – Jazyk 1',
+        'Telesná výchova I',
+        'Úvod do fyziky',
+      ]),
+      ...names('1. rok LS', [
+        'FEI – Jazyk 2',
+        'Elektrotechnika',
+        'Počítačové aplikácie',
+        'Telesná výchova II',
+        'Fyzika 1',
+        'Programovanie',
+        'Matematika II',
+      ]),
+      ...names('2. rok ZS', [
+        'Matematika III',
+        'Fyzika II',
+        'Základy elektrických strojov',
+        'Priemyselná elektronika',
+        'Snímače a meranie v elektrotechnike',
+        'Automobilová elektrotechnika',
+      ]),
+      ...names('2. rok LS', [
+        'Riadenie priemyselných systémov',
+        'Výkonová elektronika',
+        'Základy programovania mikropočítačov',
+        'Elektrické pohony',
+        'Pneumatické a hydraulické systémy',
+        'Modelovanie a simulácie v elektrotechnike',
+      ]),
+      ...names('3. rok ZS', [
+        'Regulované pohony',
+        'Tvorba používateľských rozhraní',
+        'Bakalársky projekt',
+        'Prenos a rozvod elektrickej energie',
+        'Základy robotiky',
+        'Modelovanie elektromechanických systémov',
+      ]),
+      ...names('3. rok LS', [
+        'Elektrické prístroje',
+        'Spoločenské vedy a technika',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // AUTOMOBILOVÁ ELEKTRONIKA
+  // =========================================================================
+  [k('Automobilová elektronika', 'Elektrotechnika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 5, matematika: 3, programovanie: 2, siete: 1 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'Základy inžinierstva materiálov',
+        'Repetitórium z matematiky',
+        'Základy elektrotechnického inžinierstva',
+        'Telesná výchova I',
+        'ZAP',
+        'Úvod do inžinierstva',
+        'FEI – Jazyk 1',
+        'Matematika I',
+      ]),
+      ...names('1. rok LS', [
+        'FEI – Jazyk 2',
+        'Elektrotechnika',
+        'Fyzika 1',
+        'Programovanie',
+        'Matematika II',
+        'Telesná výchova II',
+        'Počítačové aplikácie',
+      ]),
+      ...names('2. rok ZS', [
+        'Elektronika I',
+        'Signály a sústavy',
+        'Matematika III',
+        'Materiály a princípy výroby súčiastok v elektrotechnike',
+        'Automobilová elektrotechnika',
+        'Základy konštrukcie automobilov',
+      ]),
+      ...names('2. rok LS', [
+        'Meranie v elektronike',
+        'Základy mikroprocesorovej techniky',
+        'Numerická matematika, pravdepodobnosť a matematická štatistika',
+        'Elektronika II',
+        'Databázové systémy',
+        'Počítačové siete',
+        'Úvod do Matlabu',
+      ]),
+      ...names('3. rok ZS', [
+        'Bakalársky projekt',
+        'Automobilová elektronika',
+        'Programovanie meracích systémov',
+        'Mikrosystémy v elektronike',
+      ]),
+      ...names('3. rok LS', [
+        'Elektronika III',
+        'Spoločenské vedy a technika',
+        'Optoelektronika',
+        'Metódy vedeckej práce',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // ELEKTROENERGETIKA
+  // =========================================================================
+  [k('Elektroenergetika', 'Elektrotechnika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 5, matematika: 3, programovanie: 1, siete: 1 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'Repetitórium z matematiky',
+        'Základy inžinierstva materiálov',
+        'Matematika I',
+        'Úvod do inžinierstva',
+        'FEI – Jazyk 1',
+        'ZAP',
+        'Základy elektrotechnického inžinierstva',
+      ]),
+      ...names('1. rok LS', [
+        'Elektrotechnika',
+        'Fyzika 1',
+        'Programovanie',
+        'Matematika II',
+        'FEI – Jazyk 2',
+        'Telesná výchova II',
+      ]),
+      ...names('2. rok ZS', [
+        'Matematika III',
+        'Fyzika II',
+        'Základy elektrických strojov',
+        'Energetický základ',
+      ]),
+      ...names('2. rok LS', [
+        'Jadro energetiky',
+        'Silnoprúdové predmety',
+      ]),
+      ...names('3. rok ZS', [
+        'Energetické zariadenia',
+        'Elektrizačná sústava',
+      ]),
+      ...names('3. rok LS', [
+        'Bakalárska časť',
+        'Záverečné predmety',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // FYZIKÁLNE INŽINIERSTVO PROGRESÍVNYCH MATERIÁLOV
+  // =========================================================================
+  [k('Fyzikálne inžinierstvo progresívnych materiálov', 'Elektrotechnika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 2, matematika: 4, programovanie: 2, siete: 1 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'Telesná výchova I',
+        'FEI – Jazyk 1',
+        'Repetitórium z matematiky',
+        'Základy inžinierstva materiálov',
+        'Základy elektrotechnického inžinierstva',
+        'ZAP',
+        'Úvod do inžinierstva',
+      ]),
+      ...names('1. rok LS', [
+        'Fyzika',
+        'Matematika',
+        'Programovanie',
+        'Základný technický blok',
+      ]),
+      ...names('2. rok ZS', [
+        'Fyzikálne a materiálové jadro',
+        'Merania',
+        'Kvantové a materiálové základy',
+      ]),
+      ...names('2. rok LS', [
+        'Experimentálne metódy',
+        'Fyzika tuhých látok',
+        'Modelovanie',
+        'Spracovanie dát',
+      ]),
+      ...names('3. rok ZS', [
+        'Odborné materiálové a fyzikálne predmety',
+        'Bakalársky projekt',
+      ]),
+      ...names('3. rok LS', [
+        'Odborná prax',
+        'Záverečné predmety',
+        'Spoločenskovedný blok',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // PRIEMYSELNÁ ELEKTROTECHNIKA
+  // =========================================================================
+  [k('Priemyselná elektrotechnika', 'Elektrotechnika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 5, matematika: 3, programovanie: 3, siete: 1 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'Repetitórium z matematiky',
+        'FEI – Jazyk 1',
+        'Základy elektrotechnického inžinierstva',
+        'Matematika I',
+        'Telesná výchova I',
+        'Úvod do inžinierstva',
+        'ZAP',
+        'Základy inžinierstva materiálov',
+        'Úvod do fyziky',
+      ]),
+      ...names('1. rok LS', [
+        'Telesná výchova II',
+        'Fyzika I',
+        'FEI – Jazyk 2',
+        'Elektrotechnické praktikum',
+        'Matematika II',
+        'Elektrotechnika',
+        'Programovanie',
+      ]),
+      ...names('2. rok ZS', [
+        'Aplikovaná analógová elektronika',
+        'Priemyselná elektrotechnika',
+        'Matematika III',
+        'Windows Server I',
+        'Fyzika II',
+        'CAD systémy v elektrotechnike',
+      ]),
+      ...names('2. rok LS', [
+        'Simulačný softvér pre analýzu elektrických obvodov',
+        'Aplikovaná číslicová elektronika',
+        'Metrológia',
+        'Senzory a akčné členy',
+        'MS Office v technickej praxi',
+        'Semestrálny projekt I',
+      ]),
+      ...names('3. rok ZS', [
+        'Mikroprocesorová technika',
+        'Databázové systémy',
+        'Bakalársky projekt',
+        'Marketing a manažment priemyslu',
+        'Výpočtová a multimediálna technika',
+        'Modelovanie a meranie',
+      ]),
+      ...names('3. rok LS', [
+        'Spoločenské vedy a technika',
+        'Linux I',
+        'Priemyselné logické automaty',
+        'Magnetoelektronika a informačné technológie',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // KYBERBEZPEČNOSŤ
+  // =========================================================================
+  [k('Kyberbezpečnosť', 'Informatika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 1, matematika: 3, programovanie: 4, siete: 4 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'FEI – Jazyk 1',
+        'Základy inžinierstva materiálov',
+        'Úvod do inžinierstva',
+        'Repetitórium z matematiky',
+        'Telesná výchova I',
+        'Základy elektrotechnického inžinierstva',
+        'Matematika I',
+        'ZAP',
+        'Úvod do fyziky',
+      ]),
+      ...names('1. rok LS', [
+        'Fyzika I',
+        'Telesná výchova II',
+        'Počítačové inžinierstvo a zabezpečený hardvér',
+        'Matematika II',
+        'FEI – Jazyk 2',
+        'Programovanie',
+        'Kyberbezpečnosť',
+      ]),
+      ...names('2. rok ZS', [
+        'Diskrétna matematika',
+        'Operačné systémy a kyberbezpečnosť',
+        'Bezpečnostný manažment',
+        'Údajové štruktúry a algoritmy v bezpečnom softvéri',
+        'Objektovo orientované programovanie',
+      ]),
+      ...names('2. rok LS', [
+        'Numerická matematika, pravdepodobnosť a štatistika',
+        'Databázové systémy a ich zabezpečenie',
+        'Základy kryptografie',
+        'Bezpečnosť počítačových sietí',
+        'Komponentové programovanie',
+        'Formálne jazyky',
+        'DotNET',
+      ]),
+      ...names('3. rok ZS', [
+        'Inteligentné systémy v kyberbezpečnosti',
+        'Priemyselná a systémová bezpečnosť',
+        'Aplikácie zabezpečenia počítačových sietí',
+        'Bakalársky projekt',
+        'Internet vecí',
+        'Manažment softvérových projektov',
+        'CCNA Security',
+        'UX',
+      ]),
+      ...names('3. rok LS', [
+        'Asembler pre reverzné inžinierstvo',
+        'Spoločenské vedy a technika',
+        'Právne otázky kybernetickej bezpečnosti',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // POČÍTAČOVÉ MODELOVANIE
+  // =========================================================================
+  [k('Počítačové modelovanie', 'Informatika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 2, matematika: 5, programovanie: 4, siete: 1 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'Matematika I',
+        'ZAP',
+        'Repetitórium z matematiky',
+        'FEI – Jazyk 1',
+        'Úvod do inžinierstva',
+        'Základy elektrotechnického inžinierstva',
+        'Telesná výchova I',
+        'Základy inžinierstva materiálov',
+        'Úvod do fyziky',
+      ]),
+      ...names('1. rok LS', [
+        'Počítačové modelovanie',
+        'FEI – Jazyk 2',
+        'Telesná výchova II',
+        'Elektrotechnika',
+        'Matematika II',
+        'Fyzika I',
+        'Programovanie',
+        'Seminár z fyziky 1',
+      ]),
+      ...names('2. rok ZS', [
+        'Matematika III',
+        'Softvérové výpočtové prostriedky',
+        'Objektovo orientované programovanie',
+        'Teória kódovania',
+        'Údajové štruktúry a algoritmy',
+      ]),
+      ...names('2. rok LS', [
+        'Numerická matematika, pravdepodobnosť a matematická štatistika',
+        'Teoretická informatika',
+        'Projektový seminár',
+        'Aplikácie diferenciálnych rovníc',
+        'Databázové systémy',
+        'DotNET',
+        'Komponentové programovanie',
+        'Fyzika II',
+      ]),
+      ...names('3. rok ZS', [
+        'Matematicko-počítačové modelovanie',
+        'Odborná prax',
+        'Inteligentné systémy v informatike',
+        'Bakalársky projekt',
+        'Programovanie vo formátovacích jazykoch',
+        'Počítačové modelovanie II',
+        'Počítačová grafika',
+        'Internet vecí',
+        'Náhľad do modernej fyziky',
+      ]),
+      ...names('3. rok LS', [
+        'Operačná analýza',
+        'Spoločenské vedy a technika',
+        'Úvod do logiky',
+        'Finančná matematika',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // UMELÁ INTELIGENCIA
+  // =========================================================================
+  [k('Umelá inteligencia', 'Informatika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 1, matematika: 4, programovanie: 5, siete: 2 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'FEI – Jazyk 1',
+        'Repetitórium z matematiky',
+        'ZAP',
+        'Matematika I',
+        'Telesná výchova I',
+        'Základy elektrotechnického inžinierstva',
+        'Úvod do inžinierstva',
+        'Základy inžinierstva materiálov',
+        'Úvod do fyziky',
+      ]),
+      ...names('1. rok LS', [
+        'Jazyk Python',
+        'Telesná výchova II',
+        'Úvod do umelej inteligencie',
+        'Fyzika',
+        'Programovanie',
+        'FEI – Jazyk 2',
+        'Matematika II',
+      ]),
+      ...names('2. rok ZS', [
+        'Aplikácie databázových systémov',
+        'Diskrétna matematika',
+        'Aplikácie generatívnej umelej inteligencie',
+        'Spracovanie obrazu a robotika',
+        'Úvod do dátovej vedy',
+      ]),
+      ...names('2. rok LS', [
+        'Mobilná robotika',
+        'Strojové učenie',
+        'Numerická matematika, pravdepodobnosť a matematická štatistika',
+        'Internet vecí',
+        'Fuzzy systémy',
+        'Aplikácia logiky v inteligentných systémoch',
+        'Rozvrhovanie a logistika',
+      ]),
+      ...names('3. rok ZS', [
+        'Bakalársky projekt',
+        'Hlboké učenie',
+        'Digitálna transformácia a inteligentné inovácie',
+        'Učenie posilňovaním',
+        'Manažment projektov',
+        'Vizualizácia dát',
+        'Riadenie a umelá inteligencia',
+      ]),
+      ...names('3. rok LS', [
+        'Spoločenské vedy a technika',
+        'Umelá inteligencia v praxi',
+        'Cloudové technológie',
+        'Prototypovanie UI riešení',
+        'Aplikovaná UI v podnikových systémoch',
+      ]),
+    ],
+  },
+
+  // =========================================================================
+  // APLIKOVANÁ INFORMATIKA
+  // =========================================================================
+  [k('Aplikovaná informatika', 'Informatika')]: {
+    pros: [],
+    cons: [],
+    forWho: '',
+    starProfile: { elektro: 1, matematika: 3, programovanie: 5, siete: 3 },
+    subjects: [
+      ...names('1. rok ZS', [
+        'ZAP',
+        'Úvod do inžinierstva',
+        'Telesná výchova I',
+        'Základy elektrotechnického inžinierstva',
+        'Repetitórium z matematiky',
+        'Matematika I – ApI',
+        'FEI – Jazyk 1',
+      ]),
+      ...names('1. rok LS', [
+        'Pokračovanie všeobecného IT základu',
+      ]),
+      ...names('2. rok', [
+        'Praktický IT mix – softvér',
+        'Správa systémov',
+        'Databázy',
+        'Siete',
+      ]),
+      ...names('3. rok', [
+        'Nasadenie technológií do praxe',
+        'Aplikovaná IT vetva',
+        'Bakalársky projekt',
+      ]),
+      ...names('4. rok', [
+        'Záverečné predmety',
+        'Bakalárska práca',
+      ]),
     ],
   },
 };

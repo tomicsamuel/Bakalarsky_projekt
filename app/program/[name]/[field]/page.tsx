@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import Logo from '@/components/Logo';
+import Logos from '@/components/Logos';
 import { getProgramInfo } from '@/lib/programs';
 import { getProgramProfile } from '@/lib/programProfiles';
 
@@ -85,7 +85,7 @@ export default function ProgramDetailPage() {
   if (loading) {
     return (
       <div className="page-container">
-        <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+        <Logos />
         <nav className="platform-nav" aria-label="Prehľad sekcií">
           <Link href="/">Domov</Link>
           <Link href="/programy">Študijné odbory</Link>
@@ -112,7 +112,7 @@ export default function ProgramDetailPage() {
   if (!program) {
     return (
       <div className="page-container">
-        <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+        <Logos />
         <nav className="platform-nav" aria-label="Prehľad sekcií">
           <Link href="/">Domov</Link>
           <Link href="/programy">Študijné odbory</Link>
@@ -132,7 +132,7 @@ export default function ProgramDetailPage() {
 
   return (
     <div className="page-container">
-      <Logo variant="fei" href="/" className="logo" width={180} height={50} />
+      <Logos />
       <nav className="platform-nav" aria-label="Prehľad sekcií">
         <Link href="/">Domov</Link>
         <Link href="/programy">Študijné odbory</Link>

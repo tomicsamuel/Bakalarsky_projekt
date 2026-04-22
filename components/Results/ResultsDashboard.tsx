@@ -9,7 +9,6 @@ import ProgressUnlock from './ProgressUnlock';
 import ConfidenceMeter from './ConfidenceMeter';
 import DuelModal from '@/components/Duel/DuelModal';
 import BracketProgress from '@/components/Duel/BracketProgress';
-import MicroQuiz from '@/components/Quiz/MicroQuiz';
 import ShelfView from '@/components/Shelf/ShelfView';
 import RadarChart from '@/components/Radar/RadarChart';
 import PackIntro from '@/components/Pack/PackIntro';
@@ -20,7 +19,6 @@ import SwipeResult from '@/components/Pack/SwipeResult';
 import RunoffIntro from '@/components/Runoff/RunoffIntro';
 import RunoffArena from '@/components/Runoff/RunoffArena';
 import RunoffResult from '@/components/Runoff/RunoffResult';
-import BonusPack from '@/components/Pack/BonusPack';
 import type { BracketMatch } from '@/components/Duel/BracketProgress';
 
 import {
@@ -36,8 +34,6 @@ import { addToPinned } from '@/lib/pinned';
 import { majorHasTag } from '@/lib/majorsMeta';
 import { computeConfidence } from '@/lib/confidence';
 import type { FilterState, ScoreResult } from '@/lib/types';
-
-const PACK_REVEAL_DISABLED_KEY = 'packRevealDisabled';
 
 type PackPhase = 'intro' | 'opening' | 'swipe' | 'swipe_result' | 'runoff_intro' | 'final_boss' | 'runoff_bracket' | 'reveal' | 'done';
 
@@ -318,43 +314,22 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
     setPackPhase('done');
   };
 
-  // Confidence + micro-quiz (PR6) + duel (PR) + progress unlock (PR7).
+  // Confidence + duel (PR) + progress unlock (PR7).
   const completeness01 = Math.max(0, Math.min(1, completenessPercent / 100));
-  const [quizDelta, setQuizDelta] = useState(0);
   const confidence = useMemo(
     () =>
       computeConfidence({
         completeness01,
         results: computed,
-        quizDelta,
         duelDelta: duelConfidenceDelta,
       }),
-    [completeness01, computed, quizDelta, duelConfidenceDelta]
+    [completeness01, computed, duelConfidenceDelta]
   );
-  const [quizOpen, setQuizOpen] = useState(false);
-  const [bonusPackUnlocked, setBonusPackUnlocked] = useState(false);
   const [explainResult, setExplainResult] = useState<{ result: ScoreResult; rank: number } | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'radar'>('cards');
 
-  // Pack flow state (Fáza 1 – Card Pack Reveal)
-  const [packPhase, setPackPhase] = useState<PackPhase>(() => {
-    if (typeof window === 'undefined') return 'intro';
-    return localStorage.getItem(PACK_REVEAL_DISABLED_KEY) === 'true' ? 'done' : 'intro';
-  });
-
-  const handlePackSkip = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(PACK_REVEAL_DISABLED_KEY, 'true');
-    }
-    setPackPhase('done');
-  };
-
-  const handlePackRevealAgain = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(PACK_REVEAL_DISABLED_KEY);
-    }
-    setPackPhase('intro');
-  };
+  // Pack flow state (Fáza 1 – Card Pack Reveal) – vždy začíname animáciou
+  const [packPhase, setPackPhase] = useState<PackPhase>('intro');
 
   const top6 = useMemo(() => computed.slice(0, 6), [computed]);
 
@@ -393,63 +368,29 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
       </div>
       {packPhase === 'done' ? (
         <>
-          <div className="results-dashboard__top">
-            <FiltersBar value={filter} onChange={setFilter} explanation={explanation} />
-            <div style={{ display: 'grid', gap: 12 }}>
-              <ProgressUnlock completenessPercent={completenessPercent} />
-              <ConfidenceMeter confidence={confidence} onQuiz={() => setQuizOpen(true)} />
-              <button
-                type="button"
-                className="results-pack-again-btn"
-                onClick={handlePackRevealAgain}
-              >
-                Rozbaliť balíček znova
-              </button>
-            </div>
-          </div>
-
-          <div className="results-view">
-            <div className="results-view__toggle">
-              <button
-                type="button"
-                className={`results-view__btn ${viewMode === 'cards' ? 'results-view__btn--active' : ''}`}
-                onClick={() => setViewMode('cards')}
-                aria-pressed={viewMode === 'cards'}
-              >
-                Karty
-              </button>
-              <button
-                type="button"
-                className={`results-view__btn ${viewMode === 'radar' ? 'results-view__btn--active' : ''}`}
-                onClick={() => setViewMode('radar')}
-                aria-pressed={viewMode === 'radar'}
-              >
-                Radar odborov
-              </button>
-            </div>
-            {viewMode === 'cards' ? (
-              <ShelfView
-                results={displayResults}
-                prevResults={prevRef.current}
-                compare={compare}
-                onCompare={addToCompare}
-                onExplain={(r, rank) => setExplainResult({ result: r, rank })}
-              />
-            ) : (
-              <RadarChart
-                results={displayResults}
-                onCompare={addToCompare}
-                onExplain={(r, rank) => setExplainResult({ result: r, rank })}
-              />
-            )}
+          <CardRevealGrid
+            results={computed}
+            confidence={confidence}
+            compare={compare}
+            onCompare={addToCompare}
+            onRevealComplete={() => {}}
+            onExplain={(r, rank) => setExplainResult({ result: r, rank })}
+            showDoneButton={false}
+          />
+          <div className="swipe-reveal-actions">
+            <button
+              type="button"
+              className="swipe-reveal-actions__shuffle"
+              onClick={() => setPackPhase('swipe')}
+            >
+              Shuffle – vybrať záujmy znova
+            </button>
           </div>
         </>
       ) : packPhase === 'intro' ? (
         <PackIntro
           confidence={confidence}
           onOpen={() => setPackPhase('opening')}
-          onQuiz={() => setQuizOpen(true)}
-          onSkip={handlePackSkip}
         />
       ) : packPhase === 'opening' ? (
         <PackOpening onComplete={() => setPackPhase('reveal')} />
@@ -615,14 +556,7 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
             onCompare={addToCompare}
             onRevealComplete={() => setPackPhase('done')}
             onExplain={(r, rank) => setExplainResult({ result: r, rank })}
-          />
-          <BonusPack
-            results={computed}
-            confidence={confidence}
-            bonusUnlocked={bonusPackUnlocked}
-            compare={compare}
-            onQuiz={() => setQuizOpen(true)}
-            onCompare={addToCompare}
+            showDoneButton={false}
           />
           <div className="swipe-reveal-actions">
             <button
@@ -631,13 +565,6 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
               onClick={() => setPackPhase('swipe')}
             >
               Shuffle – vybrať záujmy
-            </button>
-            <button
-              type="button"
-              className="swipe-reveal-actions__skip"
-              onClick={() => setPackPhase('done')}
-            >
-              Prejsť na výsledky
             </button>
           </div>
         </>
@@ -728,16 +655,6 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
         )}
       </AnimatePresence>
 
-      {quizOpen && (
-        <MicroQuiz
-          onClose={() => setQuizOpen(false)}
-          onDone={(delta) => {
-            setQuizDelta((prev) => Math.max(-10, Math.min(10, prev + delta)));
-            setBonusPackUnlocked(true);
-            setQuizOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 }
