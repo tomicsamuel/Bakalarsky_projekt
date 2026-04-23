@@ -335,8 +335,8 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
 
   const bracketMatches = useMemo((): BracketMatch[] => {
     if (!swipeDuelQueue) return [];
-    const { steps, stepIndex, finalDuel, winnersCount } = swipeDuelQueue;
-    const isFinal = finalDuel && winnersCount === 2;
+    const { stepIndex, finalDuel, winners } = swipeDuelQueue;
+    const isFinal = finalDuel && winners.length === 2;
     const list: BracketMatch[] = [];
     if (finalDuel) {
       list.push({
