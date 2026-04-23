@@ -51,9 +51,11 @@ export default function RadarChart({ results, onCompare, onExplain }: Props) {
 
   const handleAxisClick = (
     _event: MouseEvent,
-    data: { dataIndex?: number; axisValue?: number } | null
+    data: { dataIndex?: number; axisValue?: number | string | Date } | null
   ) => {
-    const idx = data?.dataIndex ?? data?.axisValue;
+    const axisIdx =
+      typeof data?.axisValue === 'number' ? data.axisValue : undefined;
+    const idx = data?.dataIndex ?? axisIdx;
     if (idx != null && grouped[idx]) {
       setActive(grouped[idx]);
     }
