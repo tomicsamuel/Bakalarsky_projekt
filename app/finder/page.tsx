@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -135,7 +135,7 @@ const LOCATION_REGIONS: Record<string, string[]> = {
 
 const REGION_OPTIONS = Object.keys(LOCATION_REGIONS);
 
-export default function FinderPage() {
+function FinderContent() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [consentChecked, setConsentChecked] = useState(false);
@@ -1226,6 +1226,20 @@ export default function FinderPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function FinderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="page-container finder-page">
+          <AnimatedBackground />
+        </div>
+      }
+    >
+      <FinderContent />
+    </Suspense>
   );
 }
 
