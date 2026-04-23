@@ -1181,17 +1181,6 @@ function FinderContent() {
           )}
 
           <div className="step-buttons">
-            {step > 0 && step < 7 && (
-              <Button
-                type="button"
-                variant="bordered"
-                className="step-button step-button-back"
-                onPress={prevStep}
-              >
-                Späť
-              </Button>
-            )}
-            
             {step === 0 ? null : (
               <Button
                 type="button"
@@ -1207,6 +1196,17 @@ function FinderContent() {
                 }
               >
                 Ďalej
+              </Button>
+            )}
+
+            {step > 0 && step < 7 && (
+              <Button
+                type="button"
+                variant="bordered"
+                className="step-button step-button-back"
+                onPress={prevStep}
+              >
+                Späť
               </Button>
             )}
           </div>
