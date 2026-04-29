@@ -49,12 +49,12 @@ export default function AdminPage() {
         if (r.ok) setAuthOk(true);
         else {
           setAuthOk(false);
-          router.replace('/admin/login?session=0');
+          router.replace('/admin/login');
         }
       })
       .catch(() => {
         setAuthOk(false);
-        router.replace('/admin/login?session=0');
+        router.replace('/admin/login');
       });
   }, [router]);
 

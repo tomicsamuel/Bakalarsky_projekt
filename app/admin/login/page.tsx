@@ -1,19 +1,18 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import Logos from '@/components/Logos';
 import { Button } from '@heroui/button';
 
-function AdminLoginForm() {
+export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +31,6 @@ function AdminLoginForm() {
 
       if (data.success && data.user?.isAdmin) {
         if (data.cookieSet === false) {
-          setError('Server nemá nastavený ADMIN_SECRET. Pridaj do .env premennú ADMIN_SECRET=nejaky-dlhy-retezec (min. 16 znakov) a reštartuj server.');
           return;
         }
         router.push('/admin');
@@ -42,19 +40,12 @@ function AdminLoginForm() {
       } else {
         setError(data.error || 'Nesprávny email alebo heslo');
       }
-    } catch (err) {
+    } catch {
       setError('Chyba pri prihlasovaní');
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const session = searchParams.get('session');
-    if (session === '0' && !error) {
-      setError('Session sa nepodarilo nastaviť. Do súboru .env pridaj premennú ADMIN_SECRET (min. 16 znakov) a reštartuj server (npm run dev).');
-    }
-  }, [searchParams]);
 
   return (
     <div className="auth-page">
@@ -116,13 +107,5 @@ function AdminLoginForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function AdminLoginPage() {
-  return (
-    <Suspense fallback={<div className="auth-page" />}>
-      <AdminLoginForm />
-    </Suspense>
   );
 }
