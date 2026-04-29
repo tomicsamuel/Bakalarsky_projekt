@@ -668,20 +668,20 @@
   box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35);
 }
 
-/* Mobily: shuffle vždy nad spodkom obrazovky (nad home barom Safari) */
 @media (max-width: 639px) {
   .results-dashboard--shuffle-bottom-safe {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(136px + env(safe-area-inset-bottom, 0px));
   }
 
   .swipe-reveal-actions {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: calc(52px + env(safe-area-inset-bottom, 0px));
     z-index: 50;
     margin-top: 0;
-    padding: 10px max(12px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom))
+    padding: 10px max(12px, env(safe-area-inset-right))
+      calc(10px + env(safe-area-inset-bottom))
       max(12px, env(safe-area-inset-left));
     justify-content: center;
     gap: 10px;
