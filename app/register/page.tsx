@@ -55,7 +55,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-container loaded">
-        <div className="auth-card">
+        <main id="main-content" className="auth-card">
           <div className="auth-header">
             <h1>Vytvor si účet</h1>
             <p>Zaberie to len chvíľu. Potom môžeš ukladať výsledky a kedykoľvek sa k nim vrátiť.</p>
@@ -137,11 +137,11 @@ export default function RegisterPage() {
               <Link href="/login">Prihlás sa</Link>
             </p>
             <Link href="/" className="auth-back">
-              <ArrowLeft size={18} strokeWidth={2} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+              <ArrowLeft size={18} strokeWidth={2} aria-hidden />
               Späť na domov
             </Link>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

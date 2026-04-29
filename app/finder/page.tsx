@@ -135,6 +135,38 @@ const LOCATION_REGIONS: Record<string, string[]> = {
 
 const REGION_OPTIONS = Object.keys(LOCATION_REGIONS);
 
+const SCHOOL_TYPES = [
+  'Gymnázium',
+  'Bilingválne gymnázium',
+  'Osemročné gymnázium',
+  'Stredná priemyselná škola (SPŠ)',
+  'SPŠ elektrotechnická',
+  'SPŠ informačných technológií',
+  'SPŠ strojnícka',
+  'SPŠ stavebná',
+  'SPŠ dopravná',
+  'SOŠ elektrotechnická',
+  'SOŠ informačných technológií',
+  'SOŠ technická',
+  'SOŠ strojnícka',
+  'SOŠ stavebná',
+  'SOŠ dopravná',
+  'SOŠ automobilová',
+  'SOŠ ekonomická',
+  'SOŠ obchodu a služieb',
+  'Obchodná akadémia',
+  'Hotelová akadémia',
+  'Stredná zdravotnícka škola',
+  'Pedagogická a sociálna akadémia',
+  'Konzervatórium',
+  'Škola umeleckého priemyslu',
+  'Športové gymnázium / športová škola',
+  'Súkromná stredná škola',
+  'Cirkevná stredná škola',
+  'Zahraničná stredná škola',
+  'Iná stredná škola',
+];
+
 function FinderContent() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
@@ -939,10 +971,11 @@ function FinderContent() {
                 onChange={(e) => setSchool(e.target.value)}
               >
                 <option value="">– Vyber školu –</option>
-                <option value="Gymnázium">Gymnázium</option>
-                <option value="SOŠ elektrotechnická">SOŠ elektrotechnická</option>
-                <option value="SOŠ informačných technológií">SOŠ informačných technológií</option>
-                <option value="Priemyslovka">Priemyslovka</option>
+                {SCHOOL_TYPES.map((schoolType) => (
+                  <option key={schoolType} value={schoolType}>
+                    {schoolType}
+                  </option>
+                ))}
               </select>
             </div>
           )}

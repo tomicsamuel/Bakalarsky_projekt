@@ -49,7 +49,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-container loaded">
-        <div className="auth-card">
+        <main id="main-content" className="auth-card">
           <div className="auth-header">
             <h1>Vitaj späť</h1>
             <p>Prihlás sa a pokračuj tam, kde si skončil. Tvoje odporúčania na teba čakajú.</p>
@@ -107,11 +107,11 @@ export default function LoginPage() {
               <Link href="/register">Zaregistruj sa</Link>
             </p>
             <Link href="/" className="auth-back">
-              <ArrowLeft size={18} strokeWidth={2} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+              <ArrowLeft size={18} strokeWidth={2} aria-hidden />
               Späť na domov
             </Link>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

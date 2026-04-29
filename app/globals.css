@@ -2762,15 +2762,6 @@ body {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
   }
 
-  .landing-page--compact .landing-content.landing-content--compact-choose {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 8px 2px 10px;
-    margin: 0;
-    min-height: calc(100dvh - 6px);
-  }
-
   .landing-page--compact .landing-content.landing-content--compact-splash {
     background: rgba(255, 255, 255, 0.72) !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -2824,6 +2815,35 @@ body {
     margin-bottom: 2px;
     transform: scale(0.72);
   }
+
+  .landing-page--compact .email-form {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .landing-page--compact .email-input {
+    width: 100% !important;
+    min-height: 52px;
+    padding: 14px 16px !important;
+    background: #fff !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(15, 18, 24, 0.08) !important;
+    color: var(--text-primary) !important;
+    font-size: 0.95rem !important;
+    text-align: left !important;
+  }
+
+  .landing-page--compact .email-input::placeholder {
+    color: rgba(0, 0, 0, 0.42) !important;
+    opacity: 1;
+  }
+
+  .landing-page--compact .email-input:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px rgba(249, 166, 32, 0.18), 0 8px 20px rgba(15, 18, 24, 0.1) !important;
+  }
 }
 
 .landing-mobile-splash {
@@ -2857,36 +2877,44 @@ body {
 }
 
 .landing-mobile-splash-start {
-  width: min(300px, 100%);
+  width: min(240px, 86%);
   display: inline-flex !important;
   justify-content: center !important;
   align-items: center !important;
   text-align: center !important;
   margin: 0 auto;
-  padding-left: 24px !important;
-  padding-right: 24px !important;
-  font-weight: 800;
+  padding: 13px 28px !important;
+  min-height: 50px !important;
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.01em;
   background: #f9a620 !important;
   color: #13161b !important;
   border: 1px solid rgba(210, 130, 25, 0.45) !important;
-  box-shadow: 0 4px 12px rgba(239, 143, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  box-shadow: 0 8px 20px rgba(239, 143, 0, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
 }
 
 .landing-mobile-splash-start:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(239, 143, 0, 0.24);
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(239, 143, 0, 0.34);
+}
+
+.landing-page .landing-mobile-splash .landing-mobile-splash-start {
+  width: min(280px, 90%) !important;
+  max-width: 280px !important;
+  min-width: 220px !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  padding: 0 34px !important;
+  border-radius: 999px !important;
+  font-size: 1.08rem !important;
+  font-weight: 900 !important;
 }
 
 .landing-mobile-splash-start:active {
   transform: translateY(0);
-}
-
-/* Splash CTA: text musi byt presne v strede bez ikon/slotov */
-.landing-mobile-splash-start [data-slot='startContent'],
-.landing-mobile-splash-start [data-slot='endContent'],
-.landing-mobile-splash-start svg {
-  display: none !important;
 }
 
 .landing-mobile-splash-start > span,
@@ -3954,6 +3982,11 @@ body {
   color: var(--text-primary);
 }
 
+/* Login / registrácia: žiadny globálny body padding — neprepája centrovanie kartičky */
+body:has(.auth-page) {
+  padding: 0 !important;
+}
+
 /* Hero CTA button s 3D efektom */
 .hero-cta-button {
   position: relative;
@@ -4304,5 +4337,218 @@ body.large-text .landing-title {
   
   .feature-card:hover {
     transform: translateY(-4px);
+  }
+}
+
+/* Final mobile landing overrides – musia byt po glass-card/glass-input pravidlach. */
+@media (max-width: 639px) {
+  .landing-page--compact .landing-content.glass-card {
+    padding: 12px 12px !important;
+  }
+
+  .landing-page--compact .email-form {
+    width: 100% !important;
+    max-width: 320px !important;
+    margin: 0 auto !important;
+  }
+
+  .landing-page--compact .email-form .email-input.glass-input {
+    display: block !important;
+    width: 100% !important;
+    min-height: 52px !important;
+    padding: 14px 16px !important;
+    background: #fff !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.22) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(15, 18, 24, 0.1) !important;
+    color: var(--text-primary) !important;
+    font-size: 0.95rem !important;
+    text-align: left !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .landing-page--compact .email-form .email-input.glass-input::placeholder {
+    color: rgba(0, 0, 0, 0.45) !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Prihlásenie / registrácia: kompaktný, výrazný layout na všetkých menších zobrazeniach 
+   (breakpoint 639px nízko nestačil pre tablety ~640–768px + body mal padding od 481px vyššie). */
+@media (max-width: 1024px) {
+  html,
+  body {
+    overflow-x: hidden !important;
+  }
+
+  .auth-page {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px))
+      calc(12px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px)) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .auth-page .auth-container {
+    width: 100% !important;
+    max-width: min(440px, 100%) !important;
+    flex-shrink: 0;
+  }
+
+  .auth-page .auth-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 22px clamp(14px, 4vw, 22px) 20px !important;
+    border-radius: 18px !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+    background: linear-gradient(165deg, #ffffff 0%, #fdf8ef 52%, #fff9f2 100%) !important;
+    border: 1px solid rgba(0, 0, 0, 0.07) !important;
+    border-left: 5px solid var(--gradient-end) !important;
+    box-shadow:
+      0 8px 32px rgba(11, 15, 20, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.85) inset !important;
+  }
+
+  .auth-page .auth-header {
+    margin-bottom: 18px !important;
+    text-align: left !important;
+  }
+
+  .auth-page .auth-header h1 {
+    font-size: clamp(1.4rem, 4.8vw, 1.65rem) !important;
+    line-height: 1.2 !important;
+    margin-bottom: 8px !important;
+    letter-spacing: -0.02em;
+  }
+
+  .auth-page .auth-header p {
+    font-size: 0.9rem !important;
+    line-height: 1.45 !important;
+    max-width: none;
+    color: rgba(0, 0, 0, 0.62);
+  }
+
+  .auth-page .auth-form .form-group {
+    margin-bottom: 14px !important;
+  }
+
+  .auth-page .auth-form .form-label {
+    font-size: 0.86rem !important;
+    letter-spacing: 0.02em;
+    color: rgba(0, 0, 0, 0.75);
+  }
+
+  .auth-page .auth-form .form-input {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 50px !important;
+    padding: 12px 14px !important;
+    font-size: 16px !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+    border-radius: 13px !important;
+    box-shadow: 0 4px 14px rgba(15, 18, 24, 0.1) !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+  }
+
+  .auth-page .auth-form .auth-submit-btn {
+    min-height: 52px !important;
+    padding: 14px 20px !important;
+    border-radius: 999px !important;
+    font-size: 1.02rem !important;
+    margin-top: 14px !important;
+    width: 100% !important;
+    box-shadow: 0 6px 20px rgba(249, 166, 32, 0.35) !important;
+  }
+
+  .auth-page .auth-footer {
+    margin-top: 18px !important;
+    padding-top: 16px !important;
+    text-align: center !important;
+  }
+
+  .auth-page .auth-footer p {
+    margin-bottom: 12px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .auth-page .auth-footer .auth-back {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin-top: 10px !important;
+    vertical-align: middle;
+  }
+
+  .auth-page .auth-footer .auth-back svg {
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+@media (max-width: 639px) {
+  html,
+  body {
+    overflow-x: hidden !important;
+  }
+
+  /* Finder formulár na úzkych displejoch (auth má vlastné vstupy vyššie v 1024px) */
+  .finder-page .form-input,
+  .finder-page .form-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 52px !important;
+    padding: 13px 16px !important;
+    font-size: 16px !important;
+    border: 2px solid rgba(0, 0, 0, 0.22) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(15, 18, 24, 0.12) !important;
+    box-sizing: border-box !important;
+  }
+
+  .finder-page,
+  .finder-page .finder-layout,
+  .finder-page .finder-main,
+  .finder-page .finder-form-fullscreen,
+  .finder-page .form-section--full,
+  .finder-page .card.step-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .finder-page .finder-form-fullscreen {
+    padding: 0 10px 20px !important;
+    min-height: auto !important;
+  }
+
+  .finder-page .form-section--full {
+    padding: 0 !important;
+  }
+
+  .finder-page .card.step-content {
+    padding: 18px 14px !important;
+    border-radius: 18px !important;
+  }
+
+  .finder-page .card-title {
+    font-size: 1.25rem !important;
+    margin-bottom: 18px !important;
+  }
+
+  .finder-page .form-label {
+    font-size: 0.95rem !important;
+    margin-bottom: 8px !important;
   }
 }

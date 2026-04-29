@@ -11,6 +11,7 @@ export const MAJORS: Major[] = [
   { name: 'Počítačové modelovanie', field: 'Informatika' },
   { name: 'Počítačové siete', field: 'Informatika' },
   { name: 'Umelá inteligencia', field: 'Informatika' },
+  { name: 'Aplikovaná informatika', field: 'Informatika' },
 ];
 
 function initScores(): ScoreResult[] {
@@ -213,14 +214,90 @@ export function calculateScores(school: string, interests: string[], experience:
   });
 
   switch (school) {
-    case 'SOŠ elektrotechnická':
-    case 'Priemyslovka':
-      add((p) => p.field === 'Elektrotechnika', 2);
-      break;
-    case 'SOŠ informačných technológií':
-      add((p) => p.field === 'Informatika', 2);
-      break;
     case 'Gymnázium':
+    case 'Bilingválne gymnázium':
+    case 'Osemročné gymnázium':
+    case 'Športové gymnázium / športová škola':
+      add(() => true, 1);
+      add((p) => p.name === 'Počítačové modelovanie' || p.name === 'Umelá inteligencia', 1);
+      break;
+
+    case 'SPŠ informačných technológií':
+    case 'SOŠ informačných technológií':
+      add((p) => p.field === 'Informatika', 3);
+      add((p) => p.name === 'Informatika' || p.name === 'Aplikovaná informatika', 2);
+      add((p) => p.name === 'Počítačové siete' || p.name === 'Kyberbezpečnosť', 1);
+      break;
+
+    case 'SPŠ elektrotechnická':
+    case 'SOŠ elektrotechnická':
+      add((p) => p.field === 'Elektrotechnika', 3);
+      add(
+        (p) =>
+          p.name === 'Aplikovaná elektrotechnika' ||
+          p.name === 'Priemyselná elektrotechnika' ||
+          p.name === 'Automobilová elektronika',
+        1
+      );
+      break;
+
+    case 'Stredná priemyselná škola (SPŠ)':
+    case 'SOŠ technická':
+      add((p) => p.field === 'Elektrotechnika', 2);
+      add((p) => p.field === 'Informatika', 1);
+      break;
+
+    case 'SPŠ strojnícka':
+    case 'SOŠ strojnícka':
+    case 'SOŠ automobilová':
+      add((p) => p.name === 'Automobilová elektronika' || p.name === 'Priemyselná elektrotechnika', 3);
+      add((p) => p.name === 'Aplikovaná elektrotechnika', 2);
+      add((p) => p.field === 'Elektrotechnika', 1);
+      break;
+
+    case 'SPŠ dopravná':
+    case 'SOŠ dopravná':
+      add((p) => p.name === 'Automobilová elektronika', 3);
+      add((p) => p.name === 'Priemyselná elektrotechnika' || p.name === 'Aplikovaná elektrotechnika', 2);
+      add((p) => p.field === 'Elektrotechnika', 1);
+      break;
+
+    case 'SPŠ stavebná':
+    case 'SOŠ stavebná':
+      add((p) => p.name === 'Fyzikálne inžinierstvo progresívnych materiálov', 3);
+      add((p) => p.name === 'Počítačové modelovanie', 2);
+      add((p) => p.field === 'Elektrotechnika', 1);
+      break;
+
+    case 'SOŠ ekonomická':
+    case 'Obchodná akadémia':
+      add((p) => p.name === 'Aplikovaná informatika' || p.name === 'Informatika', 3);
+      add((p) => p.name === 'Počítačové modelovanie', 2);
+      add((p) => p.field === 'Informatika', 1);
+      break;
+
+    case 'Hotelová akadémia':
+    case 'SOŠ obchodu a služieb':
+      add((p) => p.name === 'Aplikovaná informatika' || p.name === 'Informatika', 2);
+      add((p) => p.field === 'Informatika', 1);
+      break;
+
+    case 'Stredná zdravotnícka škola':
+    case 'Pedagogická a sociálna akadémia':
+      add((p) => p.name === 'Aplikovaná informatika' || p.name === 'Informatika', 1);
+      add((p) => p.name === 'Umelá inteligencia' || p.name === 'Počítačové modelovanie', 1);
+      break;
+
+    case 'Konzervatórium':
+    case 'Škola umeleckého priemyslu':
+      add((p) => p.name === 'Informatika' || p.name === 'Aplikovaná informatika', 2);
+      add((p) => p.name === 'Počítačové modelovanie' || p.name === 'Umelá inteligencia', 1);
+      break;
+
+    case 'Súkromná stredná škola':
+    case 'Cirkevná stredná škola':
+    case 'Zahraničná stredná škola':
+    case 'Iná stredná škola':
       add(() => true, 1);
       break;
   }
