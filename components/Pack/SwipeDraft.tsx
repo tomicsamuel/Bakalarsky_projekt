@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Undo2, X, Heart, Sparkles } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { Undo2, X, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+import { usePreferLightweightUI } from '@/hooks/usePreferLightweightUI';
 
 import SwipeCard from './SwipeCard';
 import type { ScoreResult } from '@/lib/types';
@@ -21,16 +23,17 @@ type Props = {
 
 type CardState = { result: ScoreResult; rank: number };
 
+const STACK_VISIBLE_MAX = 4;
+
 export default function SwipeDraft({ top6, onComplete }: Props) {
+  const prefersLightUi = usePreferLightweightUI();
   const [stack, setStack] = useState<CardState[]>(() =>
     top6.map((r, i) => ({ result: r, rank: i + 1 }))
   );
   const [liked, setLiked] = useState<ScoreResult[]>([]);
   const [passed, setPassed] = useState<ScoreResult[]>([]);
-  const [superlike, setSuperlike] = useState<ScoreResult | null>(null);
   const [history, setHistory] = useState<{ result: ScoreResult; rank: number; choice: SwipeChoice }[]>([]);
 
-  const usedSuperlike = superlike !== null;
   const currentIndex = top6.length - stack.length;
   const progress = `${currentIndex + 1}/${top6.length}`;
 
@@ -42,16 +45,14 @@ export default function SwipeDraft({ top6, onComplete }: Props) {
       setStack((s) => s.slice(0, -1));
       const newLiked = choice === 'like' ? [...liked, result] : liked;
       const newPassed = choice === 'pass' ? [...passed, result] : passed;
-      const newSuper = choice === 'superlike' ? result : superlike;
       if (choice === 'like') setLiked((l) => [...l, result]);
-      else if (choice === 'pass') setPassed((p) => [...p, result]);
-      else setSuperlike(result);
+      else setPassed((p) => [...p, result]);
 
       if (stack.length <= 1) {
-        onComplete({ liked: newLiked, passed: newPassed, superlike: newSuper });
+        onComplete({ liked: newLiked, passed: newPassed, superlike: null });
       }
     },
-    [stack, liked, passed, superlike, onComplete]
+    [stack, liked, passed, onComplete]
   );
 
   const handleUndo = useCallback(() => {
@@ -60,11 +61,13 @@ export default function SwipeDraft({ top6, onComplete }: Props) {
     setHistory((h) => h.slice(0, -1));
     setStack((s) => [...s, { result: last.result, rank: last.rank }]);
     if (last.choice === 'like') setLiked((l) => l.filter((r) => r.name !== last.result.name || r.field !== last.result.field));
-    else if (last.choice === 'pass') setPassed((p) => p.filter((r) => r.name !== last.result.name || r.field !== last.result.field));
-    else setSuperlike(null);
+    else setPassed((p) => p.filter((r) => r.name !== last.result.name || r.field !== last.result.field));
   }, [history]);
 
-  const current = stack[stack.length - 1];
+  const stackForView = useMemo(
+    () => (prefersLightUi ? stack.slice(-STACK_VISIBLE_MAX) : stack),
+    [prefersLightUi, stack]
+  );
 
   if (stack.length === 0) {
     return (
@@ -118,26 +121,26 @@ export default function SwipeDraft({ top6, onComplete }: Props) {
         <span className="swipe-draft__counter swipe-draft__counter--pass">
           ✕ {passed.length}
         </span>
-        <span className="swipe-draft__counter swipe-draft__counter--super">
-          ★ {usedSuperlike ? 1 : 0}
-        </span>
       </motion.div>
 
       <div className="swipe-draft__stack">
         <AnimatePresence initial={false}>
-          {stack.map((item, i) => (
+          {stackForView.map((item) => (
             <motion.div
-              key={`${item.result.name}__${item.result.field}__${i}`}
+              key={`${item.result.name}__${item.result.field}`}
               className="swipe-draft__card-wrap"
-              layout
+              {...(!prefersLightUi
+                ? {
+                    layout: true,
+                    transition: { type: 'spring' as const, stiffness: 300, damping: 30 },
+                  }
+                : { transition: { type: 'spring' as const, stiffness: 400, damping: 38 } })}
               initial={false}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
               <SwipeCard
                 result={item.result}
                 rank={item.rank}
                 onSwipe={handleSwipe}
-                canSuperlike={!usedSuperlike}
               />
             </motion.div>
           ))}
@@ -175,16 +178,6 @@ export default function SwipeDraft({ top6, onComplete }: Props) {
         >
           <Heart size={28} />
         </button>
-        {!usedSuperlike && (
-          <button
-            type="button"
-            className="swipe-draft__btn swipe-draft__btn--super"
-            onClick={() => handleSwipe('superlike')}
-            aria-label="Superlike"
-          >
-            <Sparkles size={24} />
-          </button>
-        )}
       </motion.div>
     </motion.div>
   );

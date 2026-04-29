@@ -64,6 +64,8 @@ type SwipeResultState = {
 type Props = {
   baseResults: ScoreResult[]; // output from lib/scoring (sorted)
   completenessPercent: number; // PR7
+  /** Bez prihlásenia – pred pack / shuffle uložiť stav pre registráciu */
+  onGuestInteractive?: () => void;
 };
 
 function defaultFilter(): FilterState {
@@ -90,7 +92,11 @@ function applyWhatIf(base: ScoreResult[], filter: FilterState): ScoreResult[] {
   return boosted.sort((a, b) => b.score - a.score);
 }
 
-export default function ResultsDashboard({ baseResults, completenessPercent }: Props) {
+export default function ResultsDashboard({
+  baseResults,
+  completenessPercent,
+  onGuestInteractive,
+}: Props) {
   const [filter, setFilter] = useState<FilterState>(defaultFilter());
   const [debouncedFilter, setDebouncedFilter] = useState<FilterState>(filter);
 
@@ -381,7 +387,10 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
             <button
               type="button"
               className="swipe-reveal-actions__shuffle"
-              onClick={() => setPackPhase('swipe')}
+              onClick={() => {
+                onGuestInteractive?.();
+                setPackPhase('swipe');
+              }}
             >
               Shuffle – vybrať záujmy znova
             </button>
@@ -390,6 +399,7 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
       ) : packPhase === 'intro' ? (
         <PackIntro
           confidence={confidence}
+          onBeforeOpen={onGuestInteractive}
           onOpen={() => setPackPhase('opening')}
         />
       ) : packPhase === 'opening' ? (

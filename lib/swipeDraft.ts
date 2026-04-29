@@ -2,7 +2,7 @@ import type { ScoreResult } from './types';
 import { getMajorMeta } from './majorsMeta';
 import type { MajorTag } from './majorsMeta';
 
-export type SwipeChoice = 'like' | 'pass' | 'superlike';
+export type SwipeChoice = 'like' | 'pass';
 
 export type SwipeOutcome = {
   result: ScoreResult;

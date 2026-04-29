@@ -56,7 +56,6 @@
 
 .swipe-draft__counter--like { color: #16a34a; }
 .swipe-draft__counter--pass { color: #6b7280; }
-.swipe-draft__counter--super { color: var(--rarity-legendary); }
 
 .swipe-draft__stack {
   position: relative;
@@ -119,7 +118,6 @@
 
 .swipe-draft__btn--pass { color: #6b7280; }
 .swipe-draft__btn--like { color: #16a34a; border-color: #16a34a; }
-.swipe-draft__btn--super { color: var(--rarity-legendary); border-color: var(--rarity-legendary); }
 
 /* Single card – zosúladené so šírkou stacku */
 .swipe-card {
@@ -166,15 +164,6 @@
   color: #15803d;
   font-size: 1.75rem;
   letter-spacing: 0.08em;
-}
-
-.swipe-card__hint--super {
-  left: 50%;
-  top: 12px;
-  transform: translateX(-50%);
-  color: var(--rarity-legendary);
-  font-size: 1.25rem;
-  letter-spacing: 0.06em;
 }
 
 /* Stack: scale back cards – miernejší úbytok pre lepšiu čitateľnosť */

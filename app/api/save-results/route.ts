@@ -40,9 +40,63 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2) Kontrola duplicity emailu – preskočíme pre prihlásených používateľov (accountId),
-    //    ktorí môžu robiť test opakovane. Pre hostí blokujeme duplicity.
-    if (!data.accountId) {
+    const userDataPayload = {
+      name: data.name,
+      email,
+      school: data.school,
+      location: data.location?.trim() || null,
+      age: data.age ?? null,
+      wantsToStudyAtTUKE: data.wantsToStudyAtTUKE ?? null,
+      howDidYouHear: data.howDidYouHear || [],
+      howDidYouHearOther: data.howDidYouHearOther || null,
+      whyThisSchool: data.whyThisSchool || [],
+      expectations: data.expectations || [],
+      interests: data.interests,
+      experience: data.experience,
+      consentGivenAt: new Date(),
+    };
+
+    let user: { id: number };
+
+    if (data.accountId) {
+      const account = await prisma.account.findUnique({
+        where: { id: data.accountId },
+      });
+      if (!account || account.email.trim().toLowerCase() !== email) {
+        return NextResponse.json(
+          { success: false, error: 'Neplatný účet pre uloženie výsledkov.' },
+          { status: 403 }
+        );
+      }
+
+      const guestSameEmail = await prisma.user.findFirst({
+        where: {
+          email: { equals: email, mode: 'insensitive' },
+          accountId: null,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (guestSameEmail) {
+        await prisma.result.deleteMany({ where: { userId: guestSameEmail.id } });
+        user = await prisma.user.update({
+          where: { id: guestSameEmail.id },
+          data: {
+            ...userDataPayload,
+            accountId: data.accountId,
+          },
+        });
+      } else {
+        // Prihlásený používateľ bez starého host záznamu alebo nový priebeh – nový riadok User (história testov)
+        user = await prisma.user.create({
+          data: {
+            ...userDataPayload,
+            accountId: data.accountId,
+          } as Parameters<typeof prisma.user.create>[0]['data'],
+        });
+      }
+    } else {
+      // Host bez účtu: duplicitný email blokujeme (okrem merge vyššie po registrácii)
       const existingUser = await prisma.user.findFirst({
         where: { email: { equals: email, mode: 'insensitive' } },
       });
@@ -56,28 +110,14 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-    }
 
-    // 3) Vytvoríme používateľa v databáze (súhlas so spracovaním evidujeme pri odoslaní)
-    // Schema má location, age, wantsToStudyAtTUKE; po npx prisma generate sú v UserCreateInput
-    const user = await prisma.user.create({
-      data: {
-        name: data.name,
-        email: email,
-        school: data.school,
-        location: data.location?.trim() || null,
-        age: data.age ?? null,
-        wantsToStudyAtTUKE: data.wantsToStudyAtTUKE ?? null,
-        howDidYouHear: data.howDidYouHear || [],
-        howDidYouHearOther: data.howDidYouHearOther || null,
-        whyThisSchool: data.whyThisSchool || [],
-        expectations: data.expectations || [],
-        interests: data.interests,
-        experience: data.experience,
-        accountId: data.accountId || null,
-        consentGivenAt: new Date(),
-      } as Parameters<typeof prisma.user.create>[0]['data'],
-    });
+      user = await prisma.user.create({
+        data: {
+          ...userDataPayload,
+          accountId: null,
+        } as Parameters<typeof prisma.user.create>[0]['data'],
+      });
+    }
 
     // 3) Pre každý výsledok:
     //    - Nájdeme alebo vytvoríme program

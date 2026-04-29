@@ -9,15 +9,18 @@ import './pack.css';
 type Props = {
   confidence: number;
   onOpen: () => void;
+  /** Volané pred začatím animácie (napr. záloha dát pre registráciu). */
+  onBeforeOpen?: () => void;
 };
 
 const SHAKE_DURATION_MS = 600;
 
-export default function PackIntro({ confidence, onOpen }: Props) {
+export default function PackIntro({ confidence, onOpen, onBeforeOpen }: Props) {
   const [isShaking, setIsShaking] = useState(false);
 
   const handleOpenPack = () => {
     if (isShaking) return;
+    onBeforeOpen?.();
     setIsShaking(true);
     setTimeout(() => {
       onOpen();

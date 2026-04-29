@@ -8,10 +8,12 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './pack.css';
 
 import MajorCard from './MajorCard';
+import { usePreferLightweightUI } from '@/hooks/usePreferLightweightUI';
 import { getPackRarity, getRarity } from '@/lib/rarity';
 import type { ScoreResult } from '@/lib/types';
 
-const SHUFFLE_DURATION_MS = 800;
+const SHUFFLE_DURATION_MS_DESKTOP = 800;
+const SHUFFLE_DURATION_MS_MOBILE = 380;
 const REVEAL_STAGGER_S = 0.14;
 
 type DuelSlots = [ScoreResult | null, ScoreResult | null];
@@ -42,7 +44,10 @@ export default function CardRevealGrid({
   onRevealComplete,
   showDoneButton = true,
 }: Props) {
+  const prefersLightUi = usePreferLightweightUI();
+  const shuffleDurationMs = prefersLightUi ? SHUFFLE_DURATION_MS_MOBILE : SHUFFLE_DURATION_MS_DESKTOP;
   const top6 = results.slice(0, 6);
+  const shuffleDeck = prefersLightUi ? top6.slice(-3) : top6;
   const [isShuffling, setIsShuffling] = useState(true);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const packFlow = onAddToDuel != null;
@@ -51,9 +56,9 @@ export default function CardRevealGrid({
   const goNext = () => setCarouselIndex((i) => Math.min(top6.length - 1, i + 1));
 
   useEffect(() => {
-    const t = setTimeout(() => setIsShuffling(false), SHUFFLE_DURATION_MS);
+    const t = setTimeout(() => setIsShuffling(false), shuffleDurationMs);
     return () => clearTimeout(t);
-  }, []);
+  }, [shuffleDurationMs]);
 
   const getDuelSlot = (r: ScoreResult): 'A' | 'B' | null => {
     if (duelSlots[0]?.name === r.name && duelSlots[0]?.field === r.field) return 'A';
@@ -74,9 +79,12 @@ export default function CardRevealGrid({
             transition={{ duration: 0.2 }}
           >
             <div className="card-shuffle__deck" aria-hidden>
-              {top6.map((_, i) => {
-                const offsetX = (i - 2.5) * 4;
-                const offsetY = (i - 2.5) * 6;
+              {shuffleDeck.map((_, deckIdx) => {
+                const i = deckIdx;
+                const deckLen = shuffleDeck.length;
+                const mid = (deckLen - 1) / 2 || 0;
+                const offsetX = (i - mid) * 4;
+                const offsetY = (i - mid) * 6;
                 return (
                   <motion.div
                     key={i}
@@ -88,16 +96,26 @@ export default function CardRevealGrid({
                       rotate: -8 + i * 3,
                       scale: 0.85,
                     }}
-                    animate={{
-                      x: [offsetX, offsetX + 15, offsetX - 10, offsetX + 8, offsetX],
-                      y: [offsetY, offsetY - 8, offsetY + 12, offsetY - 5, offsetY],
-                      rotate: [-8 + i * 3, 5 - i * 2, -6 + i, 8 - i, -8 + i * 3],
-                      scale: [0.85, 0.9, 0.88, 0.92, 0.9],
-                    }}
+                    animate={
+                      prefersLightUi
+                        ? {
+                            x: offsetX,
+                            y: offsetY,
+                            rotate: -6 + i * 2,
+                            scale: 0.92,
+                          }
+                        : {
+                            x: [offsetX, offsetX + 15, offsetX - 10, offsetX + 8, offsetX],
+                            y: [offsetY, offsetY - 8, offsetY + 12, offsetY - 5, offsetY],
+                            rotate: [-8 + i * 3, 5 - i * 2, -6 + i, 8 - i, -8 + i * 3],
+                            scale: [0.85, 0.9, 0.88, 0.92, 0.9],
+                          }
+                    }
                     transition={{
-                      duration: SHUFFLE_DURATION_MS / 1000,
+                      duration: shuffleDurationMs / 1000,
                       repeat: 0,
                       delay: i * 0.04,
+                      ...(prefersLightUi ? { ease: [0.25, 0.1, 0.25, 1] } : {}),
                     }}
                   />
                 );
@@ -134,14 +152,21 @@ export default function CardRevealGrid({
                   animate={{
                     x: `${offset * 93}%`,
                     scale: 1 - clampedAbs * 0.1,
-                    opacity: Math.max(0, 1 - absOffset * 0.6),
-                    filter: `blur(${clampedAbs * 2}px)`,
+                    opacity: Math.max(
+                      0,
+                      prefersLightUi
+                        ? 1 - absOffset * 0.75
+                        : 1 - absOffset * 0.6
+                    ),
+                    ...(prefersLightUi
+                      ? { filter: 'none' }
+                      : { filter: `blur(${clampedAbs * 2}px)` }),
                   }}
                   transition={{
                     type: 'spring',
-                    stiffness: 320,
-                    damping: 32,
-                    mass: 0.75,
+                    stiffness: prefersLightUi ? 420 : 320,
+                    damping: prefersLightUi ? 42 : 32,
+                    mass: prefersLightUi ? 0.55 : 0.75,
                   }}
                   style={{
                     zIndex: 10 - absOffset * 3,
@@ -157,6 +182,7 @@ export default function CardRevealGrid({
                     onAddToShortlist={packFlow ? undefined : undefined}
                     onExplain={onExplain}
                     confidence={confidence}
+                    disableTilt={prefersLightUi}
                     isInCompare={!packFlow && compare.some((c) => c.name === r.name && c.field === r.field)}
                     onCompare={packFlow ? undefined : onCompare}
                   />

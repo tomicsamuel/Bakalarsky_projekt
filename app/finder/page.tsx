@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Target, Briefcase, X } from 'lucide-react';
 import { Button } from '@heroui/button';
@@ -14,6 +14,10 @@ import ResultsDisplay from '@/components/ResultsDisplay';
 import ResultsDashboard from '@/components/Results/ResultsDashboard';
 import { calculateScores } from '@/lib/scoring';
 import type { ScoreResult } from '@/lib/types';
+import {
+  savePendingFinderResults,
+  type PendingFinderSavePayload,
+} from '@/lib/finderPendingSave';
 
 type ChipProps = {
   label: string;
@@ -169,6 +173,7 @@ const SCHOOL_TYPES = [
 
 function FinderContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [consentChecked, setConsentChecked] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
@@ -198,6 +203,7 @@ function FinderContent() {
   const [showToast, setShowToast] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showRegisterSaveModal, setShowRegisterSaveModal] = useState(false);
   const stepCardRef = useRef<HTMLDivElement>(null);
   const stepTitleRef = useRef<HTMLHeadingElement>(null);
   const summaryTriggerRef = useRef<HTMLButtonElement>(null);
@@ -213,6 +219,53 @@ function FinderContent() {
     ].filter(Boolean).length /
       5) *
     100;
+
+  const buildPendingPayload = (): PendingFinderSavePayload => ({
+    name: name.trim(),
+    email: email.trim(),
+    school,
+    location:
+      locationRegion && locationPart
+        ? `${locationRegion} - ${locationPart}`
+        : (locationRegion || locationPart).trim() || null,
+    age: (() => {
+      if (!age.trim()) return null;
+      const n = parseInt(age, 10);
+      return Number.isNaN(n) || n < 7 || n > 99 ? null : n;
+    })(),
+    wantsToStudyAtTUKE,
+    howDidYouHear,
+    howDidYouHearOther: howDidYouHearOther.trim() || null,
+    whyThisSchool,
+    expectations,
+    interests,
+    experience,
+    results: results.map((p) => ({
+      programName: p.name,
+      programField: p.field,
+      score: p.score,
+    })),
+  });
+
+  const ensureGuestPendingStored = (): boolean => {
+    if (!name.trim()) {
+      setSaveError('Vyplň meno (krok 1), aby sme mohli výsledky uložiť po registrácii.');
+      return false;
+    }
+    if (!email.trim()) {
+      setSaveError('Zadaj platný email. Môžeš ho doplniť v súhrne.');
+      setShowEmailModal(true);
+      return false;
+    }
+    savePendingFinderResults(buildPendingPayload());
+    setSaveError(null);
+    return true;
+  };
+
+  const openRegisterToSaveModal = () => {
+    if (!ensureGuestPendingStored()) return;
+    setShowRegisterSaveModal(true);
+  };
 
   useEffect(() => {
     const emailParam = searchParams.get('email');
@@ -270,6 +323,15 @@ function FinderContent() {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [showEmailModal]);
+
+  useEffect(() => {
+    if (!showRegisterSaveModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowRegisterSaveModal(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showRegisterSaveModal]);
 
   const loadUserHistory = async (accountId: number) => {
     try {
@@ -544,65 +606,42 @@ function FinderContent() {
     setSaved(false);
     setSaveError(null);
 
-    if (name.trim()) {
-      try {
-        setLoading(true);
+    if (!name.trim()) return false;
+    if (!userId) return false;
 
-        const requestData = {
-          name: name.trim(),
-          email: email,
-          school,
-          location: (locationRegion && locationPart)
-            ? `${locationRegion} - ${locationPart}`
-            : (locationRegion || locationPart).trim() || null,
-          age: (() => {
-            if (!age.trim()) return null;
-            const n = parseInt(age, 10);
-            return (Number.isNaN(n) || n < 7 || n > 99) ? null : n;
-          })(),
-          wantsToStudyAtTUKE,
-          howDidYouHear,
-          howDidYouHearOther: howDidYouHearOther.trim() || null,
-          whyThisSchool,
-          expectations,
-          interests,
-          experience,
-          accountId: userId,
-          results: results.map(p => ({
-            programName: p.name,
-            programField: p.field,
-            score: p.score,
-          })),
-        };
+    try {
+      setLoading(true);
 
-        const response = await fetch('/api/save-results', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestData),
-        });
+      const requestData = {
+        ...buildPendingPayload(),
+        accountId: userId,
+      };
 
-        const data = await response.json();
+      const response = await fetch('/api/save-results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
 
-        if (data.success) {
-          setSaved(true);
-          console.log('Výsledky uložené:', data);
-          return true;
-        } else {
-          setSaveError(data.error || 'Nepodarilo sa uložiť výsledky.');
-          return false;
-        }
+      const data = await response.json();
 
-      } catch (error) {
-        console.error('Chyba pri volaní API:', error);
-        setSaveError('Nepodarilo sa uložiť výsledky. Skúste to znova.');
+      if (data.success) {
+        setSaved(true);
+        console.log('Výsledky uložené:', data);
+        return true;
+      } else {
+        setSaveError(data.error || 'Nepodarilo sa uložiť výsledky.');
         return false;
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      console.error('Chyba pri volaní API:', error);
+      setSaveError('Nepodarilo sa uložiť výsledky. Skúste to znova.');
+      return false;
+    } finally {
+      setLoading(false);
     }
-    return false;
   };
 
   // Počas SSR / prvého renderu / načítavania histórie nič nerenderujeme –
@@ -678,12 +717,12 @@ function FinderContent() {
                   <button
                     type="button"
                     className="results-toolbar-btn results-toolbar-btn--primary"
-                    onClick={handleSubmit}
+                    onClick={() => openRegisterToSaveModal()}
                     disabled={loading}
-                    aria-label={loading ? 'Ukladám výsledky' : 'Uložiť výsledky'}
+                    aria-label="Uložiť výsledky cez registráciu"
                   >
-                    <span className="results-toolbar-btn__long">{loading ? 'Ukladám...' : 'Uložiť výsledky'}</span>
-                    <span className="results-toolbar-btn__short" aria-hidden>{loading ? '…' : 'Uložiť'}</span>
+                    <span className="results-toolbar-btn__long">Uložiť výsledky</span>
+                    <span className="results-toolbar-btn__short" aria-hidden>Uložiť</span>
                   </button>
                   {saveError && saveError.includes('Prihláste sa') && (
                     <Link href="/login" className="results-toolbar-btn results-toolbar-btn--secondary">
@@ -699,12 +738,15 @@ function FinderContent() {
                   <span className="results-toolbar-btn__short" aria-hidden>Domov</span>
                 </Link>
               )}
-              {!userId && saved && (
-                <span className="results-toolbar-success">Výsledky boli uložené</span>
-              )}
             </div>
             <div className="results-section results-section--full">
-              <ResultsDashboard baseResults={results} completenessPercent={completenessPercent} />
+              <ResultsDashboard
+                baseResults={results}
+                completenessPercent={completenessPercent}
+                onGuestInteractive={() => {
+                  ensureGuestPendingStored();
+                }}
+              />
             </div>
           </div>
 
@@ -826,6 +868,49 @@ function FinderContent() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {showRegisterSaveModal && (
+            <div
+              className="summary-modal-overlay"
+              onClick={() => setShowRegisterSaveModal(false)}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="register-save-title"
+            >
+              <div className="summary-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="summary-modal-header">
+                  <h3 id="register-save-title">Uloženie výsledkov vyžaduje účet</h3>
+                  <button type="button" className="summary-modal-close" onClick={() => setShowRegisterSaveModal(false)}>
+                    Zavrieť
+                  </button>
+                </div>
+                <p style={{ marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.5 }}>
+                  Pri režime <strong>iba email bez hesla</strong> výsledky nejdú zapísať na server ako pri prihlásenom účte. Tvoje
+                  odpovede sú uložené v tejto relácii – po registrácii ich automaticky zapíšeme na tvoj nový účet.
+                </p>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="results-toolbar-btn"
+                    onClick={() => setShowRegisterSaveModal(false)}
+                  >
+                    Zrušiť
+                  </button>
+                  <button
+                    type="button"
+                    className="results-toolbar-btn results-toolbar-btn--primary"
+                    onClick={() => {
+                      if (!ensureGuestPendingStored()) return;
+                      setShowRegisterSaveModal(false);
+                      router.push('/register');
+                    }}
+                  >
+                    Zaregistrovať sa a uložiť
+                  </button>
+                </div>
               </div>
             </div>
           )}

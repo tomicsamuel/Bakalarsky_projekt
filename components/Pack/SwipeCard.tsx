@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'motion/react';
 
+import { usePreferLightweightUI } from '@/hooks/usePreferLightweightUI';
 import { getMajorMeta } from '@/lib/majorsMeta';
 import { getPackRarity, getRarityLabel } from '@/lib/rarity';
 import type { ScoreResult } from '@/lib/types';
@@ -12,62 +13,61 @@ import './swipe-draft.css';
 type Props = {
   result: ScoreResult;
   rank: number;
-  onSwipe: (direction: 'like' | 'pass' | 'superlike') => void;
-  canSuperlike: boolean;
+  onSwipe: (direction: 'like' | 'pass') => void;
 };
 
-export default function SwipeCard({ result, rank, onSwipe, canSuperlike }: Props) {
+export default function SwipeCard({ result, rank, onSwipe }: Props) {
+  const prefersLightUi = usePreferLightweightUI();
   const meta = getMajorMeta(result);
   const rarity = getPackRarity(rank);
 
   const x = useMotionValue(0);
-  const y = useMotionValue(0);
   const rotate = useTransform(x, [-300, 300], [-12, 12]);
   const likeOpacity = useTransform(x, [0, 100], [0, 1]);
   const passOpacity = useTransform(x, [-100, 0], [1, 0]);
-  const superOpacity = useTransform(y, [0, -80], [0, 1]);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const dx = info.offset.x;
-    const dy = info.offset.y;
     const vx = info.velocity.x;
-    const vy = info.velocity.y;
     const threshold = 70;
     const velThreshold = 280;
 
-    if (dy < -threshold || vy < -velThreshold) {
-      if (canSuperlike) {
-        animate(y, -380, { type: 'spring', stiffness: 200, damping: 25 }).then(() => onSwipe('superlike'));
-        return;
-      }
-    }
+    const exitSpring =
+      prefersLightUi
+        ? { type: 'spring' as const, stiffness: 280, damping: 32 }
+        : { type: 'spring' as const, stiffness: 200, damping: 25 };
+    const resetSpring =
+      prefersLightUi
+        ? { type: 'spring' as const, stiffness: 340, damping: 34 }
+        : { type: 'spring' as const, stiffness: 300, damping: 30 };
+
     if (dx > threshold || vx > velThreshold) {
-      animate(x, 380, { type: 'spring', stiffness: 200, damping: 25 }).then(() => onSwipe('like'));
+      animate(x, 380, exitSpring).then(() => onSwipe('like'));
       return;
     }
     if (dx < -threshold || vx < -velThreshold) {
-      animate(x, -380, { type: 'spring', stiffness: 200, damping: 25 }).then(() => onSwipe('pass'));
+      animate(x, -380, exitSpring).then(() => onSwipe('pass'));
       return;
     }
-    animate(x, 0, { type: 'spring', stiffness: 300, damping: 30 });
-    animate(y, 0, { type: 'spring', stiffness: 300, damping: 30 });
+    animate(x, 0, resetSpring);
   };
 
   return (
     <motion.div
       className={`swipe-card swipe-card--${rarity.toLowerCase()}`}
-      style={{ x, y, rotate }}
-      initial={{ opacity: 0, scale: 0.96 }}
+      style={{ x, rotate }}
+      initial={{ opacity: 0, scale: prefersLightUi ? 0.99 : 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-      drag
-      dragDirectionLock
-      dragConstraints={{ left: -400, right: 400, top: -400, bottom: 200 }}
-      dragElastic={0.5}
+      transition={
+        prefersLightUi
+          ? { type: 'spring', stiffness: 320, damping: 28 }
+          : { type: 'spring', stiffness: 260, damping: 24 }
+      }
+      drag="x"
+      dragConstraints={{ left: -400, right: 400 }}
+      dragElastic={prefersLightUi ? 0.22 : 0.5}
       onDragEnd={handleDragEnd}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      layout
+      {...(prefersLightUi ? {} : { whileHover: { scale: 1.02 }, whileTap: { scale: 0.98 } })}
     >
       <motion.span
         className="swipe-card__hint swipe-card__hint--pass"
@@ -81,14 +81,6 @@ export default function SwipeCard({ result, rank, onSwipe, canSuperlike }: Props
       >
         Záujem
       </motion.span>
-      {canSuperlike && (
-        <motion.span
-          className="swipe-card__hint swipe-card__hint--super"
-          style={{ opacity: superOpacity }}
-        >
-          Super
-        </motion.span>
-      )}
 
       <article
         className={`swipe-card__inner major-card major-card--${rarity.toLowerCase()}`}

@@ -1,9 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import {
+  loadPendingFinderResults,
+  clearPendingFinderResults,
+  type PendingFinderSavePayload,
+} from '@/lib/finderPendingSave';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -13,6 +18,14 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const pending = loadPendingFinderResults();
+    if (pending) {
+      if (pending.email) setEmail(pending.email);
+      if (pending.name) setName(pending.name);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +54,40 @@ export default function RegisterPage() {
 
       if (data.success) {
         localStorage.setItem('user', JSON.stringify(data.user));
+
+        const pending: PendingFinderSavePayload | null = loadPendingFinderResults();
+        if (pending && data.user?.id) {
+          try {
+            const saveRes = await fetch('/api/save-results', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...pending,
+                name: name.trim(),
+                email: data.user.email,
+                accountId: data.user.id,
+              }),
+            });
+            const saveData = await saveRes.json();
+            if (!saveData.success) {
+              setError(
+                `Účet je vytvorený. Výsledky sa nepodarilo uložiť: ${saveData.error || 'chyba servera'}. Skús to znova na stránke výsledkov (Uložiť).`,
+              );
+              setLoading(false);
+              return;
+            }
+            clearPendingFinderResults();
+          } catch {
+            setError(
+              'Účet je vytvorený. Uloženie výsledkov zlyhalo (sieť). Otvori nájdi výsledky a skús Uložiť znova.',
+            );
+            setLoading(false);
+            return;
+          }
+        } else {
+          clearPendingFinderResults();
+        }
+
         router.push(`/finder?userId=${data.user.id}`);
       } else {
         setError(data.error || 'Chyba pri registrácii');
