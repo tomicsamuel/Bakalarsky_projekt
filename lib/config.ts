@@ -4,9 +4,9 @@
  */
 export const DEADLINE = {
   /** Formát pre badge / CTA (krátky) */
-  short: '30.6.25',
+  short: '30.4.26',
   /** Formát pre footer a plný text */
-  full: '30.6.2025',
-  /** Text pre CTA napr. "Prihlášky do 30.6.2025" */
-  label: 'Prihlášky do 30.6.2025',
+  full: '30.4.2026',
+  /** Text pre CTA napr. "Prihlášky do 30.4.2026" */
+  label: 'Prihlášky do 30.4.2026',
 } as const;
