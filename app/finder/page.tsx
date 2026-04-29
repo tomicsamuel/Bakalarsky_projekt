@@ -600,8 +600,8 @@ function FinderContent() {
           }}
         />
         <main id="main-content" className="finder-main">
-      <header className="page-header">
-        <h1 className="page-title">
+      <header className={`page-header ${step === 7 ? 'page-header--compact-results' : ''}`}>
+        <h1 className={`page-title ${step === 7 ? 'page-title--compact' : ''}`}>
           Ktorý odbor na FEI je pre teba?
         </h1>
       </header>
@@ -626,8 +626,10 @@ function FinderContent() {
                 type="button"
                 className="results-toolbar-btn"
                 onClick={() => setShowSummaryModal(true)}
+                aria-label="Súhrn odpovedí"
               >
-                Súhrn odpovedí
+                <span className="results-toolbar-btn__long">Súhrn odpovedí</span>
+                <span className="results-toolbar-btn__short" aria-hidden>Súhrn</span>
               </button>
               {userId && (
                 <button
@@ -635,7 +637,8 @@ function FinderContent() {
                   className="results-toolbar-btn"
                   onClick={() => setStep(1)}
                 >
-                  Vyplniť nový test
+                  <span className="results-toolbar-btn__long">Vyplniť nový test</span>
+                  <span className="results-toolbar-btn__short" aria-hidden>Nový test</span>
                 </button>
               )}
               {!userId && (
@@ -645,19 +648,23 @@ function FinderContent() {
                     className="results-toolbar-btn results-toolbar-btn--primary"
                     onClick={handleSubmit}
                     disabled={loading}
+                    aria-label={loading ? 'Ukladám výsledky' : 'Uložiť výsledky'}
                   >
-                    {loading ? 'Ukladám...' : 'Uložiť výsledky'}
+                    <span className="results-toolbar-btn__long">{loading ? 'Ukladám...' : 'Uložiť výsledky'}</span>
+                    <span className="results-toolbar-btn__short" aria-hidden>{loading ? '…' : 'Uložiť'}</span>
                   </button>
                   {saveError && saveError.includes('Prihláste sa') && (
                     <Link href="/login" className="results-toolbar-btn results-toolbar-btn--secondary">
-                      Prihlásiť sa a uložiť
+                      <span className="results-toolbar-btn__long">Prihlásiť sa a uložiť</span>
+                      <span className="results-toolbar-btn__short" aria-hidden>Prihlásiť</span>
                     </Link>
                   )}
                 </>
               )}
               {userId && (
                 <Link href="/" className="results-toolbar-btn results-toolbar-btn--primary">
-                  Späť na domov
+                  <span className="results-toolbar-btn__long">Späť na domov</span>
+                  <span className="results-toolbar-btn__short" aria-hidden>Domov</span>
                 </Link>
               )}
               {!userId && saved && (
@@ -812,40 +819,44 @@ function FinderContent() {
               <h2 id="consent-modal-title" className="consent-modal-title">
                 Súhlas so spracovaním osobných údajov
               </h2>
-              <div id="consent-description" className="consent-modal-text">
-                <p><strong>Správca:</strong> Fakulta elektrotechniky a informatiky Slovenskej technickej univerzity v Košiciach (FEI TUKE).</p>
-                <p><strong>Účel spracovania:</strong> Odporúčanie študijného programu na základe vašich odpovedí v dotazníku. Zozbierané údaje môžu byť využité na interný štatistický výskum fakulty; využitie na štatistiky nie je povinné.</p>
-                <p><strong>Rozsah údajov:</strong> Údaje vyplnené v dotazníku (meno, e-mail, škola, odkiaľ ste, vek, či plánujete študovať na TUKE, ako ste sa dozvedeli o fakulte, prečo ste si vybrali fakultu, očakávania, záujmy, prax) a výsledky odporúčania.</p>
-                <p><strong>Právny základ:</strong> Súhlas podľa čl. 6 ods. 1 písm. a) GDPR.</p>
-                <p><strong>Práva:</strong> Máte právo súhlas kedykoľvek odvolať, právo na prístup k údajom, na ich opravu alebo vymazanie, na obmedzenie spracovania a na podanie sťažnosti u dozorného úradu. Viac informácií, vrátane vašich práv, nájdete v zásadách ochrany osobných údajov.</p>
-                <p>
-                  <Link href="/ochrana-udajov" className="consent-modal-link">Zásady ochrany osobných údajov</Link>
-                </p>
+              <div className="consent-modal-body">
+                <div id="consent-description" className="consent-modal-text">
+                  <p><strong>Správca:</strong> Fakulta elektrotechniky a informatiky Slovenskej technickej univerzity v Košiciach (FEI TUKE).</p>
+                  <p><strong>Účel spracovania:</strong> Odporúčanie študijného programu na základe vašich odpovedí v dotazníku. Zozbierané údaje môžu byť využité na interný štatistický výskum fakulty; využitie na štatistiky nie je povinné.</p>
+                  <p><strong>Rozsah údajov:</strong> Údaje vyplnené v dotazníku (meno, e-mail, škola, odkiaľ ste, vek, či plánujete študovať na TUKE, ako ste sa dozvedeli o fakulte, prečo ste si vybrali fakultu, očakávania, záujmy, prax) a výsledky odporúčania.</p>
+                  <p><strong>Právny základ:</strong> Súhlas podľa čl. 6 ods. 1 písm. a) GDPR.</p>
+                  <p><strong>Práva:</strong> Máte právo súhlas kedykoľvek odvolať, právo na prístup k údajom, na ich opravu alebo vymazanie, na obmedzenie spracovania a na podanie sťažnosti u dozorného úradu. Viac informácií, vrátane vašich práv, nájdete v zásadách ochrany osobných údajov.</p>
+                  <p>
+                    <Link href="/ochrana-udajov" className="consent-modal-link">Zásady ochrany osobných údajov</Link>
+                  </p>
+                </div>
               </div>
-              <label className="consent-modal-checkbox">
-                <input
-                  type="checkbox"
-                  checked={consentChecked}
-                  onChange={(e) => setConsentChecked(e.target.checked)}
-                  aria-required
-                  aria-describedby="consent-description"
-                />
-                <span>Súhlasím</span>
-              </label>
-              <Button
-                type="button"
-                color="primary"
-                className="step-button step-button-next consent-modal-btn"
-                onPress={() => {
-                  if (consentChecked) {
-                    setConsentChecked(true);
-                    setStep(1);
-                  }
-                }}
-                isDisabled={!consentChecked}
-              >
-                Pokračovať
-              </Button>
+              <div className="consent-modal-footer">
+                <label className="consent-modal-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={consentChecked}
+                    onChange={(e) => setConsentChecked(e.target.checked)}
+                    aria-required
+                    aria-describedby="consent-description"
+                  />
+                  <span>Súhlasím</span>
+                </label>
+                <Button
+                  type="button"
+                  color="primary"
+                  className="step-button step-button-next consent-modal-btn"
+                  onPress={() => {
+                    if (consentChecked) {
+                      setConsentChecked(true);
+                      setStep(1);
+                    }
+                  }}
+                  isDisabled={!consentChecked}
+                >
+                  Pokračovať
+                </Button>
+              </div>
             </div>
           </div>,
           document.body

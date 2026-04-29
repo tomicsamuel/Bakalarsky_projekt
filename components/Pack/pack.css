@@ -8,6 +8,76 @@
   padding: 32px 20px;
 }
 
+@media (max-width: 639px) {
+  .pack-intro {
+    min-height: unset;
+    align-items: flex-start;
+    padding: 16px 12px 80px;
+  }
+
+  .pack-intro__card {
+    max-width: none;
+    padding: 18px 16px 20px;
+  }
+
+  .pack-intro__title {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .pack-intro__desc {
+    font-size: 0.88rem;
+    margin-bottom: 8px;
+    line-height: 1.42;
+  }
+
+  .pack-intro__instruction {
+    display: none;
+  }
+
+  .pack-intro__confidence {
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+
+  .pack-intro__confidence-label {
+    font-size: 12px;
+  }
+
+  .pack-intro__confidence-value {
+    font-size: 16px;
+  }
+
+  .pack-intro__pack-wrap {
+    margin-bottom: 16px;
+  }
+
+  .pack-intro__pack {
+    width: 128px;
+    height: 164px;
+    border-radius: 14px;
+  }
+
+  .pack-intro__btn,
+  .pack-intro__actions .pack-intro__btn {
+    padding: 11px 18px !important;
+    font-size: 14px !important;
+    min-height: 44px !important;
+  }
+}
+
+@media (max-width: 639px) and (max-height: 700px) {
+  .pack-intro {
+    padding-bottom: 72px;
+  }
+
+  .pack-intro__pack {
+    width: 112px;
+    height: 144px;
+  }
+}
+
 .pack-intro__card {
   max-width: 440px;
   padding: 32px;
@@ -592,6 +662,42 @@
 .swipe-reveal-actions__shuffle:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35);
+}
+
+/* Mobily: shuffle vždy nad spodkom obrazovky (nad home barom Safari) */
+@media (max-width: 639px) {
+  .results-dashboard--shuffle-bottom-safe {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .swipe-reveal-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    margin-top: 0;
+    padding: 10px max(12px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(
+      to top,
+      rgba(255, 255, 255, 0.98) 65%,
+      rgba(255, 255, 255, 0.88) 100%
+    );
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -8px 24px rgba(11, 15, 20, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .swipe-reveal-actions__shuffle {
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+  }
 }
 
 .card-reveal__card {

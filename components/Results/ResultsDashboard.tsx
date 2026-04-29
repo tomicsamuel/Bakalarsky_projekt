@@ -362,7 +362,7 @@ export default function ResultsDashboard({ baseResults, completenessPercent }: P
   }, [swipeDuelQueue]);
 
   return (
-    <div className="results-dashboard">
+    <div className={`results-dashboard ${packPhase === 'done' || packPhase === 'reveal' ? 'results-dashboard--shuffle-bottom-safe' : ''}`}>
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {liveAnnouncement}
       </div>

@@ -709,6 +709,9 @@ body {
 }
 
 .results-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 10px 18px;
   border-radius: 999px;
   font-size: 14px;
@@ -719,6 +722,23 @@ body {
   color: var(--text-primary);
   text-decoration: none;
   transition: background 0.2s, color 0.2s;
+}
+
+.results-toolbar-btn__short {
+  display: none;
+}
+
+.results-toolbar-btn__long {
+  display: inline;
+}
+
+@media (max-width: 639px) {
+  .results-toolbar-btn__short {
+    display: inline;
+  }
+  .results-toolbar-btn__long {
+    display: none;
+  }
 }
 
 .results-toolbar-btn:hover {
@@ -804,14 +824,40 @@ body {
 
 .consent-modal {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: min(560px, 100%);
-  max-height: 88vh;
-  overflow: auto;
+  max-height: min(92dvh, 92vh);
+  overflow: hidden;
   background: var(--card-bg);
   border-radius: 18px;
   border: 1px solid var(--card-border);
   box-shadow: 0 24px 60px rgba(11, 15, 20, 0.25);
-  padding: 24px;
+  padding: 0;
+}
+
+.consent-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 24px 8px;
+}
+
+.consent-modal-footer {
+  flex-shrink: 0;
+  padding: 12px 24px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(to top, var(--card-bg) 92%, rgba(255, 255, 255, 0.97));
+}
+
+.consent-modal .consent-modal-title {
+  margin: 0;
+  padding: 24px 48px 12px 24px;
+}
+
+.consent-modal .consent-modal-body .consent-modal-text:first-child {
+  margin-top: 0;
 }
 
 /* X tlačidlo v pravom hornom rohu – návrat na úvodnú stránku */
@@ -847,15 +893,29 @@ body {
 
 @media (max-width: 639px) {
   .consent-modal {
-    max-height: 90vh;
-    padding: 16px;
     border-radius: 14px;
+    max-height: min(94dvh, 96vh);
   }
-  .consent-modal-title {
+
+  .consent-modal .consent-modal-title {
+    padding: 44px 40px 8px 16px;
     font-size: 18px;
   }
+
+  .consent-modal-body {
+    padding: 0 16px 8px;
+  }
+
+  .consent-modal-footer {
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+
   .consent-modal-text {
     font-size: 13px;
+  }
+
+  .consent-modal-checkbox {
+    margin-bottom: 10px;
   }
 }
 
@@ -893,9 +953,13 @@ body {
   align-items: flex-start;
   gap: 10px;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.consent-modal-footer .consent-modal-btn {
+  margin-top: 0;
 }
 
 .consent-modal-btn {
@@ -1391,6 +1455,31 @@ body {
     padding: 12px 20px;
     font-size: 16px;
     min-height: 44px;
+  }
+}
+
+@media (max-width: 639px) {
+  .chips-container {
+    gap: 6px;
+  }
+
+  .categories-container {
+    gap: 12px;
+  }
+
+  .category-group {
+    padding: 12px;
+  }
+
+  .category-header {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .chip {
+    padding: 6px 11px;
+    font-size: 12px;
+    min-height: 32px;
   }
 }
 
@@ -2658,6 +2747,94 @@ body {
   background: radial-gradient(circle, rgba(0, 0, 0, 0.05), transparent);
 }
 
+/* Mobilný úvod: kompaktný splash + krok výberu účtu (max 639px riadi JS) */
+@media (max-width: 639px) {
+  .landing-page--compact .landing-content {
+    padding: 20px 16px;
+    margin: 16px 0;
+  }
+}
+
+.landing-mobile-splash {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  text-align: center;
+}
+
+.landing-title--splash {
+  margin-bottom: 8px;
+  font-size: clamp(1.35rem, 6vw, 1.75rem);
+}
+
+.landing-description--splash {
+  margin: 0 auto 4px;
+  max-width: 22rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.landing-mobile-splash-start {
+  width: 100%;
+  justify-content: center;
+}
+
+.landing-mobile-more-links {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.landing-mobile-more-links a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.landing-mobile-more-links a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.landing-title--compact-heading {
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
+  margin-bottom: 8px;
+}
+
+.landing-description--compact {
+  margin: 0 auto 20px;
+  max-width: 24rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.link-button-reset {
+  margin-top: 14px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 10px 0;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link-button-reset:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* Finder: biele pozadie s kockovanou mriežkou v celej ploche */
 .finder-page {
   background-color: #ffffff;
@@ -2713,9 +2890,29 @@ body {
   padding: 24px 20px;
 }
 
+.finder-page .page-header--compact-results {
+  padding: 12px 16px 10px;
+}
+
 @media (max-width: 1023px) {
   .finder-page .page-header {
     padding: 20px 16px 20px 64px;
+  }
+  .finder-page .page-header--compact-results {
+    padding: 10px 12px 8px 56px;
+  }
+}
+
+@media (max-width: 639px) {
+  .finder-page .page-header--compact-results {
+    padding: 8px 10px 6px 52px;
+  }
+
+  .finder-page .page-title--compact {
+    font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+    line-height: 1.25;
+    margin: 0;
+    font-weight: 800;
   }
 }
 
