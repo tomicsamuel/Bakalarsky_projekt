@@ -89,19 +89,21 @@ export default function Home() {
       <FloatingElements />
 
       <main id="main-content" className={`landing-container ${isLoaded ? 'loaded' : ''}`}>
-        <div className="landing-top-row">
-          <Logos />
-          {loggedInUser && (
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="logout-button"
-              aria-label="Odhlásiť sa"
-            >
-              Odhlásiť sa
-            </button>
-          )}
-        </div>
+        {(!isCompactMobile || !mobileFlowOpen) && (
+          <div className="landing-top-row">
+            <Logos />
+            {loggedInUser && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="logout-button"
+                aria-label="Odhlásiť sa"
+              >
+                Odhlásiť sa
+              </button>
+            )}
+          </div>
+        )}
 
         {(loggedInUser || !isCompactMobile || mobileFlowOpen) && (
           <>
@@ -119,7 +121,7 @@ export default function Home() {
           </>
         )}
 
-        <div className="landing-content glass-card">
+        <div className={`landing-content glass-card ${isCompactMobile ? 'landing-content--compact-splash' : ''}`}>
           {loggedInUser ? (
             <>
               <h1 className="landing-title">
@@ -154,7 +156,6 @@ export default function Home() {
                     size="lg"
                     className="cta-button-large landing-mobile-splash-start"
                     onPress={() => setMobileFlowOpen(true)}
-                    endContent={<ArrowRight size={18} strokeWidth={2} />}
                     aria-label="Začať test"
                   >
                     Začať test
@@ -194,45 +195,94 @@ export default function Home() {
                     </>
                   )}
 
-                  {isCompactMobile && mobileFlowOpen && (
-                    <>
+                  {isCompactMobile && mobileFlowOpen && mode === 'select' ? (
+                    <div className="landing-mobile-splash">
                       <h2 className="landing-title landing-title--compact-heading">Vyber začiatok</h2>
                       <p className="landing-description landing-description--compact">
                         Prihlás sa (výsledky si uložíš) alebo pokračuj len s emailom.
                       </p>
-                    </>
-                  )}
-
-                  {mode === 'select' ? (
-                    <div className="auth-options">
+                      <div className="auth-options">
+                        <button
+                          type="button"
+                          className="auth-option-card auth-option-card--primary"
+                          onClick={() => setMode('auth')}
+                        >
+                          <div className="auth-icon"><Lock size={28} strokeWidth={2} /></div>
+                          <h3>Prihlásenie alebo registrácia</h3>
+                          <p>Výsledky si uložíš a kedykoľvek sa k nim vrátiš</p>
+                          <ul className="auth-option-bullets" aria-hidden>
+                            <li>Účet a heslo</li>
+                            <li>História výsledkov</li>
+                          </ul>
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-option-card auth-option-card--secondary"
+                          onClick={() => setMode('guest')}
+                        >
+                          <div className="auth-icon"><Mail size={28} strokeWidth={2} /></div>
+                          <h3>Iba s emailom</h3>
+                          <p>Bez účtu — zadaj email a môžeš ísť na test</p>
+                          <ul className="auth-option-bullets" aria-hidden>
+                            <li>Žiadna registrácia</li>
+                            <li>Rýchly štart</li>
+                          </ul>
+                        </button>
+                      </div>
                       <button
                         type="button"
-                        className="auth-option-card auth-option-card--primary"
-                        onClick={() => setMode('auth')}
+                        className="landing-back-to-splash link-button-reset"
+                        onClick={() => {
+                          setMobileFlowOpen(false);
+                          setMode('select');
+                        }}
                       >
-                        <div className="auth-icon"><Lock size={28} strokeWidth={2} /></div>
-                        <h3>Prihlásenie alebo registrácia</h3>
-                        <p>Výsledky si uložíš a kedykoľvek sa k nim vrátiš</p>
-                        <ul className="auth-option-bullets" aria-hidden>
-                          <li>Účet a heslo</li>
-                          <li>História výsledkov</li>
-                        </ul>
-                      </button>
-                      <button
-                        type="button"
-                        className="auth-option-card auth-option-card--secondary"
-                        onClick={() => setMode('guest')}
-                      >
-                        <div className="auth-icon"><Mail size={28} strokeWidth={2} /></div>
-                        <h3>Iba s emailom</h3>
-                        <p>Bez účtu — zadaj email a môžeš ísť na test</p>
-                        <ul className="auth-option-bullets" aria-hidden>
-                          <li>Žiadna registrácia</li>
-                          <li>Rýchly štart</li>
-                        </ul>
+                        ← Späť na úvod
                       </button>
                     </div>
-                  ) : null}
+                  ) : (
+                    <>
+                      {isCompactMobile && mobileFlowOpen && (
+                        <>
+                          <h2 className="landing-title landing-title--compact-heading">Vyber začiatok</h2>
+                          <p className="landing-description landing-description--compact">
+                            Prihlás sa (výsledky si uložíš) alebo pokračuj len s emailom.
+                          </p>
+                        </>
+                      )}
+
+                      {mode === 'select' ? (
+                        <div className="auth-options">
+                          <button
+                            type="button"
+                            className="auth-option-card auth-option-card--primary"
+                            onClick={() => setMode('auth')}
+                          >
+                            <div className="auth-icon"><Lock size={28} strokeWidth={2} /></div>
+                            <h3>Prihlásenie alebo registrácia</h3>
+                            <p>Výsledky si uložíš a kedykoľvek sa k nim vrátiš</p>
+                            <ul className="auth-option-bullets" aria-hidden>
+                              <li>Účet a heslo</li>
+                              <li>História výsledkov</li>
+                            </ul>
+                          </button>
+                          <button
+                            type="button"
+                            className="auth-option-card auth-option-card--secondary"
+                            onClick={() => setMode('guest')}
+                          >
+                            <div className="auth-icon"><Mail size={28} strokeWidth={2} /></div>
+                            <h3>Iba s emailom</h3>
+                            <p>Bez účtu — zadaj email a môžeš ísť na test</p>
+                            <ul className="auth-option-bullets" aria-hidden>
+                              <li>Žiadna registrácia</li>
+                              <li>Rýchly štart</li>
+                            </ul>
+                          </button>
+                        </div>
+                      ) : null}
+                    </>
+                  )}
 
                   {mode === 'guest' && (
                     <form onSubmit={handleStart} className="email-form" aria-label="Email formulár">
@@ -319,18 +369,6 @@ export default function Home() {
                     </div>
                   )}
 
-                  {isCompactMobile && mobileFlowOpen && mode === 'select' && (
-                    <button
-                      type="button"
-                      className="landing-back-to-splash link-button-reset"
-                      onClick={() => {
-                        setMobileFlowOpen(false);
-                        setMode('select');
-                      }}
-                    >
-                      ← Späť na úvod
-                    </button>
-                  )}
                 </>
               )}
             </>

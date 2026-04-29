@@ -2750,17 +2750,98 @@ body {
 /* Mobilný úvod: kompaktný splash + krok výberu účtu (max 639px riadi JS) */
 @media (max-width: 639px) {
   .landing-page--compact .landing-content {
-    padding: 20px 16px;
-    margin: 16px 0;
+    padding: 12px 12px;
+    margin: 4px 0;
+    min-height: calc(100dvh - 8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 18px;
+    background: #fff !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .landing-page--compact .landing-content.landing-content--compact-choose {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 8px 2px 10px;
+    margin: 0;
+    min-height: calc(100dvh - 6px);
+  }
+
+  .landing-page--compact .landing-content.landing-content--compact-splash {
+    background: rgba(255, 255, 255, 0.72) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 24px rgba(15, 18, 24, 0.08) !important;
+  }
+
+  .landing-page--compact .deadline-badge,
+  .landing-page--compact .platform-nav,
+  .landing-page--compact .landing-footer {
+    display: none !important;
+  }
+
+  .landing-page--compact .landing-container {
+    min-height: 100dvh;
+    padding-left: 8px;
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .landing-page--compact .auth-options {
+    gap: 10px;
+    margin-top: 6px;
+    margin-bottom: 0;
+  }
+
+  .landing-page--compact .auth-option-card {
+    padding: 10px 10px;
+    min-height: unset;
+    border-radius: 14px;
+  }
+
+  .landing-page--compact .auth-option-card h3 {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+
+  .landing-page--compact .auth-option-card p {
+    font-size: 0.7rem;
+    line-height: 1.22;
+    margin: 0;
+  }
+
+  .landing-page--compact .auth-option-bullets {
+    display: none !important;
+  }
+
+  .landing-page--compact .auth-icon {
+    margin-bottom: 2px;
+    transform: scale(0.72);
   }
 }
 
 .landing-mobile-splash {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
   text-align: center;
+  width: 100%;
+  min-height: min(82dvh, 700px);
+  padding: 34px 18px 18px;
+  border-radius: 20px;
+  background: rgba(243, 237, 226, 0.32);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 24px rgba(15, 18, 24, 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .landing-title--splash {
@@ -2769,19 +2850,57 @@ body {
 }
 
 .landing-description--splash {
-  margin: 0 auto 4px;
+  margin: 0 auto;
   max-width: 22rem;
   font-size: 0.95rem;
   line-height: 1.45;
 }
 
 .landing-mobile-splash-start {
-  width: 100%;
-  justify-content: center;
+  width: min(300px, 100%);
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  margin: 0 auto;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+  font-weight: 800;
+  background: #f9a620 !important;
+  color: #13161b !important;
+  border: 1px solid rgba(210, 130, 25, 0.45) !important;
+  box-shadow: 0 4px 12px rgba(239, 143, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.landing-mobile-splash-start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(239, 143, 0, 0.24);
+}
+
+.landing-mobile-splash-start:active {
+  transform: translateY(0);
+}
+
+/* Splash CTA: text musi byt presne v strede bez ikon/slotov */
+.landing-mobile-splash-start [data-slot='startContent'],
+.landing-mobile-splash-start [data-slot='endContent'],
+.landing-mobile-splash-start svg {
+  display: none !important;
+}
+
+.landing-mobile-splash-start > span,
+.landing-mobile-splash-start [class*='content'] {
+  width: auto !important;
+  margin: 0 auto !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
 }
 
 .landing-mobile-more-links {
-  margin-top: 4px;
+  margin-top: 2px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -2803,15 +2922,16 @@ body {
 }
 
 .landing-title--compact-heading {
-  font-size: clamp(1.25rem, 5vw, 1.5rem);
-  margin-bottom: 8px;
+  font-size: clamp(1.15rem, 4.2vw, 1.45rem);
+  margin-bottom: 6px;
+  line-height: 1.15;
 }
 
 .landing-description--compact {
-  margin: 0 auto 20px;
+  margin: 0 auto 8px;
   max-width: 24rem;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.86rem;
+  line-height: 1.35;
 }
 
 .link-button-reset {
@@ -3889,6 +4009,31 @@ body {
 
 .auth-option-card:active {
   transform: translateY(-2px) scale(0.98);
+}
+
+/* Mobil: vypnutie 3D transformácií na auth kartách (odstraňuje obrysový artefakt textu) */
+@media (max-width: 768px) {
+  .auth-option-card {
+    transform-style: flat !important;
+    transform: none !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .auth-option-card:hover,
+  .auth-option-card:active {
+    transform: none !important;
+  }
+
+  .auth-option-card h3,
+  .auth-option-card p,
+  .auth-option-bullets,
+  .auth-option-bullets li,
+  .auth-icon {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
 }
 
 /* ========================================
