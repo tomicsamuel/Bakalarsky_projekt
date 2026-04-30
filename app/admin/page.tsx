@@ -4,7 +4,32 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type Program = { id: number; name: string; field: string; description?: string | null; occupations?: string | null };
+import { normalizeSubjectsFromDb } from '@/lib/programSubjectsValidate';
+import { getProgramProfile } from '@/lib/programProfiles';
+
+type Program = {
+  id: number;
+  name: string;
+  field: string;
+  description?: string | null;
+  occupations?: string | null;
+  subjects?: unknown;
+};
+type ProgramSubjectFormRow = { semester: string; name: string };
+
+/** Riadky pre admin formulár: uložená DB hodnota, inak predvolené z lib/programProfiles. */
+function subjectsRowsForAdmin(name: string, field: string, subjectsDb: unknown): ProgramSubjectFormRow[] {
+  const fromDb = normalizeSubjectsFromDb(subjectsDb).map((s) => ({
+    semester: s.semester,
+    name: s.name,
+  }));
+  if (fromDb.length > 0) return fromDb;
+
+  const profile = getProgramProfile(name, field);
+  const fromStatic =
+    profile?.subjects.map((s) => ({ semester: s.semester, name: s.name })) ?? [];
+  return fromStatic.length > 0 ? fromStatic : [{ semester: '', name: '' }];
+}
 type BlogPost = { id: number; title: string; content: string; summary?: string | null; section?: string; publishedAt?: string | null; createdAt: string };
 type UserRow = {
   id: number;
@@ -29,6 +54,8 @@ export default function AdminPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [programForm, setProgramForm] = useState({ name: '', field: 'Informatika', description: '', occupations: '' });
   const [editingProgramId, setEditingProgramId] = useState<number | null>(null);
+  const [programUseCustomSubjects, setProgramUseCustomSubjects] = useState(false);
+  const [programSubjectRows, setProgramSubjectRows] = useState<ProgramSubjectFormRow[]>([{ semester: '', name: '' }]);
   const [programsLoading, setProgramsLoading] = useState(false);
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -105,23 +132,35 @@ export default function AdminPage() {
 
   const saveProgram = async (e: React.FormEvent) => {
     e.preventDefault();
+    const subjectPayload = programSubjectRows
+      .map((r) => ({ semester: r.semester.trim(), name: r.name.trim() }))
+      .filter((r) => r.semester && r.name);
+
     if (editingProgramId) {
+      const body: Record<string, unknown> = { ...programForm };
+      body.subjects = programUseCustomSubjects ? subjectPayload : null;
       await fetch(`/api/admin/programs/${editingProgramId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(programForm),
+        body: JSON.stringify(body),
       });
       setEditingProgramId(null);
     } else {
+      const body: Record<string, unknown> = { ...programForm };
+      if (programUseCustomSubjects) {
+        body.subjects = subjectPayload;
+      }
       await fetch('/api/admin/programs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(programForm),
+        body: JSON.stringify(body),
       });
     }
     setProgramForm({ name: '', field: 'Informatika', description: '', occupations: '' });
+    setProgramUseCustomSubjects(false);
+    setProgramSubjectRows([{ semester: '', name: '' }]);
     reloadPrograms();
   };
 
@@ -235,7 +274,23 @@ export default function AdminPage() {
                     <td style={{ padding: '8px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description || '–'}</td>
                     <td style={{ padding: '8px', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.occupations || '–'}</td>
                     <td style={{ padding: '8px' }}>
-                      <button type="button" className="chip" onClick={() => { setProgramForm({ name: p.name, field: p.field, description: p.description || '', occupations: p.occupations || '' }); setEditingProgramId(p.id); }}>Upraviť</button>
+                      <button
+                        type="button"
+                        className="chip"
+                        onClick={() => {
+                          setProgramForm({
+                            name: p.name,
+                            field: p.field,
+                            description: p.description || '',
+                            occupations: p.occupations || '',
+                          });
+                          setProgramSubjectRows(subjectsRowsForAdmin(p.name, p.field, p.subjects));
+                          setProgramUseCustomSubjects(normalizeSubjectsFromDb(p.subjects).length > 0);
+                          setEditingProgramId(p.id);
+                        }}
+                      >
+                        Upraviť
+                      </button>
                       {' '}
                       <button type="button" className="chip" onClick={() => deleteProgram(p.id)} style={{ background: 'var(--error, #dc2626)', color: 'white' }}>Odstrániť</button>
                     </td>
@@ -263,7 +318,20 @@ export default function AdminPage() {
                   <option value="Elektrotechnika">Elektrotechnika</option>
                 </select>
                 <button type="submit" className="cta-button">{editingProgramId ? 'Uložiť zmeny' : 'Pridať odbor'}</button>
-                {editingProgramId && <button type="button" className="chip" onClick={() => { setEditingProgramId(null); setProgramForm({ name: '', field: 'Informatika', description: '', occupations: '' }); }}>Zrušiť</button>}
+                {editingProgramId && (
+                  <button
+                    type="button"
+                    className="chip"
+                    onClick={() => {
+                      setEditingProgramId(null);
+                      setProgramForm({ name: '', field: 'Informatika', description: '', occupations: '' });
+                      setProgramUseCustomSubjects(false);
+                      setProgramSubjectRows([{ semester: '', name: '' }]);
+                    }}
+                  >
+                    Zrušiť
+                  </button>
+                )}
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>O programe (popis)</label>
@@ -286,6 +354,84 @@ export default function AdminPage() {
                   rows={3}
                   style={{ width: '100%' }}
                 />
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '16px', marginTop: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: 600, marginBottom: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={programUseCustomSubjects}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setProgramUseCustomSubjects(checked);
+                      if (checked) {
+                        setProgramSubjectRows((prev) => {
+                          const hasAny = prev.some((r) => r.semester.trim() || r.name.trim());
+                          if (hasAny && editingProgramId) return prev;
+                          return subjectsRowsForAdmin(programForm.name, programForm.field, null);
+                        });
+                      }
+                    }}
+                  />
+                  Uložiť predmety z tabuľky na web
+                </label>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px', marginTop: 0 }}>
+                  Zaškrtni pred uložením. Inak ostane automatický zoznam aplikácie.
+                </p>
+                {(editingProgramId !== null || programUseCustomSubjects) && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {programSubjectRows.map((row, idx) => (
+                      <div key={idx} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'flex-end' }}>
+                        <div style={{ flex: '1 1 140px' }}>
+                          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Semester / ročník</label>
+                          <input
+                            className="form-input"
+                            placeholder="napr. 1. rok ZS"
+                            value={row.semester}
+                            onChange={(e) =>
+                              setProgramSubjectRows((rows) =>
+                                rows.map((r, i) => (i === idx ? { ...r, semester: e.target.value } : r)),
+                              )
+                            }
+                            style={{ width: '100%' }}
+                          />
+                        </div>
+                        <div style={{ flex: '2 1 220px' }}>
+                          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Názov predmetu</label>
+                          <input
+                            className="form-input"
+                            placeholder="Názov"
+                            value={row.name}
+                            onChange={(e) =>
+                              setProgramSubjectRows((rows) =>
+                                rows.map((r, i) => (i === idx ? { ...r, name: e.target.value } : r)),
+                              )
+                            }
+                            style={{ width: '100%' }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="chip"
+                          style={{ background: 'var(--error, #dc2626)', color: 'white' }}
+                          onClick={() =>
+                            setProgramSubjectRows((rows) => (rows.length > 1 ? rows.filter((_, i) => i !== idx) : rows))
+                          }
+                          aria-label="Odstrániť riadok"
+                        >
+                          Odstrániť
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      className="chip"
+                      onClick={() => setProgramSubjectRows((rows) => [...rows, { semester: '', name: '' }])}
+                    >
+                      Pridať predmet
+                    </button>
+                  </div>
+                )}
               </div>
             </form>
           </>

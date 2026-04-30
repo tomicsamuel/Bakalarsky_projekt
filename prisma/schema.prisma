@@ -18,6 +18,7 @@ model Program {
   field       String
   description String?  @db.Text
   occupations String?  @db.Text
+  subjects    Json?    // vlastné predmety na detaile; null = fallback lib/programProfiles
   createdAt   DateTime @default(now())
   
   results     Result[]

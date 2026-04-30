@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/adminAuth';
+import { validateProgramSubjectsInput } from '@/lib/programSubjectsValidate';
 
 export async function GET(request: NextRequest) {
   const auth = await requireAdmin(request);
@@ -28,12 +30,20 @@ export async function POST(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const { name, field, description, occupations } = body;
+    const { name, field, description, occupations, subjects } = body;
     if (!name || !field) {
       return NextResponse.json(
         { success: false, error: 'name a field sú povinné' },
         { status: 400 }
       );
+    }
+    let subjectsData: unknown = undefined;
+    if (subjects !== undefined) {
+      const v = validateProgramSubjectsInput(subjects);
+      if (!v.ok) {
+        return NextResponse.json({ success: false, error: v.error }, { status: 400 });
+      }
+      subjectsData = v.subjects;
     }
     const program = await prisma.program.create({
       data: {
@@ -41,6 +51,12 @@ export async function POST(request: NextRequest) {
         field: String(field).trim(),
         description: description != null ? String(description).trim() || null : null,
         occupations: occupations != null ? String(occupations).trim() || null : null,
+        ...(subjectsData !== undefined
+          ? {
+              subjects:
+                subjectsData === null ? Prisma.DbNull : (subjectsData as Prisma.InputJsonValue),
+            }
+          : {}),
       },
     });
     return NextResponse.json({ success: true, data: program });

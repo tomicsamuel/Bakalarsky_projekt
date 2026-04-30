@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/adminAuth';
+import { validateProgramSubjectsInput } from '@/lib/programSubjectsValidate';
 
 export async function PATCH(
   request: NextRequest,
@@ -17,11 +19,19 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: 'Neplatné ID' }, { status: 400 });
     }
     const body = await request.json();
-    const updateData: { name?: string; field?: string; description?: string | null; occupations?: string | null } = {};
+    const updateData: Prisma.ProgramUpdateInput = {};
     if (body.name !== undefined) updateData.name = String(body.name).trim();
     if (body.field !== undefined) updateData.field = String(body.field).trim();
     if (body.description !== undefined) updateData.description = body.description === '' || body.description == null ? null : String(body.description).trim();
     if (body.occupations !== undefined) updateData.occupations = body.occupations === '' || body.occupations == null ? null : String(body.occupations).trim();
+    if (body.subjects !== undefined) {
+      const v = validateProgramSubjectsInput(body.subjects);
+      if (!v.ok) {
+        return NextResponse.json({ success: false, error: v.error }, { status: 400 });
+      }
+      updateData.subjects =
+        v.subjects === null ? Prisma.DbNull : (v.subjects as Prisma.InputJsonValue);
+    }
     const program = await prisma.program.update({
       where: { id: programId },
       data: updateData,

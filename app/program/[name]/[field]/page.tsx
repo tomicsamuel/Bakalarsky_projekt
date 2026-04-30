@@ -7,12 +7,14 @@ import { ArrowLeft } from 'lucide-react';
 import Logos from '@/components/Logos';
 import { getProgramInfo } from '@/lib/programs';
 import { getProgramProfile } from '@/lib/programProfiles';
+import { normalizeSubjectsFromDb } from '@/lib/programSubjectsValidate';
 
 type Program = {
   name: string;
   field: string;
   description: string | null;
   occupations: string | null;
+  subjects?: unknown;
 };
 
 export default function ProgramDetailPage() {
@@ -49,6 +51,7 @@ export default function ProgramDetailPage() {
             field: p.field,
             description: (p.description && p.description.trim()) ? p.description.trim() : (staticFallback?.description ?? null),
             occupations: (p.occupations && p.occupations.trim()) ? p.occupations.trim() : (staticFallback?.occupations ?? null),
+            subjects: p.subjects,
           });
         } else {
           if (staticFallback) {
@@ -214,17 +217,19 @@ export default function ProgramDetailPage() {
 
         {(() => {
           const profile = getProgramProfile(program.name, program.field);
-          if (!profile) return null;
-          const starLabels: { key: keyof typeof profile.starProfile; label: string }[] = [
+          const apiSubjects = normalizeSubjectsFromDb(program.subjects);
+          const displaySubjects =
+            apiSubjects.length > 0 ? apiSubjects : (profile?.subjects ?? []);
+          const starLabels: { key: 'elektro' | 'matematika' | 'programovanie' | 'siete'; label: string }[] = [
             { key: 'elektro', label: 'Elektro' },
             { key: 'matematika', label: 'Matematika' },
             { key: 'programovanie', label: 'Programovanie' },
             { key: 'siete', label: 'Siete' },
           ];
-          const semesters = [...new Set(profile.subjects.map((s) => s.semester))].sort();
+          const semesters = [...new Set(displaySubjects.map((s) => s.semester))].sort();
           return (
             <>
-              {profile.pros.length > 0 && (
+              {profile && profile.pros.length > 0 && (
                 <div style={{ marginBottom: '32px' }}>
                   <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
                     Plusy
@@ -236,7 +241,7 @@ export default function ProgramDetailPage() {
                   </ul>
                 </div>
               )}
-              {profile.cons.length > 0 && (
+              {profile && profile.cons.length > 0 && (
                 <div style={{ marginBottom: '32px' }}>
                   <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
                     Mínusy
@@ -248,7 +253,7 @@ export default function ProgramDetailPage() {
                   </ul>
                 </div>
               )}
-              {profile.forWho && (
+              {profile && profile.forWho && (
                 <div style={{ marginBottom: '32px' }}>
                   <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
                     Pre koho je to ideálne
@@ -256,6 +261,7 @@ export default function ProgramDetailPage() {
                   <p style={{ margin: 0, lineHeight: 1.7, color: 'var(--text-primary)' }}>{profile.forWho}</p>
                 </div>
               )}
+              {profile && (
               <div style={{ marginBottom: '32px' }}>
                 <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
                   Hviezdičkové zloženie
@@ -273,14 +279,15 @@ export default function ProgramDetailPage() {
                   })}
                 </div>
               </div>
-              {profile.subjects.length > 0 && (
+              )}
+              {displaySubjects.length > 0 && (
                 <div style={{ marginBottom: '32px' }}>
                   <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>
                     Predmety podľa rokov
                   </h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {semesters.map((sem) => {
-                      const list = profile.subjects.filter((s) => s.semester === sem);
+                      const list = displaySubjects.filter((s) => s.semester === sem);
                       return (
                         <div key={sem}>
                           <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px', color: 'var(--primary)' }}>
