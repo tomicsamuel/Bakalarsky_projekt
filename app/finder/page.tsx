@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Target, Briefcase, X } from 'lucide-react';
 import { Button } from '@heroui/button';
@@ -139,6 +139,57 @@ const LOCATION_REGIONS: Record<string, string[]> = {
 
 const REGION_OPTIONS = Object.keys(LOCATION_REGIONS);
 
+/** Lokálny výber v kroku „Plánuješ študovať na TUKE?“ — „Možno“ sa v DB uloží ako null. */
+type TUKEStudyIntent = 'yes' | 'no' | 'maybe' | null;
+
+function tukeIntentToStored(intent: TUKEStudyIntent): boolean | null {
+  if (intent === 'yes') return true;
+  if (intent === 'no') return false;
+  if (intent === 'maybe') return null;
+  return null;
+}
+
+function storedToTukeIntent(value: boolean | null | undefined): TUKEStudyIntent {
+  if (value === true) return 'yes';
+  if (value === false) return 'no';
+  return 'maybe';
+}
+
+/** Zachová `userId`, `email` a ostatné kľúče; `null`/`undefined` vymaže kľúč. */
+function mergeFinderQuery(
+  current: { toString(): string },
+  updates: Record<string, string | null | undefined>,
+): string {
+  const p = new URLSearchParams(current.toString());
+  for (const [key, val] of Object.entries(updates)) {
+    if (val === undefined || val === null) p.delete(key);
+    else p.set(key, val);
+  }
+  const qs = p.toString();
+  return qs ? `?${qs}` : '';
+}
+
+function computeMaxReachableStep(inputs: {
+  consentChecked: boolean;
+  name: string;
+  school: string;
+  tukeStudyIntent: TUKEStudyIntent;
+  howDidYouHear: string[];
+  interests: string[];
+  experience: string[];
+  historyRestoredFromApi: boolean;
+}): number {
+  if (inputs.historyRestoredFromApi) return 7;
+  if (!inputs.consentChecked) return 0;
+  if (!inputs.name.trim()) return 1;
+  if (!inputs.school) return 2;
+  if (inputs.tukeStudyIntent === null) return 3;
+  if (inputs.howDidYouHear.length === 0) return 4;
+  if (inputs.interests.length === 0) return 5;
+  if (inputs.experience.length === 0) return 6;
+  return 7;
+}
+
 const SCHOOL_TYPES = [
   'Gymnázium',
   'Bilingválne gymnázium',
@@ -174,6 +225,7 @@ const SCHOOL_TYPES = [
 function FinderContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const [step, setStep] = useState(0);
   const [consentChecked, setConsentChecked] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
@@ -188,7 +240,7 @@ function FinderContent() {
   const [locationRegion, setLocationRegion] = useState('');
   const [locationPart, setLocationPart] = useState('');
   const [age, setAge] = useState('');
-  const [wantsToStudyAtTUKE, setWantsToStudyAtTUKE] = useState<boolean | null>(null);
+  const [tukeStudyIntent, setTukeStudyIntent] = useState<TUKEStudyIntent>(null);
   const [howDidYouHear, setHowDidYouHear] = useState<string[]>([]);
   const [howDidYouHearOther, setHowDidYouHearOther] = useState('');
   const [whyThisSchool, setWhyThisSchool] = useState<string[]>([]);
@@ -204,10 +256,12 @@ function FinderContent() {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showRegisterSaveModal, setShowRegisterSaveModal] = useState(false);
+  const [historyRestoredFromApi, setHistoryRestoredFromApi] = useState(false);
   const stepCardRef = useRef<HTMLDivElement>(null);
   const stepTitleRef = useRef<HTMLHeadingElement>(null);
   const summaryTriggerRef = useRef<HTMLButtonElement>(null);
   const summaryCloseRef = useRef<HTMLButtonElement>(null);
+  const pendingUrlStepRef = useRef<number | null>(null);
 
   const completenessPercent =
     ([
@@ -233,7 +287,7 @@ function FinderContent() {
       const n = parseInt(age, 10);
       return Number.isNaN(n) || n < 7 || n > 99 ? null : n;
     })(),
-    wantsToStudyAtTUKE,
+    wantsToStudyAtTUKE: tukeIntentToStored(tukeStudyIntent),
     howDidYouHear,
     howDidYouHearOther: howDidYouHearOther.trim() || null,
     whyThisSchool,
@@ -250,11 +304,6 @@ function FinderContent() {
   const ensureGuestPendingStored = (): boolean => {
     if (!name.trim()) {
       setSaveError('Vyplň meno (krok 1), aby sme mohli výsledky uložiť po registrácii.');
-      return false;
-    }
-    if (!email.trim()) {
-      setSaveError('Zadaj platný email. Môžeš ho doplniť v súhrne.');
-      setShowEmailModal(true);
       return false;
     }
     savePendingFinderResults(buildPendingPayload());
@@ -352,14 +401,14 @@ function FinderContent() {
           setLocationPart('');
         }
         setAge(data.data.age != null ? String(data.data.age) : '');
-        setWantsToStudyAtTUKE(data.data.wantsToStudyAtTUKE ?? null);
+        setTukeStudyIntent(storedToTukeIntent(data.data.wantsToStudyAtTUKE));
         setHowDidYouHear(data.data.howDidYouHear || []);
         setHowDidYouHearOther(data.data.howDidYouHearOther || '');
         setWhyThisSchool(data.data.whyThisSchool || []);
         setExpectations(data.data.expectations || []);
         setInterests(data.data.interests);
         setExperience(data.data.experience);
-        
+
         const resultsData = data.data.results.map((r: any) => ({
           name: r.name,
           field: r.field,
@@ -369,6 +418,9 @@ function FinderContent() {
         setStep(7);
         setSaved(true);
         setConsentChecked(true);
+        setHistoryRestoredFromApi(true);
+      } else {
+        setHistoryRestoredFromApi(false);
       }
     } catch (error) {
       console.error('Chyba pri načítaní histórie:', error);
@@ -376,6 +428,112 @@ function FinderContent() {
       setIsLoadingHistory(false);
     }
   };
+
+  const goToStep = (target: number, options?: { replace?: boolean }) => {
+    const max = computeMaxReachableStep({
+      consentChecked,
+      name,
+      school,
+      tukeStudyIntent,
+      howDidYouHear,
+      interests,
+      experience,
+      historyRestoredFromApi,
+    });
+    const clamped = Math.max(0, Math.min(target, max, 7));
+    pendingUrlStepRef.current = clamped;
+    const base = pathname || '/finder';
+    const qs = mergeFinderQuery(searchParams, { step: String(clamped) });
+    if (options?.replace) router.replace(`${base}${qs}`, { scroll: false });
+    else router.push(`${base}${qs}`, { scroll: false });
+    setStep(clamped);
+  };
+
+  useEffect(() => {
+    const onPop = () => {
+      pendingUrlStepRef.current = null;
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  /** Deep link `step`, kanonické `step=0`; po načítaní histórie vynútiť `step=7` (replace, merge ostatné query). */
+  useEffect(() => {
+    if (!mounted || isLoadingHistory) return;
+
+    const max = computeMaxReachableStep({
+      consentChecked,
+      name,
+      school,
+      tukeStudyIntent,
+      howDidYouHear,
+      interests,
+      experience,
+      historyRestoredFromApi,
+    });
+
+    const base = pathname || '/finder';
+    const raw = searchParams.get('step');
+
+    if (historyRestoredFromApi) {
+      let urlStep: number | undefined;
+      if (raw != null && raw !== '') {
+        const p = Number.parseInt(raw, 10);
+        if (Number.isFinite(p) && p >= 0 && p <= 7) urlStep = p;
+      }
+      if (urlStep !== 7) {
+        router.replace(`${base}${mergeFinderQuery(searchParams, { step: '7' })}`, { scroll: false });
+      }
+      if (step !== 7) setStep(7);
+      return;
+    }
+
+    if (raw === null || raw === '') {
+      router.replace(`${base}${mergeFinderQuery(searchParams, { step: '0' })}`, { scroll: false });
+      return;
+    }
+
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed) || parsed < 0 || parsed > 7) {
+      router.replace(`${base}${mergeFinderQuery(searchParams, { step: '0' })}`, { scroll: false });
+      return;
+    }
+
+    const pending = pendingUrlStepRef.current;
+    if (pending !== null) {
+      if (parsed === pending) {
+        pendingUrlStepRef.current = null;
+      } else if (step === pending) {
+        // URL ešte ukazuje predchádzajúci krok; nepresúvaj stav späť.
+        return;
+      } else {
+        pendingUrlStepRef.current = null;
+      }
+    }
+
+    const clamped = Math.min(parsed, max);
+    if (clamped !== parsed) {
+      router.replace(`${base}${mergeFinderQuery(searchParams, { step: String(clamped) })}`, {
+        scroll: false,
+      });
+    }
+    if (clamped !== step) setStep(clamped);
+  }, [
+    mounted,
+    isLoadingHistory,
+    historyRestoredFromApi,
+    pathname,
+    searchParams,
+    router,
+    consentChecked,
+    name,
+    school,
+    tukeStudyIntent,
+    howDidYouHear,
+    interests,
+    experience,
+    step,
+  ]);
 
   const interestCategories = {
     'Programovanie': [
@@ -555,24 +713,24 @@ function FinderContent() {
 
   const nextStep = async () => {
     if (step === 0) {
-      if (consentChecked) setStep(1);
+      if (consentChecked) goToStep(1);
       return;
     }
     if (step === 1 && !name.trim()) return;
     if (step === 2 && !school) return;
+    if (step === 3 && tukeStudyIntent === null) return;
     if (step === 4 && howDidYouHear.length === 0) return;
     if (step === 5 && interests.length === 0) return;
     if (step === 6 && experience.length === 0) return;
-    
-    // Confetti pri dokončení kroku
+
     if (step < 6) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 2000);
     }
-    
+
     if (step === 6 && userId) {
-      await handleSubmit();
-      setStep(step + 1);
+      const ok = await handleSubmit();
+      if (ok) goToStep(7);
       setTimeout(() => {
         const resultsSection = document.querySelector('.results-section');
         if (resultsSection) {
@@ -581,10 +739,9 @@ function FinderContent() {
       }, 100);
       return;
     }
-    
-    if (step < 8) {
-      setStep(step + 1);
-      // Smooth scroll k výsledkom po kroku 2–6
+
+    if (step < 7) {
+      goToStep(step + 1);
       if (step >= 2 && step < 7) {
         setTimeout(() => {
           const resultsSection = document.querySelector('.results-section');
@@ -597,9 +754,7 @@ function FinderContent() {
   };
 
   const prevStep = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    }
+    if (step > 0) goToStep(step - 1);
   };
 
   const handleSubmit = async () => {
@@ -666,7 +821,7 @@ function FinderContent() {
           totalSteps={8}
           onStepClick={(stepNum) => {
             if (stepNum <= step && stepNum >= 0) {
-              setStep(stepNum);
+              goToStep(stepNum);
             }
           }}
         />
@@ -706,7 +861,10 @@ function FinderContent() {
                 <button
                   type="button"
                   className="results-toolbar-btn"
-                  onClick={() => setStep(1)}
+                  onClick={() => {
+                    setHistoryRestoredFromApi(false);
+                    goToStep(1);
+                  }}
                 >
                   <span className="results-toolbar-btn__long">Vyplniť nový test</span>
                   <span className="results-toolbar-btn__short" aria-hidden>Nový test</span>
@@ -768,7 +926,9 @@ function FinderContent() {
                 <div className="summary">
                   <div className="summary-item">
                     <div className="summary-label">Email:</div>
-                    <div className="summary-value">{email}</div>
+                    <div className="summary-value">
+                      {email.trim() ? email : '(zatiaľ bez – doplníš pri registrácii alebo v súhrne)'}
+                    </div>
                   </div>
                   <div className="summary-item">
                     <div className="summary-label">Meno:</div>
@@ -777,6 +937,18 @@ function FinderContent() {
                   <div className="summary-item">
                     <div className="summary-label">Škola:</div>
                     <div className="summary-value">{school}</div>
+                  </div>
+                  <div className="summary-item">
+                    <div className="summary-label">Plánuješ štúdium na TUKE:</div>
+                    <div className="summary-value">
+                      {tukeStudyIntent === 'yes'
+                        ? 'Áno'
+                        : tukeStudyIntent === 'no'
+                          ? 'Nie'
+                          : tukeStudyIntent === 'maybe'
+                            ? 'Možno'
+                            : '—'}
+                    </div>
                   </div>
                   <div className="summary-item">
                     <div className="summary-label">Ako sa dozvedel(a) o fakulte:</div>
@@ -888,8 +1060,8 @@ function FinderContent() {
                   </button>
                 </div>
                 <p style={{ marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.5 }}>
-                  Pri režime <strong>iba email bez hesla</strong> výsledky nejdú zapísať na server ako pri prihlásenom účte. Tvoje
-                  odpovede sú uložené v tejto relácii – po registrácii ich automaticky zapíšeme na tvoj nový účet.
+                  Ak si začínal bez účtu alebo bez emailu, výsledky sa na server sami neuložia – treba registráciu alebo prihlásenie.
+                  Údaje z testu držíme v tejto relácii – po registrácii ich automaticky zapíšeme pod tvoj účet (email zadáš pri registrácii).
                 </p>
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                   <button
@@ -966,7 +1138,7 @@ function FinderContent() {
                   onPress={() => {
                     if (consentChecked) {
                       setConsentChecked(true);
-                      setStep(1);
+                      goToStep(1);
                     }
                   }}
                   isDisabled={!consentChecked}
@@ -1133,17 +1305,30 @@ function FinderContent() {
               </div>
               <div className="form-label" style={{ marginBottom: '8px' }}>
                 Plánuješ študovať na TUKE?
+                {tukeStudyIntent === null && (
+                  <span className="error-hint"> (vyber jednu možnosť)</span>
+                )}
               </div>
+              {tukeStudyIntent === null && (
+                <div className="error-message" style={{ marginBottom: '12px' }}>
+                  Vyber Áno, Nie alebo Možno – aj keď si ešte nie si istý(-á).
+                </div>
+              )}
               <div className="chips-container">
                 <ChipButton
                   label="Áno"
-                  active={wantsToStudyAtTUKE === true}
-                  onClick={() => setWantsToStudyAtTUKE(true)}
+                  active={tukeStudyIntent === 'yes'}
+                  onClick={() => setTukeStudyIntent('yes')}
                 />
                 <ChipButton
                   label="Nie"
-                  active={wantsToStudyAtTUKE === false}
-                  onClick={() => setWantsToStudyAtTUKE(false)}
+                  active={tukeStudyIntent === 'no'}
+                  onClick={() => setTukeStudyIntent('no')}
+                />
+                <ChipButton
+                  label="Možno"
+                  active={tukeStudyIntent === 'maybe'}
+                  onClick={() => setTukeStudyIntent('maybe')}
                 />
               </div>
             </div>
@@ -1319,6 +1504,7 @@ function FinderContent() {
                 isDisabled={
                   (step === 1 && !name.trim()) ||
                   (step === 2 && !school) ||
+                  (step === 3 && tukeStudyIntent === null) ||
                   (step === 4 && howDidYouHear.length === 0) ||
                   (step === 5 && interests.length === 0) ||
                   (step === 6 && experience.length === 0)
