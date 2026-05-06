@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -78,13 +78,27 @@ type CategoryProps = {
 function Category({ title, items, selected, onToggle }: CategoryProps) {
   const [expanded, setExpanded] = useState(false);
   const selectedCount = items.filter(item => selected.includes(item)).length;
+  const scrollYBeforeToggle = useRef<number | null>(null);
+
+  useLayoutEffect(() => {
+    if (scrollYBeforeToggle.current === null) return;
+    const y = scrollYBeforeToggle.current;
+    scrollYBeforeToggle.current = null;
+    window.scrollTo(0, y);
+  }, [expanded]);
 
   return (
     <div className="category-group">
       <button
         type="button"
-        className="category-header"
-        onClick={() => setExpanded(!expanded)}
+        className={`category-header ${expanded ? 'category-header--expanded' : ''}`}
+        aria-expanded={expanded}
+        onClick={() => {
+          if (typeof window !== 'undefined') {
+            scrollYBeforeToggle.current = window.scrollY;
+          }
+          setExpanded((prev) => !prev);
+        }}
       >
         <span>
           {title}
@@ -318,29 +332,31 @@ function FinderContent() {
 
   useEffect(() => {
     const emailParam = searchParams.get('email');
+    if (emailParam) setEmail(emailParam);
+
     const userIdParam = searchParams.get('userId');
-    
-    if (emailParam) {
-      setEmail(emailParam);
-    }
-    
     if (userIdParam) {
-      setUserId(parseInt(userIdParam));
+      setUserId(parseInt(userIdParam, 10));
       const userData = localStorage.getItem('user');
       if (userData) {
         const user = JSON.parse(userData);
         setEmail(user.email);
         setName(user.name);
       }
-      
-      loadUserHistory(parseInt(userIdParam));
-    } else {
-      // Pre istotu – ak userId chýba, nečakáme na žiadnu históriu
-      setIsLoadingHistory(false);
     }
-    // Až teraz môžeme renderovať UI (po určení, či máme userId)
+
     setMounted(true);
   }, [searchParams]);
+
+  /** Históriu len pri zmene `userId` v URL — nie pri `step=1` ↔ `step=7` (inak by „Nový test“ znovu vynútil výsledky). */
+  const userIdFromUrl = searchParams.get('userId');
+  useEffect(() => {
+    if (!userIdFromUrl) {
+      setIsLoadingHistory(false);
+      return;
+    }
+    loadUserHistory(parseInt(userIdFromUrl, 10));
+  }, [userIdFromUrl]);
 
   useEffect(() => {
     if (step < 7) {
@@ -951,7 +967,7 @@ function FinderContent() {
                     </div>
                   </div>
                   <div className="summary-item">
-                    <div className="summary-label">Ako sa dozvedel(a) o fakulte:</div>
+                    <div className="summary-label">Ako si sa dozvedel(a) o fakulte:</div>
                     <div className="summary-value">
                       {howDidYouHear.join(', ')}
                       {howDidYouHearOther && howDidYouHear.includes('Iné') && ` (${howDidYouHearOther})`}
@@ -1121,15 +1137,19 @@ function FinderContent() {
                 </div>
               </div>
               <div className="consent-modal-footer">
-                <label className="consent-modal-checkbox">
+                <label
+                  className="consent-modal-checkbox"
+                  htmlFor="finder-gdpr-consent"
+                >
                   <input
+                    id="finder-gdpr-consent"
                     type="checkbox"
                     checked={consentChecked}
                     onChange={(e) => setConsentChecked(e.target.checked)}
                     aria-required
                     aria-describedby="consent-description"
                   />
-                  <span>Súhlasím</span>
+                  <span className="consent-modal-checkbox-text">Súhlasím</span>
                 </label>
                 <Button
                   type="button"
@@ -1179,7 +1199,7 @@ function FinderContent() {
             {step === 1 && 'Tvoje meno'}
             {step === 2 && 'Tvoja škola'}
             {step === 3 && 'O vás'}
-            {step === 4 && 'Ako sa dozvedel o škole'}
+            {step === 4 && 'Ako si sa dozvedel o škole'}
             {step === 5 && `Tvoje záujmy${interests.length > 0 ? ` (${interests.length} vybraných)` : ''}`}
             {step === 6 && `Tvoja prax${experience.length > 0 ? ` (${experience.length} vybraných)` : ''}`}
           </h2>
@@ -1337,7 +1357,7 @@ function FinderContent() {
           {step === 4 && (
             <div className="form-group step-content">
               <div className="form-label">
-                Ako sa dozvedel(a) o fakulte FEI?
+                Ako si sa dozvedel(a) o fakulte FEI?
                 {howDidYouHear.length === 0 && (
                   <span className="error-hint"> (povinné)</span>
                 )}
@@ -1369,7 +1389,7 @@ function FinderContent() {
               {howDidYouHear.includes('Iné') && (
                 <div className="form-group" style={{ marginTop: '20px' }}>
                   <label htmlFor="howDidYouHearOther" className="form-label">
-                    Napíš, ako sa o fakulte dozvedel(a):
+                    Napíš, ako si sa o fakulte dozvedel(a):
                   </label>
                   <input
                     type="text"

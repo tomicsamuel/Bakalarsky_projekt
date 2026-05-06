@@ -891,6 +891,26 @@ body {
   outline-offset: 2px;
 }
 
+.consent-modal-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* Text pri checkboxe – cele písmená ako súčasť štítku (šírka aj výška pre ťuk) */
+.consent-modal-checkbox-text {
+  flex: 1 1 auto;
+  align-self: center;
+  line-height: 1.35;
+}
+
 @media (max-width: 639px) {
   .consent-modal {
     border-radius: 14px;
@@ -915,7 +935,20 @@ body {
   }
 
   .consent-modal-checkbox {
-    margin-bottom: 10px;
+    align-items: center;
+    gap: 12px;
+    /* ~min. 44px ťuk – padding zväčší hit-box, záporné okraje stiahnu miesto nazad */
+    padding-block: 12px;
+    margin-block: -12px;
+    margin-bottom: 8px;
+  }
+
+  .consent-modal-checkbox-text {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 2px 0;
+    margin-inline: -2px 0;
   }
 }
 
@@ -946,16 +979,6 @@ body {
   color: var(--primary);
   text-decoration: underline;
   font-weight: 600;
-}
-
-.consent-modal-checkbox {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-  margin-bottom: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
 }
 
 .consent-modal-footer .consent-modal-btn {
@@ -1415,11 +1438,24 @@ body {
   font-family: inherit;
 }
 
-.category-header:hover {
+/* Oranžový hover len na zariadeniach s myšou – na mobile inak „zasekne“ :hover po ťuke */
+@media (hover: hover) and (pointer: fine) {
+  .category-header:hover:not(.category-header--expanded) {
+    background: var(--chip-active);
+    border-color: var(--chip-active);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.category-header--expanded,
+.category-header--expanded:hover,
+.category-header--expanded:active,
+.category-header--expanded:focus-visible {
   background: var(--chip-active);
   border-color: var(--chip-active);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(249, 166, 32, 0.28);
+  transform: none;
 }
 
 .category-count {
@@ -4496,6 +4532,123 @@ body.large-text .landing-title {
   }
 }
 
+/* Finder dotazník — väčší, čitateľnejší text na chipoch (výbery) a na tlačidlách krokov */
+.finder-page .chip {
+  font-size: 16px;
+  line-height: 1.42;
+  min-height: 44px;
+  padding: 11px 16px;
+  /* Rovnaká váha ako „vybraté“ → pri kliknutí sa text vizuálne neposúva */
+  font-weight: 600;
+  animation: none;
+  /* Okamžitá zmena – bez interpolácie farby/tieňa pri kliknutí */
+  transition: none;
+}
+
+.finder-page .chip::before {
+  display: none;
+}
+
+/* Prepínač proti globálnemu .chip:hover / :active translateY – na finderi bez pohybu */
+.finder-page .chip:hover,
+.finder-page .chip:active,
+.finder-page .chip:hover:not(.active),
+.finder-page .chip.active,
+.finder-page .chip[aria-pressed='true'],
+.finder-page .chip.active:hover,
+.finder-page .chip[aria-pressed='true']:hover {
+  transform: none !important;
+}
+
+.finder-page .chip.active,
+.finder-page .chip[aria-pressed='true'] {
+  animation: none;
+  box-shadow: 0 2px 10px rgba(255, 184, 46, 0.35);
+}
+
+.finder-page .category-header {
+  font-size: 17px;
+  padding: 13px 16px;
+  transform: none;
+  transition:
+    background-color 0.12s ease-out,
+    border-color 0.12s ease-out,
+    box-shadow 0.12s ease-out;
+}
+
+.finder-page .category-header:hover,
+.finder-page .category-header:active,
+.finder-page .category-header:focus,
+.finder-page .category-header:focus-visible {
+  transform: none !important;
+}
+
+.finder-page .category-header.category-header--expanded,
+.finder-page .category-header.category-header--expanded:hover,
+.finder-page .category-header.category-header--expanded:active,
+.finder-page .category-header.category-header--expanded:focus-visible {
+  background: var(--chip-active);
+  border-color: var(--chip-active);
+  box-shadow: 0 4px 12px rgba(249, 166, 32, 0.28);
+  transform: none !important;
+}
+
+.finder-page .step-buttons .step-button {
+  font-size: 17px;
+  font-weight: 600;
+  min-height: 50px;
+  padding: 15px 24px;
+}
+
+.finder-page .step-buttons button.step-button * {
+  font-size: inherit !important;
+}
+
+.consent-modal-footer button.step-button.consent-modal-btn * {
+  font-size: inherit !important;
+}
+
+.finder-page .finder-form-fullscreen .chips-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 11px;
+  width: 100%;
+}
+
+.finder-page .finder-form-fullscreen .chips-container:has(> *:nth-child(3):last-child) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+@media (min-width: 600px) {
+  .finder-page
+    .finder-form-fullscreen
+    .chips-container:not(:has(> *:nth-child(3):last-child)) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+/* Každá voľba rovnako široká v bunke gridu — žiadny „vzťahovaný“ stredný chip */
+.finder-page .finder-form-fullscreen .chips-container .chip {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+/* Pokračovať v GDPR modal (createPortal pod body – len finder) */
+.consent-modal-footer .step-button.consent-modal-btn {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  min-height: 52px !important;
+  padding-top: max(14px, 0.875rem);
+  padding-bottom: max(14px, 0.875rem);
+}
+
 @media (max-width: 639px) {
   html,
   body {
@@ -4548,7 +4701,39 @@ body.large-text .landing-title {
   }
 
   .finder-page .form-label {
-    font-size: 0.95rem !important;
+    font-size: 1.05rem !important;
+    line-height: 1.45 !important;
     margin-bottom: 8px !important;
+  }
+
+  .finder-page .chip {
+    font-size: 15px !important;
+    line-height: 1.42 !important;
+    min-height: 44px !important;
+    padding: 11px 14px !important;
+  }
+
+  .finder-page .category-header {
+    font-size: 16px !important;
+    padding: 12px 14px !important;
+  }
+
+  .finder-page .step-buttons .step-button {
+    font-size: 16px !important;
+    min-height: 50px !important;
+    padding: 14px 20px !important;
+  }
+
+  .consent-modal-footer .step-button.consent-modal-btn {
+    font-size: 16px !important;
+    min-height: 52px !important;
+  }
+
+  .finder-page .finder-form-fullscreen .chips-container:not(:has(> *:nth-child(3):last-child)) {
+    gap: 10px !important;
+  }
+
+  .finder-page .finder-form-fullscreen .chips-container:has(> *:nth-child(3):last-child) {
+    gap: 7px !important;
   }
 }
