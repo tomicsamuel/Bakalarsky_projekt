@@ -42,8 +42,11 @@ function HomeInner() {
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const [desktopAuthOpen, setDesktopAuthOpen] = useState(false);
+
   const mobileFlowOpen = isCompactMobile && !loggedInUser && !!parsedFlow;
-  const mode: 'select' | 'auth' = parsedFlow === 'auth' ? 'auth' : 'select';
+  const mode: 'select' | 'auth' =
+    parsedFlow === 'auth' || (!isCompactMobile && desktopAuthOpen) ? 'auth' : 'select';
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -88,8 +91,17 @@ function HomeInner() {
   };
 
   const goSplash = () => router.push('/');
-  const goVyber = () => router.push('/?flow=vyber');
-  const goAuth = () => router.push('/?flow=auth');
+  const goVyber = () => {
+    setDesktopAuthOpen(false);
+    router.push('/?flow=vyber');
+  };
+  const goAuth = () => {
+    if (isCompactMobile) {
+      router.push('/?flow=auth');
+    } else {
+      setDesktopAuthOpen(true);
+    }
+  };
 
   return (
     <div className={`landing-page ${isCompactMobile ? 'landing-page--compact' : ''}`}>
@@ -282,7 +294,10 @@ function HomeInner() {
                         type="button"
                         variant="light"
                         className="auth-back-link"
-                        onPress={() => goVyber()}
+                        onPress={() => {
+                          setDesktopAuthOpen(false);
+                          if (isCompactMobile) goVyber();
+                        }}
                         aria-label="Späť na výber"
                       >
                         Späť na výber
