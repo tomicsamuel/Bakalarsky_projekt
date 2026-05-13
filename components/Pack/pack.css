@@ -439,12 +439,49 @@
   width: 100%;
 }
 
+.card-reveal__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0 0 24px;
+  flex-wrap: wrap;
+}
+
 .card-reveal__title {
   font-size: 22px;
   font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 24px;
+  margin: 0;
   text-align: center;
+}
+
+.card-reveal__title-shuffle {
+  display: none;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  background: var(--cta-bg);
+  color: var(--cta-text);
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.22);
+  transition: transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.card-reveal__title-shuffle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.33);
+}
+
+/* Desktop: ukáž tlačidlo vedľa nadpisu */
+@media (min-width: 640px) {
+  .card-reveal__title-shuffle {
+    display: inline-block;
+  }
 }
 
 /* ── Pager – mobile/tablet side-peek carousel ───────────────────── */
@@ -636,6 +673,13 @@
 @keyframes card-reveal-legendary-glow {
   0%, 100% { opacity: 0.8; }
   50% { opacity: 1; }
+}
+
+/* Desktop: mobilný shuffle bar skryť – tlačidlo je vedľa nadpisu */
+@media (min-width: 640px) {
+  .swipe-reveal-actions--mobile-only {
+    display: none;
+  }
 }
 
 /* Po zobrazení Top 6: Shuffle → swipe výber */

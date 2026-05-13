@@ -382,8 +382,10 @@ export default function ResultsDashboard({
             onRevealComplete={() => {}}
             onExplain={(r, rank) => setExplainResult({ result: r, rank })}
             showDoneButton={false}
+            onShuffle={() => { onGuestInteractive?.(); setPackPhase('swipe'); }}
+            shuffleLabel="Shuffle – vybrať záujmy znova"
           />
-          <div className="swipe-reveal-actions">
+          <div className="swipe-reveal-actions swipe-reveal-actions--mobile-only">
             <button
               type="button"
               className="swipe-reveal-actions__shuffle"
@@ -567,8 +569,10 @@ export default function ResultsDashboard({
             onRevealComplete={() => setPackPhase('done')}
             onExplain={(r, rank) => setExplainResult({ result: r, rank })}
             showDoneButton={false}
+            onShuffle={() => setPackPhase('swipe')}
+            shuffleLabel="Shuffle – vybrať záujmy"
           />
-          <div className="swipe-reveal-actions">
+          <div className="swipe-reveal-actions swipe-reveal-actions--mobile-only">
             <button
               type="button"
               className="swipe-reveal-actions__shuffle"

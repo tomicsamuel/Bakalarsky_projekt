@@ -31,6 +31,9 @@ type Props = {
   onRevealComplete: () => void;
   /** Skryť tlačidlo "Prejsť na výsledky" – napr. keď sme už na stránke výsledkov */
   showDoneButton?: boolean;
+  /** Desktop inline Shuffle vedľa nadpisu "Tvoje odbory" */
+  onShuffle?: () => void;
+  shuffleLabel?: string;
 };
 
 export default function CardRevealGrid({
@@ -43,6 +46,8 @@ export default function CardRevealGrid({
   onCompare,
   onRevealComplete,
   showDoneButton = true,
+  onShuffle,
+  shuffleLabel = 'Shuffle – vybrať záujmy',
 }: Props) {
   const prefersLightUi = usePreferLightweightUI();
   const shuffleDurationMs = prefersLightUi ? SHUFFLE_DURATION_MS_MOBILE : SHUFFLE_DURATION_MS_DESKTOP;
@@ -130,7 +135,18 @@ export default function CardRevealGrid({
             transition={{ duration: 0.3 }}
             className="card-reveal__content"
           >
-      <h2 className="card-reveal__title">Tvoje odbory</h2>
+      <div className="card-reveal__title-row">
+        <h2 className="card-reveal__title">Tvoje odbory</h2>
+        {onShuffle && (
+          <button
+            type="button"
+            className="card-reveal__title-shuffle"
+            onClick={onShuffle}
+          >
+            {shuffleLabel}
+          </button>
+        )}
+      </div>
 
       {/* Mobil/tablet: pager s bočnými kartičkami (CSS transform stacking) */}
       <div className="card-reveal__pager" aria-label="Prehľad odborov">
