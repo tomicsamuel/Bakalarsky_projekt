@@ -675,12 +675,6 @@
   50% { opacity: 1; }
 }
 
-/* Desktop: mobilný shuffle bar skryť – tlačidlo je vedľa nadpisu */
-@media (min-width: 640px) {
-  .swipe-reveal-actions--mobile-only {
-    display: none;
-  }
-}
 
 /* Po zobrazení Top 6: Shuffle → swipe výber */
 .swipe-reveal-actions {
@@ -710,6 +704,13 @@
 .swipe-reveal-actions__shuffle:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35);
+}
+
+/* Desktop: mobilný shuffle bar skryť – tlačidlo je vedľa nadpisu */
+@media (min-width: 640px) {
+  .swipe-reveal-actions.swipe-reveal-actions--mobile-only {
+    display: none;
+  }
 }
 
 @media (max-width: 639px) {
